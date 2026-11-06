@@ -67,7 +67,7 @@ const HeroSearch = () => {
   };
 
   return (
-    <div className="relative bg-[#172C3B] text-white overflow-hidden border-b border-[#E9E4DA]">
+    <section className="relative bg-[#172C3B] text-white overflow-hidden border-b border-[#E9E4DA]">
       {/* Background Architectural Luxury Image with Editorial Tint */}
       <div className="absolute inset-0 z-0">
         <img
