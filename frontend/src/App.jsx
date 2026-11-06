@@ -30,6 +30,7 @@ import AgentsManagementPage from './admin/pages/AgentsManagement';
 import SettingsManagementPage from './admin/pages/SettingsManagement';
 import AuditLogsPage from './admin/pages/AuditLogs';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ScrollToTop from './components/common/ScrollToTop';
 
 import { useAuthStore } from './store/useAuthStore';
 
@@ -56,7 +57,9 @@ function App() {
   }, [isAuthenticated, fetchCurrentUser]);
 
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       {/* Public Marketplace Layout */}
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<HomePage />} />
@@ -124,6 +127,7 @@ function App() {
         />
       </Route>
     </Routes>
+    </>
   );
 }
 
