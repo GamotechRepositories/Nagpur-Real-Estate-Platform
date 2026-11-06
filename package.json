@@ -1,0 +1,32 @@
+{
+  "name": "nagpur-real-estate-platform",
+  "version": "1.0.0",
+  "description": "Production-Ready Nagpur Real Estate Marketplace Website + Backend + Admin Dashboard",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "seed": "npm run seed --workspace=backend",
+    "test": "npm run test --workspace=backend"
+  },
+  "keywords": [
+    "real-estate",
+    "nagpur",
+    "mern",
+    "express",
+    "react",
+    "mongodb",
+    "tailwind"
+  ],
+  "author": "Nagpur Real Estate Team",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
