@@ -65,8 +65,8 @@ const Header = () => {
   return (
     <>
       {/* Primary Luxury Header */}
-      <header className="sticky top-0 z-40 bg-[#172C3B] text-white border-b border-[#223D52] shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-[#172C3B] text-white border-b border-[#223D52] shadow-md w-full max-w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] flex items-center justify-between w-full">
           {/* Brand Logo matching reference */}
           <div className="flex-shrink-0">
             <BrandLogo light={true} showSubtitle={true} iconSize="w-9 h-7" />
@@ -326,7 +326,7 @@ const Header = () => {
       </header>
 
       {/* Mobile Bottom Navigation Bar (as seen on screens 2, 4, 6) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#172C3B] text-white/70 border-t border-[#223D52] shadow-2xl py-1.5 px-3 flex justify-around items-center">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#172C3B] text-white/70 border-t border-[#223D52] shadow-2xl py-1.5 px-2 flex justify-around items-center w-full max-w-full">
         <Link
           to="/properties?verified=true"
           className="flex flex-col items-center text-[10px] hover:text-[#B89A65] py-1"

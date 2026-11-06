@@ -88,7 +88,7 @@ const HeroSearch = () => {
   };
 
   return (
-    <section className="relative bg-[#172C3B] text-white pt-8 sm:pt-14 pb-12 sm:pb-16 overflow-hidden">
+    <section className="relative bg-[#172C3B] text-white pt-8 sm:pt-14 pb-12 sm:pb-16 overflow-hidden w-full max-w-full">
       {/* Background Architectural Accent & Soft Lighting */}
       <div className="absolute inset-0 opacity-15 pointer-events-none mix-blend-overlay">
         <img
@@ -99,11 +99,11 @@ const HeroSearch = () => {
       </div>
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#B89A65]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         {/* Split Hero Layout as in Reference Image Screen 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           {/* Left Column: Heading + Subtitle + Search Card */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-6 w-full min-w-0">
             <div className="space-y-3">
               <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.15]">
                 Find Your Place in Nagpur.
@@ -114,15 +114,15 @@ const HeroSearch = () => {
             </div>
 
             {/* Prominent Floating Search Card */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 text-[#252525] shadow-2xl border border-[#E9E4DA]">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 text-[#252525] shadow-2xl border border-[#E9E4DA] w-full min-w-0">
               {/* Category Tabs: Buy | Rent | Plots | Commercial */}
-              <div className="flex items-center space-x-2 pb-4 mb-4 border-b border-gray-100 overflow-x-auto">
+              <div className="flex items-center space-x-1.5 sm:space-x-2 pb-3 sm:pb-4 mb-4 border-b border-gray-100 overflow-x-auto">
                 {['Buy', 'Rent', 'Plots', 'Commercial'].map((tab) => (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
+                    className={`px-3.5 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shrink-0 ${
                       activeTab === tab
                         ? 'bg-[#F7F4ED] text-[#172C3B] border border-[#B89A65]/40 shadow-sm'
                         : 'text-gray-500 hover:text-[#172C3B] hover:bg-gray-50'
@@ -287,49 +287,49 @@ const HeroSearch = () => {
         </div>
 
         {/* 4 Feature Items Bar below Hero (Screen 1 & 2) */}
-        <div className="mt-12 bg-white rounded-2xl p-6 shadow-xl border border-[#E9E4DA] text-[#252525]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+        <div className="mt-8 sm:mt-12 bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-[#E9E4DA] text-[#252525] w-full overflow-hidden">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {/* Feature 1 */}
-            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-4 first:pl-0">
-              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
-                <ShieldCheck className="w-6 h-6 text-[#B89A65]" />
+            <div className="flex items-center space-x-2 sm:space-x-3.5 min-w-0">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 text-[#B89A65]" />
               </div>
-              <div>
-                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Verified Properties</h4>
-                <p className="text-[11px] text-gray-500">100% Verified Listings</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-[11px] sm:text-sm text-[#172C3B] truncate">Verified Properties</h4>
+                <p className="text-[9px] sm:text-[11px] text-gray-500 truncate">100% Verified</p>
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-6">
-              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
-                <UserCheck className="w-6 h-6 text-[#B89A65]" />
+            <div className="flex items-center space-x-2 sm:space-x-3.5 min-w-0">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center shrink-0">
+                <UserCheck className="w-4 h-4 sm:w-6 sm:h-6 text-[#B89A65]" />
               </div>
-              <div>
-                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Trusted Agents</h4>
-                <p className="text-[11px] text-gray-500">RERA Registered</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-[11px] sm:text-sm text-[#172C3B] truncate">Trusted Agents</h4>
+                <p className="text-[9px] sm:text-[11px] text-gray-500 truncate">RERA Registered</p>
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-6">
-              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
-                <CalendarCheck className="w-6 h-6 text-[#B89A65]" />
+            <div className="flex items-center space-x-2 sm:space-x-3.5 min-w-0">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center shrink-0">
+                <CalendarCheck className="w-4 h-4 sm:w-6 sm:h-6 text-[#B89A65]" />
               </div>
-              <div>
-                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Easy Site Visit</h4>
-                <p className="text-[11px] text-gray-500">Book At Your Convenience</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-[11px] sm:text-sm text-[#172C3B] truncate">Easy Site Visit</h4>
+                <p className="text-[9px] sm:text-[11px] text-gray-500 truncate">Book At Convenience</p>
               </div>
             </div>
 
             {/* Feature 4 */}
-            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-6">
-              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
-                <Landmark className="w-6 h-6 text-[#B89A65]" />
+            <div className="flex items-center space-x-2 sm:space-x-3.5 min-w-0">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center shrink-0">
+                <Landmark className="w-4 h-4 sm:w-6 sm:h-6 text-[#B89A65]" />
               </div>
-              <div>
-                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Home Loan Support</h4>
-                <p className="text-[11px] text-gray-500">Get Best Loan Options</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-[11px] sm:text-sm text-[#172C3B] truncate">Home Loan Support</h4>
+                <p className="text-[9px] sm:text-[11px] text-gray-500 truncate">Best Loan Options</p>
               </div>
             </div>
           </div>
