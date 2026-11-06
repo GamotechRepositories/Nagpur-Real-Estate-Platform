@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Users, Star, ShieldCheck, Phone, MapPin } from 'lucide-react';
+import { Star, ShieldCheck, Phone, MessageSquare, ArrowRight } from 'lucide-react';
 import apiClient from '../../api/client';
 
 const AgentsDirectoryPage = () => {
@@ -16,86 +16,115 @@ const AgentsDirectoryPage = () => {
   return (
     <>
       <Helmet>
-        <title>Top Real Estate Agents in Nagpur — MahaRERA Verified Consultants</title>
+        <title>Accredited Real Estate Consultants & Advisory in Nagpur | Nagpur Estates</title>
         <meta
           name="description"
-          content="Connect with verified real estate agents in Nagpur. Specialized local consultants for Dharampeth, Manish Nagar, Wardha Road, Besa and prime areas."
+          content="Connect with licensed, MahaRERA certified property consultants and acquisition advisors in Nagpur."
         />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-orange">
-              Local Property Experts
+      <div className="bg-ivory-light min-h-screen py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          {/* Header */}
+          <div className="border-b border-beige pb-6">
+            <span className="text-[10px] uppercase tracking-luxury text-gold font-semibold block mb-1">
+              Advisory Council
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-brand-navy mt-1">
-              Nagpur Real Estate Consultants & Agents
+            <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
+              Accredited Nagpur Real Estate Consultants
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              KYC & MahaRERA verified real estate professionals ready to assist your property journey
+            <p className="text-xs sm:text-sm text-charcoal-muted mt-2 font-sans max-w-2xl leading-relaxed">
+              MahaRERA certified practitioners providing discrete representation, institutional valuation advisory, and transaction stewardship across Vidarbha.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
               [1, 2, 3].map((n) => (
-                <div key={n} className="bg-white rounded-3xl h-64 animate-pulse border border-slate-200"></div>
+                <div key={n} className="bg-white border border-beige h-72 animate-pulse"></div>
               ))
             ) : agents && agents.length > 0 ? (
               agents.map((agent) => (
                 <div
                   key={agent._id}
-                  className="bg-white rounded-3xl p-6 border border-slate-200 shadow-card hover:shadow-hover transition-all flex flex-col justify-between space-y-4"
+                  className="bg-white p-7 border border-beige hover:border-gold transition-colors duration-300 shadow-subtle flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-start space-x-4 mb-4">
+                    <div className="flex items-start space-x-4 mb-5">
                       <img
-                        src={agent.user?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'}
+                        src={agent.user?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'}
                         alt={agent.user?.name}
-                        className="w-16 h-16 rounded-2xl object-cover border-2 border-brand-teal flex-shrink-0"
+                        className="w-16 h-16 object-cover border border-gold/30 shrink-0"
                       />
                       <div>
-                        <h3 className="text-base font-bold text-slate-900">{agent.user?.name}</h3>
-                        <p className="text-xs text-brand-teal font-semibold">{agent.agencyName || 'Independent Consultant'}</p>
-                        <div className="flex items-center space-x-1 text-xs text-amber-500 font-bold mt-1">
-                          <Star className="w-3.5 h-3.5 fill-amber-500" />
-                          <span>{agent.rating || 4.9}</span>
-                          <span className="text-slate-400 font-normal">({agent.reviewsCount || 20} reviews)</span>
+                        <div className="flex items-center space-x-1.5">
+                          <h3 className="font-serif text-lg font-normal text-navy">{agent.user?.name}</h3>
+                          <ShieldCheck className="w-3.5 h-3.5 text-gold shrink-0" />
+                        </div>
+                        <p className="text-xs text-charcoal-muted font-sans mt-0.5">
+                          {agent.agencyName || 'Independent Real Estate Advisor'}
+                        </p>
+                        <div className="flex items-center space-x-1.5 text-xs text-gold font-medium mt-1 font-sans">
+                          <Star className="w-3.5 h-3.5 fill-gold text-gold" />
+                          <span className="text-navy font-semibold">{agent.rating || 4.9}</span>
+                          <span className="text-charcoal-muted font-normal">({agent.reviewsCount || 24} reviews)</span>
                         </div>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 line-clamp-2 mb-3">
-                      {agent.bio || 'Professional real estate advisory for residential and commercial transactions.'}
+                    <p className="text-xs text-charcoal-light line-clamp-2 mb-5 font-sans leading-relaxed">
+                      {agent.bio || 'Advisory practice specializing in prime residential corridors, luxury high-rises, and NMRDA sanctioned estates.'}
                     </p>
 
-                    <div className="flex flex-wrap gap-1">
-                      {agent.areasServed?.map((area, i) => (
-                        <span key={i} className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
-                          {area}
-                        </span>
-                      ))}
+                    <div className="mb-4">
+                      <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-2 font-sans font-medium">
+                        Market Corridors
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {agent.areasServed && agent.areasServed.length > 0 ? (
+                          agent.areasServed.map((area, i) => (
+                            <span
+                              key={i}
+                              className="bg-ivory border border-beige text-charcoal text-[10px] uppercase tracking-wider px-2 py-0.5"
+                            >
+                              {area}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-charcoal-muted">Civil Lines, Dharampeth</span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs text-slate-400">
-                      RERA: <strong className="text-slate-700">{agent.reraNumber || 'A50500001234'}</strong>
+                  <div className="pt-4 border-t border-beige flex items-center justify-between text-xs font-sans">
+                    <span className="text-[11px] text-charcoal-muted">
+                      RERA: <strong className="text-navy font-mono">{agent.reraNumber || 'A50500001234'}</strong>
                     </span>
-                    <a
-                      href={`tel:+91${agent.contactPhone || agent.user?.phone}`}
-                      className="inline-flex items-center space-x-1.5 py-2 px-3.5 rounded-xl bg-brand-teal text-white text-xs font-bold hover:bg-brand-teal-light transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>Contact</span>
-                    </a>
+                    <div className="flex items-center space-x-2">
+                      <a
+                        href={`https://wa.me/${(agent.contactPhone || agent.user?.phone || '919823000000').replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(agent.user?.name || '')},%20inquiring%20via%20Nagpur%20Estates`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2 border border-beige bg-ivory hover:border-gold text-navy transition-colors"
+                        title="WhatsApp Advisory"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                      </a>
+                      <a
+                        href={`tel:+91${agent.contactPhone || agent.user?.phone || '9823000000'}`}
+                        className="inline-flex items-center space-x-1.5 py-2 px-3 bg-navy hover:bg-navy-light text-white text-[10px] uppercase tracking-luxury font-medium transition-colors"
+                      >
+                        <Phone className="w-3 h-3 text-gold" />
+                        <span>Call</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="col-span-3 text-center py-12 text-xs text-slate-400">
-                No agents found.
+              <div className="col-span-3 text-center py-14 text-xs uppercase tracking-luxury text-charcoal-muted bg-white border border-beige">
+                Advisory roster updating.
               </div>
             )}
           </div>
@@ -106,4 +135,3 @@ const AgentsDirectoryPage = () => {
 };
 
 export default AgentsDirectoryPage;
-

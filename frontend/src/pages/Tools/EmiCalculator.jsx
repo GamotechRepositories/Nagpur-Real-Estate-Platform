@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Calculator, ArrowRight, IndianRupee, PieChart, ShieldCheck, CheckCircle } from 'lucide-react';
-import apiClient from '../../api/client';
+import { Calculator, ArrowRight, IndianRupee, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const EmiCalculatorPage = () => {
-  const [propertyPrice, setPropertyPrice] = useState(6000000); // 60 Lakhs
-  const [downPayment, setDownPayment] = useState(1200000); // 12 Lakhs (20%)
+  const [propertyPrice, setPropertyPrice] = useState(7500000); // 75 Lakhs
+  const [downPayment, setDownPayment] = useState(1500000); // 15 Lakhs (20%)
   const [interestRate, setInterestRate] = useState(8.5); // 8.5%
   const [tenureYears, setTenureYears] = useState(20); // 20 years
 
@@ -56,73 +56,78 @@ const EmiCalculatorPage = () => {
   return (
     <>
       <Helmet>
-        <title>Nagpur Home Loan EMI Calculator — Monthly Mortgage Calculator</title>
+        <title>Nagpur Home Loan & Mortgage EMI Calculator | Nagpur Estates</title>
         <meta
           name="description"
-          content="Calculate your home loan monthly EMI, total interest, and full amortization schedule for buying residential property in Nagpur, Maharashtra."
+          content="Calculate monthly loan amortization, interest accrual, and principal schedules for luxury properties and plots in Nagpur."
         />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="text-center max-w-2xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-orange">
-              Mortgage Tools
+      <div className="bg-ivory-light min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto border-b border-beige pb-8">
+            <span className="text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-3 py-1 bg-white mb-3 inline-block">
+              Capital Structuring
             </span>
-            <h1 className="text-3xl sm:text-4xl font-black text-brand-navy mt-1">
-              Home Loan EMI Calculator
+            <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
+              Mortgage Capital & Amortization Calculator
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-2">
-              Plan your home purchase in Nagpur with accurate bank interest rates and monthly breakdown
+            <p className="text-xs sm:text-sm text-charcoal-muted mt-2 font-sans leading-relaxed">
+              Model your borrowing structure, evaluate principal reduction velocity, and calculate your monthly capital allocation.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Input Sliders (Span 7) */}
-            <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-card space-y-6">
+            {/* Left Inputs */}
+            <div className="lg:col-span-6 bg-white p-8 border border-beige shadow-subtle space-y-6">
+              <h2 className="font-serif text-xl text-navy font-normal mb-4">Capital Parameters</h2>
+
               {/* Property Price */}
               <div>
-                <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
-                  <span>Property Price</span>
-                  <span className="text-base font-black text-brand-navy">
+                <div className="flex justify-between items-center text-xs text-charcoal-muted uppercase tracking-luxury mb-2">
+                  <span>Property Valuation</span>
+                  <span className="font-semibold text-navy font-sans text-sm">
                     ₹ {(propertyPrice / 100000).toFixed(1)} Lakhs
                   </span>
                 </div>
                 <input
                   type="range"
                   min={1000000}
-                  max={30000000}
+                  max={50000000}
                   step={100000}
                   value={propertyPrice}
                   onChange={(e) => setPropertyPrice(Number(e.target.value))}
-                  className="w-full accent-brand-orange cursor-pointer"
+                  className="w-full accent-gold cursor-pointer"
                 />
               </div>
 
               {/* Down Payment */}
               <div>
-                <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
-                  <span>Down Payment ({Math.round((downPayment / propertyPrice) * 100)}%)</span>
-                  <span className="text-base font-black text-brand-navy">
-                    ₹ {(downPayment / 100000).toFixed(1)} Lakhs
+                <div className="flex justify-between items-center text-xs text-charcoal-muted uppercase tracking-luxury mb-2">
+                  <span>Down Payment (Equity)</span>
+                  <span className="font-semibold text-navy font-sans text-sm">
+                    ₹ {(downPayment / 100000).toFixed(1)} Lakhs ({Math.round((downPayment / propertyPrice) * 100)}%)
                   </span>
                 </div>
                 <input
                   type="range"
-                  min={0}
+                  min={500000}
                   max={propertyPrice * 0.8}
                   step={50000}
                   value={downPayment}
                   onChange={(e) => setDownPayment(Number(e.target.value))}
-                  className="w-full accent-brand-teal cursor-pointer"
+                  className="w-full accent-gold cursor-pointer"
                 />
               </div>
 
               {/* Interest Rate */}
               <div>
-                <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
-                  <span>Annual Interest Rate</span>
-                  <span className="text-base font-black text-brand-navy">{interestRate}%</span>
+                <div className="flex justify-between items-center text-xs text-charcoal-muted uppercase tracking-luxury mb-2">
+                  <span>Interest Rate</span>
+                  <span className="font-semibold text-navy font-sans text-sm">
+                    {interestRate}% p.a.
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -131,15 +136,17 @@ const EmiCalculatorPage = () => {
                   step={0.1}
                   value={interestRate}
                   onChange={(e) => setInterestRate(Number(e.target.value))}
-                  className="w-full accent-brand-orange cursor-pointer"
+                  className="w-full accent-gold cursor-pointer"
                 />
               </div>
 
-              {/* Tenure */}
+              {/* Loan Tenure */}
               <div>
-                <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
-                  <span>Loan Tenure</span>
-                  <span className="text-base font-black text-brand-navy">{tenureYears} Years</span>
+                <div className="flex justify-between items-center text-xs text-charcoal-muted uppercase tracking-luxury mb-2">
+                  <span>Loan Duration</span>
+                  <span className="font-semibold text-navy font-sans text-sm">
+                    {tenureYears} Years
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -148,81 +155,77 @@ const EmiCalculatorPage = () => {
                   step={1}
                   value={tenureYears}
                   onChange={(e) => setTenureYears(Number(e.target.value))}
-                  className="w-full accent-brand-navy cursor-pointer"
+                  className="w-full accent-gold cursor-pointer"
                 />
               </div>
             </div>
 
-            {/* Results Output (Span 5) */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-brand-navy to-brand-teal text-white rounded-3xl p-6 sm:p-8 shadow-card space-y-6">
-              <div>
-                <span className="text-xs uppercase font-bold text-orange-300">
-                  Monthly Repayment
-                </span>
-                <div className="text-4xl font-black text-white mt-1">
-                  ₹ {emi.toLocaleString('en-IN')}
+            {/* Right Summary */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="bg-navy text-ivory p-8 border border-navy-light shadow-subtle space-y-6">
+                <div>
+                  <span className="text-[10px] uppercase tracking-luxury text-gold block mb-1">
+                    Monthly Debt Service
+                  </span>
+                  <div className="font-serif text-4xl text-white font-normal">
+                    ₹ {emi.toLocaleString('en-IN')}
+                    <span className="text-xs font-sans text-ivory/60 ml-2">/ month</span>
+                  </div>
                 </div>
-                <span className="text-xs text-slate-300">Monthly EMI for {tenureYears} years</span>
-              </div>
 
-              <div className="pt-4 border-t border-white/10 space-y-3 text-xs">
-                <div className="flex justify-between text-slate-300">
-                  <span>Loan Amount:</span>
-                  <strong className="text-white">₹ {loanAmount.toLocaleString('en-IN')}</strong>
+                <div className="pt-6 border-t border-white/10 space-y-3.5 text-xs font-sans">
+                  <div className="flex justify-between text-ivory/70">
+                    <span>Principal Financed</span>
+                    <strong className="text-white">₹ {loanAmount.toLocaleString('en-IN')}</strong>
+                  </div>
+                  <div className="flex justify-between text-ivory/70">
+                    <span>Total Interest Liability</span>
+                    <strong className="text-white">₹ {totalInterest.toLocaleString('en-IN')}</strong>
+                  </div>
+                  <div className="flex justify-between text-ivory/70 pt-2 border-t border-white/10">
+                    <span>Total Aggregate Outflow</span>
+                    <strong className="text-gold font-semibold text-sm">₹ {totalPayable.toLocaleString('en-IN')}</strong>
+                  </div>
                 </div>
-                <div className="flex justify-between text-slate-300">
-                  <span>Total Interest:</span>
-                  <strong className="text-white">₹ {totalInterest.toLocaleString('en-IN')}</strong>
-                </div>
-                <div className="flex justify-between text-white font-bold text-sm pt-2 border-t border-white/10">
-                  <span>Total Payable:</span>
-                  <span>₹ {totalPayable.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
 
-              <div className="pt-4">
-                <a
-                  href="/tools/loan-enquiry"
-                  className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white text-xs font-bold py-3 rounded-xl transition-all flex items-center justify-center space-x-2"
+                <Link
+                  to={`/tools/loan-enquiry?amount=${loanAmount}&tenure=${tenureYears}`}
+                  className="block w-full text-center bg-gold hover:bg-gold-light text-navy text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors"
                 >
-                  <span>Apply for Loan Pre-Approval</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
+                  Initiate Pre-Approval Advisory
+                </Link>
               </div>
             </div>
           </div>
 
-          {/* Yearly Amortization Schedule Table */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-card">
-            <h2 className="text-lg font-black text-brand-navy mb-4">
-              Yearly Loan Amortization Schedule
-            </h2>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-100">
-                  <tr>
-                    <th className="py-3 px-4">Year</th>
-                    <th className="py-3 px-4">Principal Paid (A)</th>
-                    <th className="py-3 px-4">Interest Paid (B)</th>
-                    <th className="py-3 px-4">Total Payment (A+B)</th>
-                    <th className="py-3 px-4">Remaining Balance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {yearlyBreakdown.map((row) => (
-                    <tr key={row.year} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-4 font-bold text-slate-900">Year {row.year}</td>
-                      <td className="py-2.5 px-4 text-slate-700">₹ {row.principalPaid.toLocaleString('en-IN')}</td>
-                      <td className="py-2.5 px-4 text-brand-orange font-semibold">₹ {row.interestPaid.toLocaleString('en-IN')}</td>
-                      <td className="py-2.5 px-4 text-slate-900 font-bold">₹ {(row.principalPaid + row.interestPaid).toLocaleString('en-IN')}</td>
-                      <td className="py-2.5 px-4 text-slate-500">₹ {row.balanceRemaining.toLocaleString('en-IN')}</td>
+          {/* Amortization Schedule Table */}
+          {yearlyBreakdown.length > 0 && (
+            <div className="bg-white p-8 border border-beige shadow-subtle">
+              <h3 className="font-serif text-2xl text-navy font-normal mb-6">Annual Amortization Ledger</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left font-sans">
+                  <thead>
+                    <tr className="border-b border-beige text-charcoal-muted uppercase tracking-luxury text-[10px]">
+                      <th className="py-3 px-4">Year</th>
+                      <th className="py-3 px-4">Principal Repaid</th>
+                      <th className="py-3 px-4">Interest Serviced</th>
+                      <th className="py-3 px-4">Balance Capital</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-beige text-charcoal">
+                    {yearlyBreakdown.map((row) => (
+                      <tr key={row.year} className="hover:bg-ivory-light">
+                        <td className="py-3 px-4 font-semibold text-navy">Year {row.year}</td>
+                        <td className="py-3 px-4">₹ {row.principalPaid.toLocaleString('en-IN')}</td>
+                        <td className="py-3 px-4">₹ {row.interestPaid.toLocaleString('en-IN')}</td>
+                        <td className="py-3 px-4 font-medium text-navy">₹ {row.balanceRemaining.toLocaleString('en-IN')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>
@@ -230,4 +233,3 @@ const EmiCalculatorPage = () => {
 };
 
 export default EmiCalculatorPage;
-

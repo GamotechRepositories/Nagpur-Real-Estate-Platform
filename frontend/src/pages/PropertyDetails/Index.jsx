@@ -4,22 +4,19 @@ import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import {
   MapPin,
-  Bed,
-  Bath,
-  Square,
   ShieldCheck,
   Heart,
   Phone,
   MessageSquare,
   Calendar,
-  Building,
-  Compass,
   CheckCircle,
   Share2,
   AlertCircle,
+  Compass,
+  ArrowRight,
 } from 'lucide-react';
 import apiClient from '../../api/client';
-import { formatIndianPrice, formatArea, calculateEstimateEmi, formatDate } from '../../utils/formatters';
+import { formatIndianPrice, formatArea, calculateEstimateEmi } from '../../utils/formatters';
 import { useAuthStore } from '../../store/useAuthStore';
 import EnquiryModal from '../../components/common/EnquiryModal';
 import SiteVisitModal from '../../components/common/SiteVisitModal';
@@ -57,29 +54,30 @@ const PropertyDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <div className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-sm font-bold text-slate-600">Loading Nagpur Property Details...</p>
+      <div className="min-h-screen bg-ivory-light flex items-center justify-center py-20">
+        <div className="w-10 h-10 border-2 border-gold border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error || !property) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-4">
-        <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto">
-          <AlertCircle className="w-8 h-8" />
+      <div className="min-h-screen bg-ivory-light py-24">
+        <div className="max-w-xl mx-auto px-4 text-center space-y-4 bg-white p-12 border border-beige shadow-subtle">
+          <div className="w-14 h-14 border border-red-300 text-red-600 flex items-center justify-center mx-auto bg-red-50">
+            <AlertCircle className="w-6 h-6 stroke-[1.5]" />
+          </div>
+          <h2 className="font-serif text-2xl text-navy">Asset Listing Not Found</h2>
+          <p className="text-xs text-charcoal-muted font-sans leading-relaxed">
+            The requested estate may have completed acquisition, leased out, or been archived by the principal.
+          </p>
+          <Link
+            to="/properties"
+            className="inline-block bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase px-6 py-3 transition-colors"
+          >
+            Explore Active Nagpur Portfolio
+          </Link>
         </div>
-        <h2 className="text-2xl font-black text-brand-navy">Property Listing Not Found</h2>
-        <p className="text-xs text-slate-500">
-          The requested listing may have been sold, rented, or archived by the owner.
-        </p>
-        <Link
-          to="/properties"
-          className="inline-block bg-brand-orange hover:bg-brand-orange-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl transition-all"
-        >
-          Browse Active Nagpur Properties
-        </Link>
       </div>
     );
   }
@@ -128,74 +126,74 @@ const PropertyDetailsPage = () => {
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: property.location?.coordinates[1],
-      longitude: property.location?.coordinates[0],
+      latitude: property.location?.coordinates?.[1] || 21.1458,
+      longitude: property.location?.coordinates?.[0] || 79.0882,
     },
   };
 
   return (
     <>
       <Helmet>
-        <title>{`${property.title} — Nagpur Real Estate`}</title>
+        <title>{`${property.title} | Nagpur Estates`}</title>
         <meta name="description" content={property.description.slice(0, 160)} />
         <link rel="canonical" href={`https://nagpurestate.com/properties/${property.slug}`} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-8">
+      <div className="bg-ivory-light min-h-screen py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          {/* Breadcrumb & Navigation */}
-          <nav className="text-xs text-slate-500 flex items-center space-x-1.5">
-            <Link to="/" className="hover:text-brand-orange">Home</Link>
+          {/* Breadcrumb Navigation */}
+          <nav className="text-xs uppercase tracking-luxury text-charcoal-muted flex items-center space-x-2">
+            <Link to="/" className="hover:text-navy transition-colors font-medium">Home</Link>
             <span>/</span>
-            <Link to={`/properties?purpose=${property.purpose}`} className="hover:text-brand-orange">
-              {property.purpose === 'BUY' ? 'Buy' : 'Rent'}
+            <Link to={`/properties?purpose=${property.purpose}`} className="hover:text-navy transition-colors">
+              {property.purpose === 'BUY' ? 'For Sale' : 'Executive Lease'}
             </Link>
             <span>/</span>
-            <Link to={`/properties?locality=${property.localityName}`} className="hover:text-brand-orange">
+            <Link to={`/properties?locality=${property.localityName}`} className="hover:text-navy transition-colors">
               {property.localityName}
             </Link>
             <span>/</span>
-            <span className="text-slate-800 font-semibold truncate max-w-xs">{property.title}</span>
+            <span className="text-navy font-semibold truncate max-w-xs">{property.title}</span>
           </nav>
 
-          {/* Header Strip with Title, Price, Save, Share */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card flex flex-col lg:flex-row justify-between lg:items-center gap-6">
-            <div className="space-y-2">
+          {/* Header Strip */}
+          <div className="bg-white p-8 md:p-10 border border-beige shadow-subtle flex flex-col lg:flex-row justify-between lg:items-center gap-8">
+            <div className="space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
                 {property.isVerified && (
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold">
+                  <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-ivory text-gold text-[10px] font-semibold uppercase tracking-luxury border border-gold/40">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>MahaRERA & Physically Verified</span>
                   </span>
                 )}
-                <span className="px-2.5 py-1 rounded-lg bg-brand-navy text-white text-xs font-semibold">
-                  {property.purpose === 'BUY' ? 'For Sale' : 'For Rent'}
+                <span className="px-3 py-1 bg-navy text-white text-[10px] font-semibold uppercase tracking-luxury">
+                  {property.purpose === 'BUY' ? 'For Sale' : 'For Lease'}
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">
-                  {property.subtype?.replace('_', ' ')}
+                <span className="px-3 py-1 bg-ivory-light border border-beige text-charcoal text-[10px] uppercase tracking-luxury font-medium">
+                  {property.subtype?.replace(/_/g, ' ')}
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black text-brand-navy">
+              <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
                 {property.title}
               </h1>
 
-              <div className="flex items-center text-xs text-slate-500">
-                <MapPin className="w-4 h-4 text-brand-orange mr-1 flex-shrink-0" />
+              <div className="flex items-center text-xs text-charcoal-muted font-sans">
+                <MapPin className="w-3.5 h-3.5 text-gold mr-1.5 shrink-0" />
                 <span>{property.address}, {property.localityName}, Nagpur - {property.pincode}</span>
               </div>
             </div>
 
-            {/* Price & Action Buttons */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4 border-t lg:border-t-0 pt-4 lg:pt-0 border-slate-100">
+            {/* Price & Action Strip */}
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4 border-t lg:border-t-0 pt-6 lg:pt-0 border-beige">
               <div>
-                <span className="text-3xl sm:text-4xl font-black text-brand-navy">
+                <div className="font-serif text-3xl sm:text-4xl text-navy font-semibold">
                   {formatIndianPrice(property.price, property.priceUnit)}
-                </span>
+                </div>
                 {property.purpose === 'BUY' && (
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Est. EMI Starts <strong>{calculateEstimateEmi(property.price)}</strong>
+                  <p className="text-xs text-charcoal-muted mt-1 font-sans">
+                    Estimated EMI starts <strong className="text-navy font-sans font-semibold">{calculateEstimateEmi(property.price)}</strong> / mo
                   </p>
                 )}
               </div>
@@ -203,53 +201,53 @@ const PropertyDetailsPage = () => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleSaveToggle}
-                  className={`flex items-center space-x-1.5 py-2 px-3.5 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex items-center space-x-1.5 py-2.5 px-4 border text-xs font-medium tracking-luxury uppercase transition-colors ${
                     isSaved
-                      ? 'border-red-200 bg-red-50 text-red-600'
-                      : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                      ? 'border-gold bg-ivory text-navy'
+                      : 'border-beige bg-white text-charcoal hover:border-gold'
                   }`}
                 >
-                  <Heart className={`w-4 h-4 ${isSaved ? 'fill-red-600' : ''}`} />
-                  <span>{isSaved ? 'Saved' : 'Save'}</span>
+                  <Heart className={`w-3.5 h-3.5 ${isSaved ? 'fill-gold text-gold' : 'text-charcoal-muted'}`} />
+                  <span>{isSaved ? 'Saved Asset' : 'Save Asset'}</span>
                 </button>
 
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
-                    alert('Listing link copied to clipboard!');
+                    alert('Listing link copied to clipboard.');
                   }}
-                  className="flex items-center space-x-1.5 py-2 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-colors"
+                  className="flex items-center space-x-1.5 py-2.5 px-4 border border-beige bg-white text-charcoal hover:border-gold text-xs font-medium tracking-luxury uppercase transition-colors"
                 >
-                  <Share2 className="w-4 h-4 text-slate-500" />
+                  <Share2 className="w-3.5 h-3.5 text-charcoal-muted" />
                   <span>Share</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Photo Gallery Strip */}
-          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-card space-y-4">
+          {/* Photo Gallery */}
+          <div className="bg-white p-4 sm:p-6 border border-beige shadow-subtle space-y-4">
             {/* Main Active Photo */}
-            <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden bg-slate-900">
+            <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-navy-dark">
               <img
                 src={imagesList[activeImageIndex]?.url}
                 alt={imagesList[activeImageIndex]?.caption || property.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-opacity duration-300"
               />
-              <div className="absolute bottom-3 left-3 bg-brand-navy/80 backdrop-blur-md px-3 py-1 rounded-md text-xs text-white">
-                {activeImageIndex + 1} of {imagesList.length} Photos
+              <div className="absolute bottom-4 left-4 bg-navy-deep/80 backdrop-blur-md px-3.5 py-1.5 text-[10px] uppercase tracking-luxury text-ivory font-sans">
+                {activeImageIndex + 1} of {imagesList.length} Photographs
               </div>
             </div>
 
             {/* Thumbnail Ribbon */}
             {imagesList.length > 1 && (
-              <div className="flex space-x-3 overflow-x-auto pb-2">
+              <div className="flex space-x-3 overflow-x-auto pb-1">
                 {imagesList.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`relative w-24 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${
-                      activeImageIndex === idx ? 'border-brand-orange scale-95' : 'border-transparent opacity-75 hover:opacity-100'
+                    className={`relative w-28 h-18 overflow-hidden shrink-0 border-2 transition-all ${
+                      activeImageIndex === idx ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={img.url} alt={img.caption} className="w-full h-full object-cover" />
@@ -259,77 +257,77 @@ const PropertyDetailsPage = () => {
             )}
           </div>
 
-          {/* Specifications, Overview & Contact Grid */}
+          {/* Specifications, Overview & Concierge Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left Content (Span 8) */}
+            {/* Left Content */}
             <div className="lg:col-span-8 space-y-8">
-              {/* Key Features Overview */}
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card">
-                <h2 className="text-lg font-black text-brand-navy mb-4">Property Specifications</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Configuration</span>
-                    <strong className="text-sm font-bold text-slate-800">
-                      {property.bedrooms > 0 ? `${property.bedrooms} BHK` : 'Plot'}
+              {/* Key Specifications Grid */}
+              <div className="bg-white p-8 border border-beige shadow-subtle">
+                <h2 className="font-serif text-2xl text-navy font-normal mb-6">Asset Specifications</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-sans">
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Configuration</span>
+                    <strong className="text-sm font-semibold text-navy">
+                      {property.bedrooms > 0 ? `${property.bedrooms} BHK` : 'Plot Layout'}
                     </strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Super Built-up Area</span>
-                    <strong className="text-sm font-bold text-slate-800">
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Super Built-up Area</span>
+                    <strong className="text-sm font-semibold text-navy">
                       {formatArea(property.areaSqFt, 'sq.ft')}
                     </strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Bathrooms</span>
-                    <strong className="text-sm font-bold text-slate-800">{property.bathrooms || 'N/A'}</strong>
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Bathrooms</span>
+                    <strong className="text-sm font-semibold text-navy">{property.bathrooms || 'N/A'}</strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Furnishing</span>
-                    <strong className="text-sm font-bold text-slate-800">
-                      {property.furnishing?.replace('_', ' ')}
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Furnishing</span>
+                    <strong className="text-sm font-semibold text-navy">
+                      {property.furnishing?.replace(/_/g, ' ') || 'Unfurnished'}
                     </strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Floor Level</span>
-                    <strong className="text-sm font-bold text-slate-800">
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Floor Level</span>
+                    <strong className="text-sm font-semibold text-navy">
                       {property.floor} of {property.totalFloors}
                     </strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Possession Status</span>
-                    <strong className="text-sm font-bold text-slate-800">
-                      {property.possessionStatus?.replace('_', ' ')}
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Possession</span>
+                    <strong className="text-sm font-semibold text-navy">
+                      {property.possessionStatus?.replace(/_/g, ' ') || 'Ready'}
                     </strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">Facing</span>
-                    <strong className="text-sm font-bold text-slate-800">{property.facing}</strong>
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Orientation / Facing</span>
+                    <strong className="text-sm font-semibold text-navy">{property.facing || 'East'}</strong>
                   </div>
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                    <span className="text-slate-400 block mb-1">RERA Registered</span>
-                    <strong className="text-sm font-bold text-slate-800">
-                      {property.reraNumber || 'Verified RERA'}
+                  <div className="bg-ivory-light p-4 border border-beige">
+                    <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">MahaRERA Reference</span>
+                    <strong className="text-xs font-mono text-navy truncate block">
+                      {property.reraNumber || 'Verified Exemption'}
                     </strong>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card space-y-4">
-                <h2 className="text-lg font-black text-brand-navy">About this Property</h2>
-                <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line font-normal">
+              <div className="bg-white p-8 border border-beige shadow-subtle space-y-4">
+                <h2 className="font-serif text-2xl text-navy font-normal">Architectural & Asset Description</h2>
+                <div className="text-xs sm:text-sm text-charcoal-light leading-relaxed whitespace-pre-line font-sans">
                   {property.description}
                 </div>
               </div>
 
               {/* Amenities */}
               {property.amenities && property.amenities.length > 0 && (
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card">
-                  <h2 className="text-lg font-black text-brand-navy mb-5">Features & Amenities</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="bg-white p-8 border border-beige shadow-subtle">
+                  <h2 className="font-serif text-2xl text-navy font-normal mb-6">Features & Amenities</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
                     {property.amenities.map((item, idx) => (
-                      <div key={idx} className="flex items-center space-x-2 text-xs font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <div key={idx} className="flex items-center space-x-2.5 text-xs text-charcoal bg-ivory-light p-3 border border-beige font-sans">
+                        <CheckCircle className="w-3.5 h-3.5 text-gold shrink-0" />
                         <span>{item}</span>
                       </div>
                     ))}
@@ -338,12 +336,12 @@ const PropertyDetailsPage = () => {
               )}
 
               {/* Location Map Preview */}
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-card space-y-4">
-                <h2 className="text-lg font-black text-brand-navy">Location & Neighborhood</h2>
-                <p className="text-xs text-slate-500">
-                  Located in prime <strong>{property.localityName}</strong>, Nagpur. Coordinates: {property.location?.coordinates[1]}, {property.location?.coordinates[0]}.
+              <div className="bg-white p-8 border border-beige shadow-subtle space-y-4">
+                <h2 className="font-serif text-2xl text-navy font-normal">Enclave Location</h2>
+                <p className="text-xs text-charcoal-muted font-sans">
+                  Strategically situated in prime <strong>{property.localityName}</strong>, Nagpur. Coordinates: {property.location?.coordinates?.[1] || 21.1458}, {property.location?.coordinates?.[0] || 79.0882}.
                 </p>
-                <div className="h-64 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative flex items-center justify-center">
+                <div className="h-72 overflow-hidden bg-ivory border border-beige relative">
                   <iframe
                     title="Google Maps Location"
                     width="100%"
@@ -352,30 +350,30 @@ const PropertyDetailsPage = () => {
                     scrolling="no"
                     marginHeight="0"
                     marginWidth="0"
-                    src={`https://maps.google.com/maps?q=${property.location?.coordinates[1]},${property.location?.coordinates[0]}&hl=en&z=14&output=embed`}
+                    src={`https://maps.google.com/maps?q=${property.location?.coordinates?.[1] || 21.1458},${property.location?.coordinates?.[0] || 79.0882}&hl=en&z=14&output=embed`}
                   ></iframe>
                 </div>
               </div>
             </div>
 
-            {/* Right Sticky Sidebar (Span 4) */}
+            {/* Right Sticky Sidebar */}
             <aside className="lg:col-span-4 space-y-6 sticky top-28">
               {/* Agent / Contact Card */}
-              <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-card space-y-5">
-                <div className="flex items-center space-x-3.5 pb-4 border-b border-slate-100">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-teal text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+              <div className="bg-white p-7 border border-beige shadow-subtle space-y-6">
+                <div className="flex items-start space-x-4 pb-5 border-b border-beige">
+                  <div className="w-14 h-14 border border-gold/40 bg-navy text-gold flex items-center justify-center font-serif text-xl font-bold shrink-0">
                     {property.assignedAgent?.name?.[0] || property.owner?.name?.[0] || 'N'}
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="font-serif text-lg font-normal text-navy">
                       {property.assignedAgent?.name || property.owner?.name || 'Verified Property Advisor'}
                     </h3>
-                    <span className="text-xs font-semibold text-brand-teal block">
-                      {property.assignedAgent ? 'Verified Nagpur Real Estate Agent' : 'Direct Property Owner'}
+                    <span className="text-xs text-charcoal-muted font-sans block mt-0.5">
+                      {property.assignedAgent ? 'Certified Nagpur Estates Broker' : 'Direct Asset Principal'}
                     </span>
-                    <span className="inline-flex items-center text-[10px] text-emerald-600 font-bold mt-1">
-                      <ShieldCheck className="w-3.5 h-3.5 mr-0.5" />
-                      Phone & KYC Verified
+                    <span className="inline-flex items-center text-[10px] uppercase tracking-luxury text-gold font-medium mt-1">
+                      <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                      MahaRERA Accreditation Verified
                     </span>
                   </div>
                 </div>
@@ -383,33 +381,33 @@ const PropertyDetailsPage = () => {
                 <div className="space-y-3">
                   <button
                     onClick={() => setEnquiryModalOpen(true)}
-                    className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
+                    className="w-full bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2"
                   >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Send Message / Enquiry</span>
+                    <MessageSquare className="w-3.5 h-3.5 text-gold" />
+                    <span>Inquire Concerning Asset</span>
                   </button>
 
                   <button
                     onClick={() => setSiteVisitModalOpen(true)}
-                    className="w-full bg-brand-teal hover:bg-brand-teal-light text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm"
+                    className="w-full bg-ivory hover:bg-ivory-dark text-navy border border-beige text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2"
                   >
-                    <Calendar className="w-4 h-4" />
-                    <span>Schedule Site Visit</span>
+                    <Calendar className="w-3.5 h-3.5 text-gold" />
+                    <span>Schedule Private Viewing</span>
                   </button>
 
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <a
                       href={`tel:+91${contactPhone}`}
-                      className="flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold"
+                      className="flex items-center justify-center space-x-1.5 py-3 border border-beige bg-white text-navy hover:border-gold text-xs uppercase tracking-luxury font-medium transition-colors"
                     >
-                      <Phone className="w-3.5 h-3.5 text-brand-teal" />
-                      <span>Call Now</span>
+                      <Phone className="w-3.5 h-3.5 text-gold" />
+                      <span>Direct Call</span>
                     </a>
                     <a
-                      href={`https://wa.me/91${contactPhone}?text=Hello!%20I%20am%20interested%20in%20"${encodeURIComponent(property.title)}"%20on%20Nagpur%20Real%20Estate.`}
+                      href={`https://wa.me/91${contactPhone}?text=Hello!%20I%20am%20inquiring%20regarding%20"${encodeURIComponent(property.title)}"%20on%20Nagpur%20Estates.`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+                      className="flex items-center justify-center space-x-1.5 py-3 bg-gold hover:bg-gold-light text-navy text-xs uppercase tracking-luxury font-medium transition-colors"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>WhatsApp</span>
@@ -418,20 +416,21 @@ const PropertyDetailsPage = () => {
                 </div>
               </div>
 
-              {/* Loan Help Banner */}
-              <div className="bg-gradient-to-br from-brand-navy to-brand-teal text-white rounded-3xl p-6 space-y-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400">
-                  Bank Partnerships
+              {/* Capital & Mortgage Planning Card */}
+              <div className="bg-navy text-ivory p-7 border border-navy-light shadow-subtle space-y-4">
+                <span className="text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-2.5 py-0.5 bg-navy-dark inline-block">
+                  Institutional Capital
                 </span>
-                <h4 className="text-base font-bold text-white">Need a Home Loan for this property?</h4>
-                <p className="text-xs text-slate-300">
-                  Get pre-approved home loans from SBI, HDFC, ICICI, and Axis Bank at special Nagpur interest rates.
+                <h4 className="font-serif text-xl font-normal text-white">Mortgage & Financing Desk</h4>
+                <p className="text-xs text-ivory/70 leading-relaxed font-sans">
+                  Access preferential borrowing rates with HDFC, ICICI, SBI, and Axis Bank for acquisition in {property.localityName}.
                 </p>
                 <Link
                   to="/tools/emi-calculator"
-                  className="inline-block bg-white text-brand-navy font-bold text-xs py-2 px-4 rounded-xl mt-2 hover:bg-slate-100 transition-colors"
+                  className="inline-flex items-center text-xs uppercase tracking-luxury text-gold hover:text-white transition-colors font-medium pt-2"
                 >
-                  Calculate EMI & Apply →
+                  <span>Review Amortization Schedule</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Link>
               </div>
             </aside>
@@ -439,11 +438,16 @@ const PropertyDetailsPage = () => {
 
           {/* Similar Properties Section */}
           {similarProperties && similarProperties.length > 0 && (
-            <div className="pt-8">
-              <h2 className="text-2xl font-black text-brand-navy mb-6">
-                Similar Properties in {property.localityName}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="pt-12 border-t border-beige">
+              <div className="mb-8">
+                <span className="text-[10px] uppercase tracking-luxury text-gold font-semibold block mb-1">
+                  Complementary Enclave
+                </span>
+                <h2 className="font-serif text-3xl text-navy font-normal">
+                  Related Residences in {property.localityName}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {similarProperties.map((simProp) => (
                   <PropertyCard key={simProp._id} property={simProp} onOpenAuth={() => setAuthModalOpen(true)} />
                 ))}
@@ -470,4 +474,3 @@ const PropertyDetailsPage = () => {
 };
 
 export default PropertyDetailsPage;
-

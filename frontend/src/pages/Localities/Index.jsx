@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, ArrowRight, IndianRupee, School, Hospital, ShieldCheck } from 'lucide-react';
+import { MapPin, ArrowRight } from 'lucide-react';
 import apiClient from '../../api/client';
 
 const LocalitiesPage = () => {
@@ -17,80 +17,80 @@ const LocalitiesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Nagpur Locality Guides & Neighborhoods — Real Estate Prices</title>
+        <title>Prime Nagpur Enclaves & Neighborhood Intelligence | Nagpur Estates</title>
         <meta
           name="description"
-          content="Explore real estate guides for Nagpur's top localities: Dharampeth, Manish Nagar, Wardha Road, Besa, Civil Lines, Ramdaspeth with average price per sq.ft and connectivity."
+          content="Explore comprehensive residential guides for Nagpur's premier enclaves: Dharampeth, Ramdaspeth, Civil Lines, Wardha Road, and Besa."
         />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-teal">
-              Neighborhood Explorer
+      <div className="bg-ivory-light min-h-screen py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          {/* Header */}
+          <div className="border-b border-beige pb-6">
+            <span className="text-[10px] uppercase tracking-luxury text-gold font-semibold block mb-1">
+              Geographic Intelligence
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-brand-navy mt-1">
-              Nagpur Real Estate Locality Guides
+            <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
+              Nagpur Real Estate Enclaves & Valuation
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Explore property price trends, connectivity, schools, and hospitals across prime Nagpur areas
+            <p className="text-xs sm:text-sm text-charcoal-muted mt-2 font-sans max-w-2xl leading-relaxed">
+              Curated neighborhood dossiers detailing capital appreciation rates, transit corridors, healthcare proximity, and active luxury portfolio offerings.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
               [1, 2, 3].map((n) => (
-                <div key={n} className="bg-white rounded-3xl h-72 animate-pulse border border-slate-200"></div>
+                <div key={n} className="bg-white border border-beige h-80 animate-pulse"></div>
               ))
             ) : localities && localities.length > 0 ? (
               localities.map((loc) => (
-                <div
+                <Link
                   key={loc._id}
-                  className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-card hover:shadow-hover transition-all flex flex-col justify-between"
+                  to={`/localities/${loc.slug || loc.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="bg-white border border-beige hover:border-gold transition-colors duration-300 shadow-subtle flex flex-col justify-between group"
                 >
-                  <div className="relative aspect-[16/9] bg-slate-900">
-                    <img
-                      src={loc.heroImage || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80'}
-                      alt={loc.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-3 left-3 bg-brand-navy/90 text-white text-xs font-bold px-2.5 py-1 rounded-lg">
-                      {loc.name}
+                  <div>
+                    <div className="relative aspect-[16/9] bg-navy-dark overflow-hidden">
+                      <img
+                        src={loc.heroImage || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80'}
+                        alt={loc.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                      />
+                      <div className="absolute top-3 left-3 bg-navy text-white text-[10px] font-semibold uppercase tracking-luxury px-3 py-1 border border-white/20">
+                        {loc.name}
+                      </div>
+                      <div className="absolute bottom-3 right-3 bg-navy-deep/80 text-gold text-[10px] font-medium uppercase tracking-luxury px-2.5 py-1 border border-gold/40">
+                        {loc.propertyCount || 0} Assets
+                      </div>
                     </div>
-                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur text-brand-navy text-xs font-bold px-2.5 py-1 rounded-md">
-                      {loc.propertyCount || 0} Properties
+
+                    <div className="p-6 space-y-3">
+                      <div className="flex items-center justify-between text-xs font-sans">
+                        <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted">Valuation Benchmark</span>
+                        <strong className="text-navy font-semibold text-sm">
+                          ₹ {(loc.areaGuide?.averagePricePerSqFt || 5500).toLocaleString('en-IN')} / sq.ft
+                        </strong>
+                      </div>
+
+                      <p className="text-xs text-charcoal-light line-clamp-2 font-sans leading-relaxed">
+                        {loc.description || `Comprehensive neighborhood insights, connectivity, and residential dynamics in ${loc.name}, Nagpur.`}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500">Avg. Price / Sq.Ft:</span>
-                      <strong className="text-brand-orange font-bold text-sm">
-                        ₹ {loc.areaGuide?.averagePricePerSqFt || 5500} / sq.ft
-                      </strong>
-                    </div>
-
-                    <p className="text-xs text-slate-600 line-clamp-2">
-                      {loc.description || `Comprehensive guide to living and investing in ${loc.name}, Nagpur.`}
-                    </p>
-
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs text-slate-400">Pincode: {loc.pincode}</span>
-                      <Link
-                        to={`/properties?locality=${loc.name}`}
-                        className="inline-flex items-center text-xs font-bold text-brand-teal hover:text-brand-orange transition-colors"
-                      >
-                        <span>View Properties</span>
-                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                      </Link>
-                    </div>
+                  <div className="p-6 pt-3 border-t border-beige flex items-center justify-between text-xs font-sans">
+                    <span className="text-[11px] text-charcoal-muted">Pincode: {loc.pincode}</span>
+                    <span className="text-[11px] uppercase tracking-luxury text-gold group-hover:text-navy transition-colors font-medium flex items-center">
+                      Enclave Dossier <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                    </span>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
-              <div className="col-span-3 text-center py-12 text-xs text-slate-400">
-                No localities found.
+              <div className="col-span-3 text-center py-14 text-xs uppercase tracking-luxury text-charcoal-muted bg-white border border-beige">
+                Enclave intelligence updating.
               </div>
             )}
           </div>
@@ -101,4 +101,3 @@ const LocalitiesPage = () => {
 };
 
 export default LocalitiesPage;
-

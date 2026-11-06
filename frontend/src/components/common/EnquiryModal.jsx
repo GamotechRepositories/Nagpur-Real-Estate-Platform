@@ -9,7 +9,7 @@ const EnquiryModal = ({ isOpen, onClose, property }) => {
   const [customerName, setCustomerName] = useState(user?.name || '');
   const [phoneNumber, setPhoneNumber] = useState(user?.phone || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [message, setMessage] = useState('I am interested in this property. Please contact me with more information.');
+  const [message, setMessage] = useState('I am inquiring regarding acquisition details, documentation, and viewing arrangements for this residence.');
   const [budget, setBudget] = useState(property?.price || '');
 
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const EnquiryModal = ({ isOpen, onClose, property }) => {
 
     const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
     if (cleanPhone.length !== 10) {
-      setError('Please provide a valid 10-digit mobile number');
+      setError('Please provide a valid 10-digit Indian mobile number');
       return;
     }
 
@@ -54,119 +54,111 @@ const EnquiryModal = ({ isOpen, onClose, property }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-deep/80 backdrop-blur-sm">
+      <div className="bg-white max-w-lg w-full border border-beige shadow-card relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 text-charcoal-muted hover:text-navy transition-colors z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="p-6 sm:p-8">
+        <div className="p-8">
           <div className="mb-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-orange">
-              Direct Contact
+            <span className="text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-2.5 py-0.5 bg-ivory">
+              Private Advisory Direct
             </span>
-            <h3 className="text-xl font-black text-brand-navy mt-1">
-              Contact Owner / Agent
+            <h3 className="font-serif text-2xl text-navy font-normal mt-2">
+              Inquire Concerning Asset
             </h3>
-            <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-              Regarding: <strong>{property.title}</strong>
+            <p className="text-xs text-charcoal-muted mt-1 line-clamp-1 font-sans">
+              Regarding: <strong className="text-navy">{property.title}</strong>
             </p>
           </div>
 
           {success ? (
-            <div className="py-8 text-center space-y-3">
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-8 h-8" />
+            <div className="py-10 text-center space-y-3 bg-ivory border border-beige p-6">
+              <div className="w-12 h-12 border border-gold text-gold flex items-center justify-center mx-auto bg-white">
+                <CheckCircle className="w-6 h-6 stroke-[1.5]" />
               </div>
-              <h4 className="text-lg font-bold text-slate-900">Enquiry Sent Successfully!</h4>
-              <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                The assigned agent will call you shortly regarding this property in {property.localityName}.
+              <h4 className="font-serif text-xl text-navy">Inquiry Dispatched</h4>
+              <p className="text-xs text-charcoal-muted max-w-xs mx-auto font-sans leading-relaxed">
+                The certified concierge desk will contact you via phone and WhatsApp regarding {property.localityName}.
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center space-x-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <div className="p-3 bg-red-50 border border-red-200 text-xs text-red-800 flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{error}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Your Full Name
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                  Full Legal Name
                 </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter your name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm"
-                  />
-                </div>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul Deshmukh"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Mobile Number
-                </label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-600 text-xs font-bold">
-                    +91
-                  </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Phone (10 Digits)
+                  </label>
                   <input
                     type="tel"
                     required
                     maxLength={10}
-                    placeholder="10-digit phone number"
+                    placeholder="9823000000"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-4 py-2.5 rounded-r-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-medium"
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans font-medium"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Email (Optional)
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <div>
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Email Address
+                  </label>
                   <input
                     type="email"
-                    placeholder="yourname@gmail.com"
+                    placeholder="name@domain.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm"
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Message
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                  Advisory Note / Message
                 </label>
                 <textarea
                   rows={3}
+                  required
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-xs text-slate-700"
+                  className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm disabled:opacity-50"
+                className="w-full bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
-                <span>{loading ? 'Submitting...' : 'Send Enquiry'}</span>
+                <Send className="w-3.5 h-3.5 text-gold" />
+                <span>{loading ? 'Transmitting...' : 'Dispatch Confidential Inquiry'}</span>
               </button>
             </form>
           )}
@@ -177,4 +169,3 @@ const EnquiryModal = ({ isOpen, onClose, property }) => {
 };
 
 export default EnquiryModal;
-

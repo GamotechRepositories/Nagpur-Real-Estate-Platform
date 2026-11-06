@@ -1,153 +1,176 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Phone, Mail, MapPin, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Building2, Phone, Mail, MapPin, MessageSquare, ShieldCheck, ArrowRight } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-brand-navy text-slate-300 pt-16 pb-10 border-t border-slate-800">
+    <footer className="bg-navy-dark text-ivory/80 pt-20 pb-12 border-t border-navy-light/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
-          {/* Brand Info */}
-          <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-teal to-slate-800 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-brand-orange" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 pb-16 border-b border-white/10">
+          {/* Brand Presentation */}
+          <div className="lg:col-span-2 space-y-6">
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="w-10 h-10 border border-gold/40 flex items-center justify-center bg-navy transition-colors group-hover:border-gold">
+                <span className="font-serif text-lg font-bold text-gold">NE</span>
               </div>
-              <span className="text-2xl font-black text-white">
-                Nagpur<span className="text-brand-orange">Estate</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="font-serif text-2xl font-bold tracking-tight text-white leading-none">
+                  NAGPUR<span className="text-gold font-light ml-1.5 text-lg uppercase tracking-luxury">Estates</span>
+                </span>
+                <span className="text-[9px] uppercase tracking-widest text-ivory/50 mt-1 font-sans">
+                  The Premier Nagpur Property Marketplace
+                </span>
+              </div>
             </Link>
-            <p className="text-sm text-slate-400 leading-relaxed pr-6">
-              Nagpur’s dedicated real estate marketplace for verified residential apartments, independent villas, commercial spaces, and NMRDA sanctioned plots. Empowering homebuyers, sellers, and agents across Nagpur, Maharashtra.
+
+            <p className="text-sm text-ivory/70 leading-relaxed font-sans pr-6">
+              Nagpur’s definitive luxury real estate authority. Curating verified residential sanctuaries, heritage bungalows, NMRDA sanctioned plotted layouts, and grade-A commercial addresses across the Tiger Capital.
             </p>
-            <div className="pt-2 flex items-center space-x-3">
+
+            <div className="pt-2 flex flex-wrap items-center gap-4">
               <a
-                href="https://wa.me/919823000000?text=Hello%20Nagpur%20Real%20Estate"
+                href="https://wa.me/919823000000?text=Hello%20Nagpur%20Estates%20Advisory"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-900/30"
+                className="inline-flex items-center space-x-2 bg-gold hover:bg-gold-light text-navy text-xs font-medium tracking-luxury uppercase px-5 py-3 transition-colors shadow-subtle"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Chat on WhatsApp</span>
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Private Advisory</span>
               </a>
-              <span className="text-xs text-slate-400 flex items-center space-x-1">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>MahaRERA Registered</span>
-              </span>
+              <div className="flex items-center space-x-2 text-xs text-ivory/60 border border-white/10 px-3.5 py-2.5">
+                <ShieldCheck className="w-4 h-4 text-gold" />
+                <span>MahaRERA Compliant</span>
+              </div>
             </div>
           </div>
 
-          {/* Quick Locality Links */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">Top Localities</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
+          {/* Nagpur Enclaves */}
+          <div className="space-y-4">
+            <h4 className="font-serif text-sm font-semibold uppercase tracking-luxury text-gold">
+              Nagpur Enclaves
+            </h4>
+            <ul className="space-y-2.5 text-xs text-ivory/70 font-sans">
               <li>
-                <Link to="/properties?locality=Dharampeth" className="hover:text-brand-orange transition-colors">
-                  Flats in Dharampeth
+                <Link to="/properties?locality=Dharampeth" className="hover:text-gold transition-colors flex items-center group">
+                  <span className="group-hover:translate-x-1 transition-transform">Dharampeth West</span>
                 </Link>
               </li>
               <li>
-                <Link to="/properties?locality=Manish Nagar" className="hover:text-brand-orange transition-colors">
-                  Flats in Manish Nagar
+                <Link to="/properties?locality=Ramdaspeth" className="hover:text-gold transition-colors flex items-center group">
+                  <span className="group-hover:translate-x-1 transition-transform">Ramdaspeth Central</span>
                 </Link>
               </li>
               <li>
-                <Link to="/properties?locality=Wardha Road" className="hover:text-brand-orange transition-colors">
-                  Properties on Wardha Road
+                <Link to="/properties?locality=Civil Lines" className="hover:text-gold transition-colors flex items-center group">
+                  <span className="group-hover:translate-x-1 transition-transform">Civil Lines Heritage</span>
                 </Link>
               </li>
               <li>
-                <Link to="/properties?locality=Besa" className="hover:text-brand-orange transition-colors">
-                  Plots & Flats in Besa
+                <Link to="/properties?locality=Wardha Road" className="hover:text-gold transition-colors flex items-center group">
+                  <span className="group-hover:translate-x-1 transition-transform">Wardha Road Corridor</span>
                 </Link>
               </li>
               <li>
-                <Link to="/properties?locality=Civil Lines" className="hover:text-brand-orange transition-colors">
-                  Homes in Civil Lines
+                <Link to="/properties?locality=Manish Nagar" className="hover:text-gold transition-colors flex items-center group">
+                  <span className="group-hover:translate-x-1 transition-transform">Manish Nagar Heights</span>
                 </Link>
               </li>
               <li>
-                <Link to="/properties?locality=Ramdaspeth" className="hover:text-brand-orange transition-colors">
-                  Properties in Ramdaspeth
+                <Link to="/properties?locality=Besa" className="hover:text-gold transition-colors flex items-center group">
+                  <span className="group-hover:translate-x-1 transition-transform">Besa Urban Belt</span>
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Popular Searches */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">Quick Categories</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
+          {/* Collections */}
+          <div className="space-y-4">
+            <h4 className="font-serif text-sm font-semibold uppercase tracking-luxury text-gold">
+              Collections
+            </h4>
+            <ul className="space-y-2.5 text-xs text-ivory/70 font-sans">
               <li>
-                <Link to="/properties?purpose=BUY&subtype=FLAT" className="hover:text-brand-orange transition-colors">
-                  Flats for Sale in Nagpur
+                <Link to="/properties?purpose=BUY&subtype=FLAT" className="hover:text-gold transition-colors">
+                  Luxury Residences For Sale
                 </Link>
               </li>
               <li>
-                <Link to="/properties?purpose=RENT" className="hover:text-brand-orange transition-colors">
-                  Flats for Rent in Nagpur
+                <Link to="/properties?purpose=RENT" className="hover:text-gold transition-colors">
+                  Curated Executive Rentals
                 </Link>
               </li>
               <li>
-                <Link to="/properties?category=PLOT" className="hover:text-brand-orange transition-colors">
-                  NMRDA Plots in Nagpur
+                <Link to="/properties?category=PLOT" className="hover:text-gold transition-colors">
+                  NMRDA Sanctioned Plots
                 </Link>
               </li>
               <li>
-                <Link to="/properties?category=COMMERCIAL" className="hover:text-brand-orange transition-colors">
-                  Commercial Offices & Shops
+                <Link to="/properties?category=COMMERCIAL" className="hover:text-gold transition-colors">
+                  Grade-A Commercial Suites
                 </Link>
               </li>
               <li>
-                <Link to="/tools/emi-calculator" className="hover:text-brand-orange transition-colors">
-                  Home Loan EMI Calculator
+                <Link to="/projects" className="hover:text-gold transition-colors">
+                  New Architectural Projects
                 </Link>
               </li>
               <li>
-                <Link to="/tools/area-converter" className="hover:text-brand-orange transition-colors">
-                  Area Unit Converter
+                <Link to="/agents" className="hover:text-gold transition-colors">
+                  Certified Advisory Agents
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Nagpur Office Contact */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-white">Nagpur Office</h4>
-            <div className="space-y-2.5 text-sm text-slate-400">
-              <div className="flex items-start space-x-2.5">
-                <MapPin className="w-4 h-4 text-brand-orange flex-shrink-0 mt-0.5" />
-                <span>Civil Lines, Nagpur, Maharashtra 440001</span>
-              </div>
-              <div className="flex items-center space-x-2.5">
-                <Phone className="w-4 h-4 text-brand-orange flex-shrink-0" />
-                <span>+91 712 2550100</span>
-              </div>
-              <div className="flex items-center space-x-2.5">
-                <Mail className="w-4 h-4 text-brand-orange flex-shrink-0" />
-                <span>support@nagpurestate.com</span>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <Link
-                to="/admin/login"
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-              >
-                Staff Admin Portal Login →
-              </Link>
-            </div>
+          {/* Concierge & Office */}
+          <div className="space-y-4">
+            <h4 className="font-serif text-sm font-semibold uppercase tracking-luxury text-gold">
+              Concierge
+            </h4>
+            <ul className="space-y-3 text-xs text-ivory/70 font-sans">
+              <li className="flex items-start space-x-3">
+                <MapPin className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                <span>Palm Road, Civil Lines, Nagpur, Maharashtra 440001</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Phone className="w-4 h-4 text-gold shrink-0" />
+                <span>+91 (0712) 256-0199</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Mail className="w-4 h-4 text-gold shrink-0" />
+                <span>advisory@nagpurestate.com</span>
+              </li>
+              <li className="pt-2">
+                <Link
+                  to="/post-property"
+                  className="inline-flex items-center text-xs uppercase tracking-luxury text-gold hover:text-white transition-colors font-medium"
+                >
+                  List An Asset <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Strip */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 space-y-4 md:space-y-0">
-          <p>© {new Date().getFullYear()} Nagpur Real Estate Platform. All rights reserved.</p>
-          <div className="flex space-x-6">
-            <Link to="/content/terms" className="hover:text-slate-400">Terms of Service</Link>
-            <Link to="/content/privacy" className="hover:text-slate-400">Privacy Policy</Link>
-            <Link to="/content/rera-disclaimer" className="hover:text-slate-400">RERA Disclaimer</Link>
-            <Link to="/content/faq" className="hover:text-slate-400">FAQs</Link>
+        {/* Legal, RERA & Sub-footer */}
+        <div className="pt-10 flex flex-col md:flex-row items-center justify-between text-xs text-ivory/50 space-y-4 md:space-y-0 font-sans">
+          <p className="tracking-wide">
+            &copy; {new Date().getFullYear()} Nagpur Estates Private Limited. All rights reserved.
+          </p>
+
+          <div className="flex flex-wrap items-center space-x-6">
+            <Link to="/content/terms-of-service" className="hover:text-gold transition-colors">
+              Terms of Service
+            </Link>
+            <Link to="/content/privacy-policy" className="hover:text-gold transition-colors">
+              Privacy Governance
+            </Link>
+            <Link to="/content/rera-compliance-guide" className="hover:text-gold transition-colors">
+              MahaRERA Advisory
+            </Link>
+            <Link to="/admin/login" className="text-ivory/30 hover:text-ivory/60 transition-colors">
+              Staff Portal
+            </Link>
           </div>
         </div>
       </div>
@@ -156,4 +179,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

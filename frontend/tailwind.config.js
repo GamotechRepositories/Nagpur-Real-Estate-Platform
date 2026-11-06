@@ -7,25 +7,57 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          teal: '#0d4e56',
-          'teal-dark': '#072e34',
-          'teal-light': '#146b77',
-          orange: '#ea580c', // Nagpur Orange accent
-          'orange-hover': '#c2410c',
-          navy: '#0f172a',
-          slate: '#334155',
+        navy: {
+          DEFAULT: '#172C3B',
+          light: '#223D52',
+          dark: '#0F1E28',
+          deep: '#0B171F',
+        },
+        ivory: {
+          DEFAULT: '#F7F4ED',
+          light: '#FAF8F3',
+          dark: '#EFECE3',
+        },
+        gold: {
+          DEFAULT: '#B89A65',
+          light: '#CBB285',
+          dark: '#9A7D4C',
+          subtle: '#EAE1CE',
+        },
+        charcoal: {
+          DEFAULT: '#252525',
+          light: '#404040',
+          muted: '#6B7280',
+        },
+        beige: {
+          DEFAULT: '#E9E4DA',
+          light: '#F3EFE7',
+          dark: '#DCD5C8',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Noto Sans Devanagari', 'sans-serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Noto Sans Devanagari', 'sans-serif'],
+      },
+      letterSpacing: {
+        widest: '.2em',
+        luxury: '.15em',
       },
       boxShadow: {
-        card: '0 4px 20px -2px rgba(15, 23, 42, 0.08)',
-        hover: '0 12px 30px -4px rgba(15, 23, 42, 0.15)',
+        subtle: '0 1px 3px 0 rgba(23, 44, 59, 0.05), 0 1px 2px -1px rgba(23, 44, 59, 0.05)',
+        card: '0 4px 20px -2px rgba(23, 44, 59, 0.06)',
+        hover: '0 12px 32px -4px rgba(23, 44, 59, 0.12)',
+        dropdown: '0 10px 30px -5px rgba(23, 44, 59, 0.15)',
+      },
+      borderRadius: {
+        'none': '0',
+        'sm': '2px',
+        DEFAULT: '4px',
+        'md': '6px',
+        'lg': '8px',
+        'xl': '12px',
       },
     },
   },
   plugins: [],
 }
-

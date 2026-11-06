@@ -7,11 +7,9 @@ import {
   Users,
   MessageSquare,
   Calendar,
-  TrendingUp,
   ArrowRight,
   Clock,
-  CheckCircle,
-  XCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   BarChart,
@@ -26,7 +24,7 @@ import {
 } from 'recharts';
 import apiClient from '../../api/client';
 
-const COLORS = ['#0d4e56', '#ea580c', '#0284c7', '#e11d48', '#8b5cf6'];
+const LUXURY_PALETTE = ['#172C3B', '#B89A65', '#223D52', '#9A7D4C', '#DCD5C8'];
 
 const DashboardOverview = () => {
   const { data: statsResponse, isLoading } = useQuery({
@@ -53,113 +51,126 @@ const DashboardOverview = () => {
   return (
     <div className="space-y-8">
       {/* Top Welcome Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-beige">
         <div>
-          <h1 className="text-2xl font-black text-brand-navy">Operations & Moderation Dashboard</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time analytics and management for Nagpur Real Estate Platform
+          <span className="text-[10px] uppercase tracking-luxury text-gold font-semibold block mb-1">
+            Executive Operations Overview
+          </span>
+          <h1 className="font-serif text-3xl text-navy font-normal">Real Estate Management Command</h1>
+          <p className="text-xs text-charcoal-muted mt-1 font-sans">
+            Real-time portfolio intelligence, moderation workflow, and client lead performance across Nagpur.
           </p>
         </div>
 
         {properties.PENDING_REVIEW > 0 && (
           <Link
             to="/admin/moderation"
-            className="inline-flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition-all animate-bounce"
+            className="inline-flex items-center space-x-2 bg-navy hover:bg-navy-light text-gold text-xs font-medium tracking-luxury uppercase py-3 px-5 border border-gold/40 transition-colors shadow-subtle"
           >
-            <ShieldAlert className="w-4 h-4" />
-            <span>{properties.PENDING_REVIEW} Pending Listings Awaiting Review</span>
+            <ShieldAlert className="w-4 h-4 text-gold" />
+            <span>{properties.PENDING_REVIEW} Assets Awaiting Moderation</span>
           </Link>
         )}
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Properties */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 border border-beige shadow-subtle flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Listings</span>
-            <div className="text-2xl font-black text-brand-navy mt-1">{properties.TOTAL || 0}</div>
-            <span className="text-[11px] text-emerald-600 font-semibold">{properties.LIVE || 0} Live on website</span>
+            <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted font-medium block">
+              Total Portfolio Assets
+            </span>
+            <div className="font-serif text-3xl text-navy font-semibold mt-1.5">{properties.TOTAL || 0}</div>
+            <span className="text-xs text-navy/70 font-sans mt-0.5 block">{properties.LIVE || 0} Active on public portal</span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-teal-50 text-brand-teal flex items-center justify-center">
-            <Building2 className="w-6 h-6" />
+          <div className="w-12 h-12 border border-beige bg-ivory flex items-center justify-center text-navy">
+            <Building2 className="w-5 h-5 stroke-[1.5]" />
           </div>
         </div>
 
         {/* Pending Moderation */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 border border-beige shadow-subtle flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Review</span>
-            <div className="text-2xl font-black text-amber-600 mt-1">{properties.PENDING_REVIEW || 0}</div>
-            <Link to="/admin/moderation" className="text-[11px] text-brand-orange font-bold hover:underline">
-              Moderate Queue →
+            <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted font-medium block">
+              Pending Validation
+            </span>
+            <div className="font-serif text-3xl text-gold font-semibold mt-1.5">{properties.PENDING_REVIEW || 0}</div>
+            <Link to="/admin/moderation" className="text-xs text-navy hover:text-gold transition-colors font-medium">
+              Review Queue →
             </Link>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <Clock className="w-6 h-6" />
+          <div className="w-12 h-12 border border-gold/30 bg-ivory flex items-center justify-center text-gold">
+            <Clock className="w-5 h-5 stroke-[1.5]" />
           </div>
         </div>
 
         {/* Today's CRM Enquiries */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 border border-beige shadow-subtle flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Today's Enquiries</span>
-            <div className="text-2xl font-black text-brand-orange mt-1">{crm.todayEnquiries || 0}</div>
-            <span className="text-[11px] text-slate-500 font-medium">Conversion: {crm.conversionRate || '0%'}</span>
+            <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted font-medium block">
+              Today's Inquiries
+            </span>
+            <div className="font-serif text-3xl text-navy font-semibold mt-1.5">{crm.todayEnquiries || 0}</div>
+            <span className="text-xs text-charcoal-muted font-sans mt-0.5 block">Conversion: {crm.conversionRate || '0%'}</span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-orange-50 text-brand-orange flex items-center justify-center">
-            <MessageSquare className="w-6 h-6" />
+          <div className="w-12 h-12 border border-beige bg-ivory flex items-center justify-center text-navy">
+            <MessageSquare className="w-5 h-5 stroke-[1.5]" />
           </div>
         </div>
 
         {/* Pending Site Visits */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 border border-beige shadow-subtle flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Site Visits</span>
-            <div className="text-2xl font-black text-blue-600 mt-1">{crm.pendingSiteVisits || 0}</div>
-            <Link to="/admin/site-visits" className="text-[11px] text-blue-600 font-bold hover:underline">
+            <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted font-medium block">
+              Private Viewings
+            </span>
+            <div className="font-serif text-3xl text-navy font-semibold mt-1.5">{crm.pendingSiteVisits || 0}</div>
+            <Link to="/admin/site-visits" className="text-xs text-navy hover:text-gold transition-colors font-medium">
               View Schedule →
             </Link>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <Calendar className="w-6 h-6" />
+          <div className="w-12 h-12 border border-beige bg-ivory flex items-center justify-center text-navy">
+            <Calendar className="w-5 h-5 stroke-[1.5]" />
           </div>
         </div>
       </div>
 
       {/* Analytics Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Top Localities Bar Chart (Span 7) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
+        {/* Top Localities Bar Chart */}
+        <div className="lg:col-span-7 bg-white p-7 border border-beige shadow-subtle">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-beige">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Properties by Nagpur Locality</h3>
-              <p className="text-xs text-slate-500">Live active listings across prime Nagpur areas</p>
+              <h3 className="font-serif text-lg text-navy font-normal">Active Inventory by Nagpur Enclave</h3>
+              <p className="text-xs text-charcoal-muted font-sans mt-0.5">Asset distribution across high-demand corridors</p>
             </div>
-            <Link to="/admin/listings" className="text-xs font-bold text-brand-teal hover:underline">
-              View All
+            <Link to="/admin/listings" className="text-xs uppercase tracking-luxury text-navy hover:text-gold transition-colors font-medium">
+              Inspect Listings
             </Link>
           </div>
 
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topLocalities}>
-                <XAxis dataKey="_id" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="_id" tick={{ fontSize: 11, fill: '#6B7280' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} />
                 <Tooltip
-                  formatter={(val, name) => [val, 'Listings']}
-                  contentStyle={{ borderRadius: '12px', fontSize: '12px' }}
+                  formatter={(val) => [val, 'Properties']}
+                  contentStyle={{ backgroundColor: '#172C3B', color: '#FAF8F3', borderRadius: '0px', border: '1px solid #B89A65', fontSize: '11px' }}
                 />
-                <Bar dataKey="propertyCount" fill="#0d4e56" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="propertyCount" fill="#172C3B" radius={[0, 0, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Status Distribution Pie Chart (Span 5) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-          <h3 className="text-base font-bold text-slate-900 mb-1">Listing Status Distribution</h3>
-          <p className="text-xs text-slate-500 mb-6">Overall breakdown across all listing statuses</p>
+        {/* Status Distribution Pie Chart */}
+        <div className="lg:col-span-5 bg-white p-7 border border-beige shadow-subtle">
+          <div className="mb-6 pb-4 border-b border-beige">
+            <h3 className="font-serif text-lg text-navy font-normal">Portfolio Lifecycle Breakdown</h3>
+            <p className="text-xs text-charcoal-muted font-sans mt-0.5">90-day active cycle & compliance status</p>
+          </div>
 
           <div className="h-48 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
@@ -170,23 +181,25 @@ const DashboardOverview = () => {
                   cy="50%"
                   innerRadius={50}
                   outerRadius={75}
-                  paddingAngle={4}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {propertyStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={LUXURY_PALETTE[index % LUXURY_PALETTE.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '12px' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#172C3B', color: '#FAF8F3', borderRadius: '0px', border: '1px solid #B89A65', fontSize: '11px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4 text-xs font-medium text-slate-600">
+          <div className="grid grid-cols-2 gap-2.5 mt-4 text-xs font-sans text-charcoal">
             {propertyStatusData.map((item, index) => (
               <div key={item.name} className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                <span>{item.name}: <strong>{item.value}</strong></span>
+                <span className="w-2.5 h-2.5" style={{ backgroundColor: LUXURY_PALETTE[index % LUXURY_PALETTE.length] }}></span>
+                <span>{item.name}: <strong className="text-navy">{item.value}</strong></span>
               </div>
             ))}
           </div>
@@ -195,54 +208,54 @@ const DashboardOverview = () => {
 
       {/* Moderation & Leads Quick Navigation */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-brand-navy to-slate-800 text-white rounded-3xl p-6 flex flex-col justify-between">
+        <div className="bg-navy text-ivory p-7 border border-navy-light shadow-subtle flex flex-col justify-between">
           <div>
-            <ShieldCheck className="w-8 h-8 text-brand-orange mb-3" />
-            <h4 className="text-lg font-bold">Property Verification SLA</h4>
-            <p className="text-xs text-slate-300 mt-1">
-              Verify RERA registration, 7/12 land records, and owner photos within the 24-hour turnaround SLA.
+            <ShieldCheck className="w-7 h-7 text-gold mb-3 stroke-[1.5]" />
+            <h4 className="font-serif text-lg font-normal text-white">Title & MahaRERA Verification</h4>
+            <p className="text-xs text-ivory/70 mt-1 font-sans leading-relaxed">
+              Enforce NMRDA sanctions, non-agricultural certificates, and owner authenticity within the 24-hour turnaround SLA.
             </p>
           </div>
           <Link
             to="/admin/moderation"
-            className="mt-6 inline-flex items-center space-x-1.5 text-xs font-bold text-brand-orange hover:text-white transition-colors"
+            className="mt-6 inline-flex items-center space-x-1.5 text-xs uppercase tracking-luxury text-gold hover:text-white transition-colors font-medium"
           >
             <span>Open Moderation Queue</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="bg-gradient-to-br from-brand-teal to-brand-teal-dark text-white rounded-3xl p-6 flex flex-col justify-between">
+        <div className="bg-ivory text-charcoal p-7 border border-beige shadow-subtle flex flex-col justify-between">
           <div>
-            <MessageSquare className="w-8 h-8 text-emerald-300 mb-3" />
-            <h4 className="text-lg font-bold">CRM Lead Routing</h4>
-            <p className="text-xs text-slate-200 mt-1">
-              Manage automatic round-robin and locality-based lead assignment to active Nagpur real estate agents.
+            <MessageSquare className="w-7 h-7 text-navy mb-3 stroke-[1.5]" />
+            <h4 className="font-serif text-lg font-normal text-navy">CRM Lead Coordination</h4>
+            <p className="text-xs text-charcoal-muted mt-1 font-sans leading-relaxed">
+              Automated corridor-based lead allocation to certified Nagpur real estate advisors with follow-up tracking.
             </p>
           </div>
           <Link
             to="/admin/leads"
-            className="mt-6 inline-flex items-center space-x-1.5 text-xs font-bold text-white hover:text-orange-200 transition-colors"
+            className="mt-6 inline-flex items-center space-x-1.5 text-xs uppercase tracking-luxury text-navy hover:text-gold transition-colors font-medium"
           >
-            <span>View Leads Kanban Board</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>View Leads Pipeline</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-sm">
+        <div className="bg-white text-charcoal p-7 border border-beige shadow-subtle flex flex-col justify-between">
           <div>
-            <Users className="w-8 h-8 text-blue-600 mb-3" />
-            <h4 className="text-lg font-bold text-slate-900">Agents & Users</h4>
-            <p className="text-xs text-slate-500 mt-1">
-              Manage registered buyers ({users.total || 0}), verified agents ({users.agents || 0}), and staff permissions.
+            <Users className="w-7 h-7 text-gold mb-3 stroke-[1.5]" />
+            <h4 className="font-serif text-lg font-normal text-navy">Advisor & Staff Directory</h4>
+            <p className="text-xs text-charcoal-muted mt-1 font-sans leading-relaxed">
+              Manage verified advisory agents ({users.agents || 0}), asset owners, and staff permissions across the platform.
             </p>
           </div>
           <Link
             to="/admin/agents"
-            className="mt-6 inline-flex items-center space-x-1.5 text-xs font-bold text-brand-teal hover:text-brand-orange transition-colors"
+            className="mt-6 inline-flex items-center space-x-1.5 text-xs uppercase tracking-luxury text-navy hover:text-gold transition-colors font-medium"
           >
-            <span>Manage Directory</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Inspect Staff Roster</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
@@ -251,4 +264,3 @@ const DashboardOverview = () => {
 };
 
 export default DashboardOverview;
-

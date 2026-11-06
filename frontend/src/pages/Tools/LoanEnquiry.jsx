@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Building, CheckCircle, Send, AlertCircle, Phone, User, Mail, IndianRupee } from 'lucide-react';
+import { CheckCircle, Send, AlertCircle, Phone, User, Mail, IndianRupee } from 'lucide-react';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -23,7 +23,7 @@ const LoanEnquiryPage = () => {
 
     const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
     if (cleanPhone.length !== 10) {
-      setError('Please provide a valid 10-digit mobile number');
+      setError('Please provide a valid 10-digit Indian mobile number');
       return;
     }
 
@@ -49,112 +49,139 @@ const LoanEnquiryPage = () => {
   return (
     <>
       <Helmet>
-        <title>Apply for Home Loan in Nagpur — Low Interest Rates</title>
-        <meta name="description" content="Apply for instant home loan pre-approval with Nagpur's leading partner banks (SBI, HDFC, ICICI, Axis Bank)." />
+        <title>Institutional Mortgage & Financing Advisory | Nagpur Estates</title>
+        <meta
+          name="description"
+          content="Apply for confidential mortgage pre-approval and preferential borrowing terms with Nagpur's leading institutional banking desks."
+        />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-12">
-        <div className="max-w-xl mx-auto px-4 sm:px-6 space-y-8">
-          <div className="text-center">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-teal">
-              Banking Partnerships
+      <div className="bg-ivory-light min-h-screen py-14">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center border-b border-beige pb-6">
+            <span className="text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-3 py-1 bg-white mb-3 inline-block">
+              Institutional Capital Desk
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-brand-navy mt-1">
-              Apply for Home Loan Assistance
+            <h1 className="font-serif text-3xl text-navy font-normal tracking-tight">
+              Mortgage Pre-Approval Advisory
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Get lowest interest rates with zero processing charges from our banking advisors in Nagpur
+            <p className="text-xs text-charcoal-muted mt-2 font-sans leading-relaxed">
+              Confidential structuring with premier banking partners: HDFC Bank, ICICI Bank, SBI, and Axis Bank.
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-card">
+          <div className="bg-white p-8 sm:p-10 border border-beige shadow-subtle">
             {success ? (
-              <div className="py-8 text-center space-y-4">
-                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle className="w-8 h-8" />
+              <div className="py-10 text-center space-y-4 bg-ivory border border-beige p-6">
+                <div className="w-14 h-14 border border-gold text-gold flex items-center justify-center mx-auto bg-white">
+                  <CheckCircle className="w-7 h-7 stroke-[1.5]" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">Application Submitted!</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Our banking specialist will contact you on <strong>+91 {phoneNumber}</strong> within 24 hours with interest rate quotes from SBI, HDFC, and ICICI Bank.
+                <h3 className="font-serif text-2xl text-navy">Application Received</h3>
+                <p className="text-xs text-charcoal-muted max-w-sm mx-auto font-sans leading-relaxed">
+                  A dedicated capital advisor will contact you on <strong className="text-navy">+91 {phoneNumber}</strong> within 24 hours with competitive underwriting proposals.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center space-x-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <div className="p-3.5 bg-red-50 border border-red-200 text-xs text-red-800 flex items-center space-x-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{error}</span>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Applicant Full Name
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Applicant Legal Name
                   </label>
                   <input
                     type="text"
                     required
+                    placeholder="e.g. Rameshwar Deshmukh"
                     value={applicantName}
                     onChange={(e) => setApplicantName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium"
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Mobile Number
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    maxLength={10}
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Employment Type
-                  </label>
-                  <select
-                    value={employmentType}
-                    onChange={(e) => setEmploymentType(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium bg-white"
-                  >
-                    <option value="SALARIED">Salaried Employee</option>
-                    <option value="SELF_EMPLOYED_BUSINESS">Self-Employed (Business)</option>
-                    <option value="SELF_EMPLOYED_PROFESSIONAL">Self-Employed (Doctor/CA/Lawyer)</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                      Monthly Income (₹)
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                      Mobile Number
                     </label>
                     <input
-                      type="number"
+                      type="tel"
                       required
-                      placeholder="e.g. 85000"
-                      value={monthlyIncome}
-                      onChange={(e) => setMonthlyIncome(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-medium"
+                      maxLength={10}
+                      placeholder="9823000000"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                      Loan Required (₹)
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="name@domain.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
+                    Employment Category
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['SALARIED', 'SELF_EMPLOYED', 'BUSINESS'].map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setEmploymentType(type)}
+                        className={`py-2 px-1 text-[11px] uppercase tracking-wider font-medium border transition-colors ${
+                          employmentType === type
+                            ? 'border-navy bg-navy text-white'
+                            : 'border-beige bg-ivory-light text-charcoal-muted hover:border-gold'
+                        }`}
+                      >
+                        {type.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                      Net Monthly Cashflow (₹)
                     </label>
                     <input
                       type="number"
                       required
-                      placeholder="e.g. 4500000"
+                      placeholder="e.g. 150000"
+                      value={monthlyIncome}
+                      onChange={(e) => setMonthlyIncome(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                      Required Capital (₹)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 6000000"
                       value={loanAmountRequired}
                       onChange={(e) => setLoanAmountRequired(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-medium"
+                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
                     />
                   </div>
                 </div>
@@ -162,10 +189,10 @@ const LoanEnquiryPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white text-xs font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 mt-4"
+                  className="w-full bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 mt-4"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>{loading ? 'Submitting...' : 'Request Loan Consultation'}</span>
+                  <Send className="w-3.5 h-3.5 text-gold" />
+                  <span>{loading ? 'Submitting Application...' : 'Submit Pre-Approval Dossier'}</span>
                 </button>
               </form>
             )}
@@ -177,4 +204,3 @@ const LoanEnquiryPage = () => {
 };
 
 export default LoanEnquiryPage;
-

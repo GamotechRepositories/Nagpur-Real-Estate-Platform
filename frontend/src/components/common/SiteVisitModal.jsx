@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, User, Phone, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -37,7 +37,7 @@ const SiteVisitModal = ({ isOpen, onClose, property }) => {
 
     const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
     if (cleanPhone.length !== 10) {
-      setError('Please provide a valid 10-digit mobile number');
+      setError('Please provide a valid 10-digit Indian mobile number');
       return;
     }
 
@@ -65,130 +65,129 @@ const SiteVisitModal = ({ isOpen, onClose, property }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-deep/80 backdrop-blur-sm">
+      <div className="bg-white max-w-lg w-full border border-beige shadow-card relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 text-charcoal-muted hover:text-navy transition-colors z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="p-6 sm:p-8">
+        <div className="p-8">
           <div className="mb-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-teal">
-              Physical Inspection
+            <span className="text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-2.5 py-0.5 bg-ivory">
+              Private Accompanied Inspection
             </span>
-            <h3 className="text-xl font-black text-brand-navy mt-1">
-              Schedule a Site Visit
+            <h3 className="font-serif text-2xl text-navy font-normal mt-2">
+              Schedule Private Viewing
             </h3>
-            <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-              Visiting: <strong>{property.title}</strong>
+            <p className="text-xs text-charcoal-muted mt-1 line-clamp-1 font-sans">
+              Property: <strong className="text-navy">{property.title}</strong>
             </p>
           </div>
 
           {success ? (
-            <div className="py-8 text-center space-y-3">
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-8 h-8" />
+            <div className="py-10 text-center space-y-3 bg-ivory border border-beige p-6">
+              <div className="w-12 h-12 border border-gold text-gold flex items-center justify-center mx-auto bg-white">
+                <CheckCircle className="w-6 h-6 stroke-[1.5]" />
               </div>
-              <h4 className="text-lg font-bold text-slate-900">Site Visit Requested!</h4>
-              <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                Our property specialist will contact you to confirm your visit for {preferredDate} during {preferredTimeSlot}.
+              <h4 className="font-serif text-xl text-navy">Private Tour Requested</h4>
+              <p className="text-xs text-charcoal-muted max-w-xs mx-auto font-sans leading-relaxed">
+                Our property specialist will contact you to confirm access protocols for {preferredDate} ({preferredTimeSlot}).
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center space-x-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <div className="p-3 bg-red-50 border border-red-200 text-xs text-red-800 flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{error}</span>
                 </div>
               )}
 
+              <div>
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                  Full Legal Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Anjali Sharma"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Select Date
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Phone (10 Digits)
                   </label>
-                  <div className="relative">
-                    <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                    <input
-                      type="date"
-                      required
-                      min={minDate}
-                      value={preferredDate}
-                      onChange={(e) => setPreferredDate(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-xs font-medium text-slate-800"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    Preferred Time Slot
-                  </label>
-                  <div className="relative">
-                    <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                    <select
-                      value={preferredTimeSlot}
-                      onChange={(e) => setPreferredTimeSlot(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-xs font-medium text-slate-800 bg-white"
-                    >
-                      {TIME_SLOTS.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Your Full Name
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Full name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Mobile Number
-                </label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-600 text-xs font-bold">
-                    +91
-                  </span>
                   <input
                     type="tel"
                     required
                     maxLength={10}
-                    placeholder="10-digit mobile number"
+                    placeholder="9823000000"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-4 py-2.5 rounded-r-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-sm font-medium"
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans font-medium"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="name@domain.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Requested Date
+                  </label>
+                  <input
+                    type="date"
+                    min={minDate}
+                    required
+                    value={preferredDate}
+                    onChange={(e) => setPreferredDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                    Time Window
+                  </label>
+                  <select
+                    value={preferredTimeSlot}
+                    onChange={(e) => setPreferredTimeSlot(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                  >
+                    {TIME_SLOTS.map((slot) => (
+                      <option key={slot} value={slot}>{slot}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-teal hover:bg-brand-teal-light text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm disabled:opacity-50"
+                className="w-full bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
               >
-                <Calendar className="w-4 h-4" />
-                <span>{loading ? 'Scheduling...' : 'Confirm Site Visit'}</span>
+                <Calendar className="w-3.5 h-3.5 text-gold" />
+                <span>{loading ? 'Arranging...' : 'Confirm Viewing Appointment'}</span>
               </button>
             </form>
           )}
@@ -199,4 +198,3 @@ const SiteVisitModal = ({ isOpen, onClose, property }) => {
 };
 
 export default SiteVisitModal;
-

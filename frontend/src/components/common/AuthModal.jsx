@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Phone, Lock, UserCheck, ShieldCheck, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, ShieldCheck, AlertCircle, ArrowRight, Lock, Phone, UserCheck } from 'lucide-react';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -123,75 +123,76 @@ const AuthModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-deep/80 backdrop-blur-sm">
+      <div className="bg-white max-w-md w-full border border-beige shadow-card relative">
         {/* Close Button */}
         <button
           onClick={() => {
             resetForm();
             onClose();
           }}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 text-charcoal-muted hover:text-navy transition-colors z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header Tabs */}
-        <div className="flex border-b border-slate-100 bg-slate-50/50">
+        <div className="flex border-b border-beige bg-ivory">
           <button
             onClick={() => {
               setActiveTab('otp');
               resetForm();
             }}
-            className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider text-center border-b-2 transition-colors ${
+            className={`flex-1 py-4 text-xs font-semibold uppercase tracking-luxury text-center border-b-2 transition-colors ${
               activeTab === 'otp'
-                ? 'border-brand-orange text-brand-orange bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-gold text-navy bg-white'
+                : 'border-transparent text-charcoal-muted hover:text-navy'
             }`}
           >
-            Buyer / Owner / Agent OTP
+            Client / Broker OTP
           </button>
           <button
             onClick={() => {
               setActiveTab('admin');
               resetForm();
             }}
-            className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider text-center border-b-2 transition-colors ${
+            className={`flex-1 py-4 text-xs font-semibold uppercase tracking-luxury text-center border-b-2 transition-colors ${
               activeTab === 'admin'
-                ? 'border-brand-teal text-brand-teal bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-gold text-navy bg-white'
+                : 'border-transparent text-charcoal-muted hover:text-navy'
             }`}
           >
-            Staff Portal Login
+            Staff Portal
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8">
+        <div className="p-8">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start space-x-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div className="mb-5 p-3.5 bg-red-50 border border-red-200 text-xs text-red-800 flex items-start space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
           {infoMessage && (
-            <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
-              {infoMessage}
+            <div className="mb-5 p-3.5 bg-ivory border border-gold/40 text-xs text-navy flex items-start space-x-2">
+              <ShieldCheck className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+              <span>{infoMessage}</span>
             </div>
           )}
 
           {/* Dev OTP Helper Banner */}
           {devOtpCode && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-center justify-between">
+            <div className="mb-5 p-3 bg-ivory border border-gold text-xs text-navy flex items-center justify-between">
               <div>
-                <strong className="block font-bold">Development Mode Active:</strong>
-                <span>Use OTP code: <strong className="text-sm font-mono text-brand-navy">{devOtpCode}</strong></span>
+                <strong className="block font-serif text-gold text-xs uppercase tracking-luxury">Development Code:</strong>
+                <span>One-Time Passcode: <strong className="text-sm font-mono font-bold text-navy">{devOtpCode}</strong></span>
               </div>
               <button
                 type="button"
                 onClick={() => setOtp(devOtpCode)}
-                className="bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold px-2 py-1 rounded text-[11px]"
+                className="bg-navy hover:bg-navy-light text-white text-[10px] uppercase tracking-luxury font-medium px-3 py-1.5 transition-colors"
               >
                 Auto Fill
               </button>
@@ -202,33 +203,33 @@ const AuthModal = ({ isOpen, onClose }) => {
           {activeTab === 'otp' && (
             <div>
               {step === 'request' ? (
-                <form onSubmit={handleRequestOtp} className="space-y-4">
+                <form onSubmit={handleRequestOtp} className="space-y-5">
                   <div className="text-center mb-6">
-                    <h3 className="text-xl font-black text-brand-navy">Login or Register</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Enter your mobile number to receive a secure OTP code
+                    <h3 className="font-serif text-2xl text-navy font-normal">Private Access</h3>
+                    <p className="text-xs text-charcoal-muted mt-1 font-sans">
+                      Enter your mobile number for secure instant authentication
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                      Full Name (Optional)
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
+                      Full Legal Name (Optional)
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Rahul Deshmukh"
+                      placeholder="e.g. Vikramaditya Deshmukh"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm"
+                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
                       Mobile Number
                     </label>
                     <div className="flex">
-                      <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-600 text-xs font-bold">
+                      <span className="inline-flex items-center px-3.5 border border-r-0 border-beige bg-ivory text-charcoal text-xs font-semibold">
                         +91
                       </span>
                       <input
@@ -238,29 +239,29 @@ const AuthModal = ({ isOpen, onClose }) => {
                         placeholder="10-digit mobile number"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
-                        className="w-full px-4 py-2.5 rounded-r-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-medium"
+                        className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans font-medium"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                      I want to use Nagpur Estate as
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
+                      Portal Profile Type
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { label: 'Buyer / Tenant', value: 'USER' },
-                        { label: 'Owner', value: 'OWNER' },
-                        { label: 'Agent', value: 'AGENT' },
+                        { label: 'Investor / Buyer', value: 'USER' },
+                        { label: 'Asset Owner', value: 'OWNER' },
+                        { label: 'Licensed Broker', value: 'AGENT' },
                       ].map((item) => (
                         <button
                           key={item.value}
                           type="button"
                           onClick={() => setRole(item.value)}
-                          className={`py-2 px-2 text-xs font-bold rounded-xl border transition-all ${
+                          className={`py-2 px-1 text-[11px] uppercase tracking-wider font-medium border transition-colors ${
                             role === item.value
-                              ? 'border-brand-orange bg-orange-50 text-brand-orange shadow-sm'
-                              : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'border-navy bg-navy text-white'
+                              : 'border-beige bg-white text-charcoal-muted hover:border-gold'
                           }`}
                         >
                           {item.label}
@@ -272,29 +273,29 @@ const AuthModal = ({ isOpen, onClose }) => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm disabled:opacity-50"
+                    className="w-full bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
-                    <span>{loading ? 'Sending OTP...' : 'Send OTP'}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>{loading ? 'Transmitting OTP...' : 'Request Authentication Code'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-gold" />
                   </button>
 
-                  <p className="text-[11px] text-center text-slate-400">
-                    By proceeding, you agree to Nagpur Real Estate’s Terms & Privacy Policy.
+                  <p className="text-[10px] text-center text-charcoal-muted font-sans leading-relaxed">
+                    By authenticating, you affirm compliance with Nagpur Estates governance protocols.
                   </p>
                 </form>
               ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <form onSubmit={handleVerifyOtp} className="space-y-5">
                   <div className="text-center mb-6">
-                    <h3 className="text-xl font-black text-brand-navy">Verify OTP Code</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Enter the 6-digit code sent to <strong>+91 {phone}</strong>
+                    <h3 className="font-serif text-2xl text-navy font-normal">Verify Security Code</h3>
+                    <p className="text-xs text-charcoal-muted mt-1 font-sans">
+                      Enter the 6-digit passcode dispatched to <strong className="text-navy">+91 {phone}</strong>
                     </p>
                     <button
                       type="button"
                       onClick={() => setStep('request')}
-                      className="text-xs text-brand-orange font-bold hover:underline mt-1"
+                      className="text-xs text-gold font-medium hover:underline mt-1.5 uppercase tracking-wider block mx-auto"
                     >
-                      Change Number
+                      Change Contact Number
                     </button>
                   </div>
 
@@ -306,7 +307,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                       placeholder="• • • • • •"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                      className="w-full text-center text-2xl tracking-[0.5em] font-mono py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange"
+                      className="w-full text-center text-2xl tracking-[0.5em] font-mono py-3 border border-beige bg-ivory-light text-navy focus:outline-none focus:border-gold transition-colors"
                       autoFocus
                     />
                   </div>
@@ -314,10 +315,10 @@ const AuthModal = ({ isOpen, onClose }) => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-brand-teal hover:bg-brand-teal-light text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm disabled:opacity-50"
+                    className="w-full bg-gold hover:bg-gold-light text-navy text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
                     <ShieldCheck className="w-4 h-4" />
-                    <span>{loading ? 'Verifying...' : 'Verify & Continue'}</span>
+                    <span>{loading ? 'Validating...' : 'Authorize Session'}</span>
                   </button>
 
                   <div className="text-center pt-2">
@@ -325,9 +326,9 @@ const AuthModal = ({ isOpen, onClose }) => {
                       type="button"
                       onClick={handleRequestOtp}
                       disabled={loading}
-                      className="text-xs font-semibold text-slate-600 hover:text-brand-orange"
+                      className="text-xs text-charcoal-muted hover:text-navy transition-colors font-sans"
                     >
-                      Didn't receive code? Resend OTP
+                      Did not receive code? Resend SMS
                     </button>
                   </div>
                 </form>
@@ -337,76 +338,63 @@ const AuthModal = ({ isOpen, onClose }) => {
 
           {/* TAB 2: STAFF / ADMIN PASSWORD LOGIN */}
           {activeTab === 'admin' && (
-            <form onSubmit={handleAdminLogin} className="space-y-4">
+            <form onSubmit={handleAdminLogin} className="space-y-5">
               <div className="text-center mb-6">
-                <h3 className="text-xl font-black text-brand-navy">Staff Portal Access</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Restricted to Super Admins, Moderators, and CRM Managers
+                <h3 className="font-serif text-2xl text-navy font-normal">Staff Administration</h3>
+                <p className="text-xs text-charcoal-muted mt-1 font-sans">
+                  Restricted portal for verified moderators and administrators
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Staff Email
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
+                  Staff Email Address
                 </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="email"
-                    required
-                    placeholder="admin@nagpurestate.com"
-                    value={adminEmail}
-                    onChange={(e) => setAdminEmail(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-sm"
-                  />
-                </div>
+                <input
+                  type="email"
+                  required
+                  placeholder="admin@nagpurestate.com"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Password
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
+                  Master Password
                 </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••••••"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-sm"
-                  />
-                </div>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••••••"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  2FA Authenticator Code (If Enabled)
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1.5 font-medium">
+                  Two-Factor Authentication Code (Optional)
                 </label>
                 <input
                   type="text"
-                  maxLength={6}
-                  placeholder="6-digit TOTP code"
+                  placeholder="6-digit authenticator code"
                   value={admin2FA}
-                  onChange={(e) => setAdmin2FA(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal text-sm font-mono text-center tracking-widest"
+                  onChange={(e) => setAdmin2FA(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-teal hover:bg-brand-teal-light text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm disabled:opacity-50"
+                className="w-full bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
               >
-                <Lock className="w-4 h-4" />
-                <span>{loading ? 'Authenticating...' : 'Sign In as Staff'}</span>
+                <Lock className="w-3.5 h-3.5 text-gold" />
+                <span>{loading ? 'Authenticating...' : 'Access Command Center'}</span>
               </button>
-
-              <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-[11px] text-slate-500">
-                Default Demo Credentials: <br />
-                Email: <code className="text-slate-800 font-bold">admin@nagpurestate.com</code><br />
-                Password: <code className="text-slate-800 font-bold">Nagpur@Admin2026!</code>
-              </div>
             </form>
           )}
         </div>
@@ -416,4 +404,3 @@ const AuthModal = ({ isOpen, onClose }) => {
 };
 
 export default AuthModal;
-

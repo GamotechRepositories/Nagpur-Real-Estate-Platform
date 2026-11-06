@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Search, MapPin, Building, IndianRupee, Bed, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Building, ChevronDown, Check } from 'lucide-react';
 
 const NAGPUR_POPULAR_LOCALITIES = [
   'Dharampeth',
+  'Civil Lines',
+  'Ramdaspeth',
   'Manish Nagar',
   'Wardha Road',
   'Besa',
-  'Civil Lines',
-  'Ramdaspeth',
   'Shankar Nagar',
   'Sitabuldi',
-  'Hingna Road',
-  'Pratap Nagar',
 ];
 
 const HeroSearch = () => {
@@ -69,34 +67,43 @@ const HeroSearch = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-b from-brand-teal-dark via-brand-teal to-brand-navy text-white pt-12 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Subtle geometric background overlay */}
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ea580c_1px,transparent_1px)] [background-size:16px_16px]"></div>
+    <div className="relative bg-[#172C3B] text-white overflow-hidden border-b border-[#E9E4DA]">
+      {/* Background Architectural Luxury Image with Editorial Tint */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85"
+          alt="Luxury Architecture in Nagpur"
+          className="w-full h-full object-cover object-center opacity-30 mix-blend-luminosity filter brightness-90 contrast-125"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#172C3B] via-[#172C3B]/90 to-[#172C3B]/70"></div>
+      </div>
 
-      <div className="max-w-5xl mx-auto relative z-10 text-center">
-        {/* Nagpur Badge */}
-        <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold text-orange-300 border border-white/10 mb-6">
-          <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
-          <span>Nagpur's #1 Dedicated Real Estate Marketplace</span>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 relative z-10">
+        {/* Editorial Headline & Subtitle */}
+        <div className="max-w-3xl space-y-4">
+          <div className="inline-flex items-center space-x-2 text-[11px] uppercase tracking-widest text-[#B89A65] font-semibold">
+            <span className="w-6 h-px bg-[#B89A65]"></span>
+            <span>Nagpur's Premier Real Estate Portfolio</span>
+          </div>
+
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#FFFFFF] leading-[1.1]">
+            Find Your Place in Nagpur.
+          </h1>
+
+          <p className="text-base sm:text-lg text-[#E9E4DA]/90 font-light max-w-2xl leading-relaxed pt-1">
+            Discover exceptional properties, trusted agents, and the perfect place to call home.
+          </p>
         </div>
 
-        {/* Hero Title */}
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
-          {t('hero.title')}
-        </h1>
-        <p className="mt-4 text-base sm:text-lg text-slate-200 max-w-2xl mx-auto font-normal">
-          {t('hero.subtitle')}
-        </p>
-
-        {/* Search Filter Box Card */}
-        <div className="mt-10 bg-white rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/20 text-slate-900 max-w-4xl mx-auto backdrop-blur-lg">
-          {/* Top Purpose Tabs */}
-          <div className="flex border-b border-slate-100 pb-3 mb-4 space-x-2 sm:space-x-4 overflow-x-auto">
+        {/* Luxury Search Interface Panel */}
+        <div className="mt-12 bg-[#FFFFFF] border border-[#E9E4DA] shadow-hover p-4 sm:p-6 text-[#252525]">
+          {/* Top Category Tabs */}
+          <div className="flex border-b border-[#E9E4DA] mb-6 space-x-6 sm:space-x-10 overflow-x-auto text-xs uppercase tracking-luxury font-medium">
             {[
-              { id: 'BUY', label: t('filters.buy') },
-              { id: 'RENT', label: t('filters.rent') },
-              { id: 'PLOT', label: t('filters.plots') },
-              { id: 'COMMERCIAL', label: t('filters.commercial') },
+              { id: 'BUY', label: 'Buy Residence' },
+              { id: 'RENT', label: 'Rent Residence' },
+              { id: 'PLOT', label: 'Land & Plots' },
+              { id: 'COMMERCIAL', label: 'Commercial' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -105,10 +112,10 @@ const HeroSearch = () => {
                   setPurpose(tab.id);
                   setSubtype('');
                 }}
-                className={`py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+                className={`pb-3 border-b-2 transition-all whitespace-nowrap ${
                   purpose === tab.id
-                    ? 'bg-brand-navy text-white shadow-md'
-                    : 'text-slate-600 hover:text-brand-orange hover:bg-slate-50'
+                    ? 'border-[#B89A65] text-[#172C3B] font-bold'
+                    : 'border-transparent text-[#252525]/60 hover:text-[#172C3B]'
                 }`}
               >
                 {tab.label}
@@ -116,30 +123,30 @@ const HeroSearch = () => {
             ))}
           </div>
 
-          {/* Search Inputs Grid */}
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            {/* Locality Autocomplete (Span 4) */}
+          {/* Search Fields Grid */}
+          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            {/* Location (Span 4) */}
             <div className="md:col-span-4 relative text-left">
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">
-                Locality / Area
+              <label className="block text-[10px] uppercase tracking-widest text-[#252525]/60 font-semibold mb-1.5">
+                Location / Neighborhood
               </label>
               <div className="relative">
-                <MapPin className="w-4 h-4 text-brand-orange absolute left-3.5 top-3" />
+                <MapPin className="w-4 h-4 text-[#B89A65] absolute left-3 top-3 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="e.g. Dharampeth, Manish Nagar"
+                  placeholder="Dharampeth, Civil Lines, Manish Nagar..."
                   value={locality}
                   onChange={(e) => handleLocalityInput(e.target.value)}
                   onFocus={() => {
                     if (locality) setShowSuggestions(true);
                   }}
-                  className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-semibold text-slate-800 placeholder-slate-400"
+                  className="w-full pl-9 pr-3 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] placeholder-[#252525]/40 outline-none transition-colors"
                 />
               </div>
 
-              {/* Autocomplete dropdown */}
+              {/* Suggestions */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 max-h-48 overflow-y-auto">
+                <div className="absolute left-0 right-0 mt-1 bg-white border border-[#E9E4DA] shadow-dropdown py-1 z-50 text-xs">
                   {suggestions.map((loc) => (
                     <button
                       key={loc}
@@ -148,131 +155,118 @@ const HeroSearch = () => {
                         setLocality(loc);
                         setShowSuggestions(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-orange flex items-center space-x-2"
+                      className="w-full text-left px-3 py-2 text-slate-700 hover:bg-[#F7F4ED] hover:text-[#B89A65] flex items-center justify-between"
                     >
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
                       <span>{loc}, Nagpur</span>
+                      <span className="text-[10px] text-slate-400">Maharashtra</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Property Type Dropdown (Span 3) */}
+            {/* Property Type (Span 3) */}
             <div className="md:col-span-3 text-left">
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">
-                Property Type
+              <label className="block text-[10px] uppercase tracking-widest text-[#252525]/60 font-semibold mb-1.5">
+                Property Category
               </label>
               <div className="relative">
-                <Building className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <Building className="w-4 h-4 text-[#252525]/40 absolute left-3 top-3 pointer-events-none" />
                 <select
                   value={subtype}
                   onChange={(e) => setSubtype(e.target.value)}
-                  className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-medium text-slate-800 bg-white appearance-none"
+                  className="w-full pl-9 pr-8 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] outline-none appearance-none cursor-pointer transition-colors"
                 >
-                  <option value="">All Types</option>
+                  <option value="">All Categories</option>
                   {purpose === 'COMMERCIAL' ? (
                     <>
-                      <option value="COMMERCIAL_SHOP">Retail Shop</option>
-                      <option value="COMMERCIAL_OFFICE">Office Space</option>
-                      <option value="WAREHOUSE">Warehouse / Godown</option>
+                      <option value="COMMERCIAL_SHOP">Retail Space & Shop</option>
+                      <option value="COMMERCIAL_OFFICE">Corporate Office Space</option>
+                      <option value="WAREHOUSE">Warehouse / Industrial</option>
                     </>
                   ) : purpose === 'PLOT' ? (
                     <>
-                      <option value="PLOT">Residential Plot</option>
-                      <option value="FARM_LAND">Agricultural / Farm Land</option>
+                      <option value="PLOT">Residential Layout Plot</option>
+                      <option value="FARM_LAND">Agricultural & Farm Land</option>
                     </>
                   ) : (
                     <>
-                      <option value="FLAT">Flat / Apartment</option>
-                      <option value="HOUSE_VILLA">Independent House / Villa</option>
-                      <option value="PENTHOUSE">Penthouse</option>
+                      <option value="FLAT">Luxury Apartment / Flat</option>
+                      <option value="HOUSE_VILLA">Independent Bungalow / Villa</option>
+                      <option value="PENTHOUSE">Exclusive Penthouse</option>
                     </>
                   )}
                 </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#252525]/40 absolute right-3 top-3.5 pointer-events-none" />
               </div>
             </div>
 
-            {/* BHK / Bedrooms (Span 2) */}
-            {purpose !== 'PLOT' && purpose !== 'COMMERCIAL' ? (
-              <div className="md:col-span-2 text-left">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">
-                  Bedrooms
-                </label>
-                <div className="relative">
-                  <Bed className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <select
-                    value={bhk}
-                    onChange={(e) => setBhk(e.target.value)}
-                    className="w-full pl-9 pr-6 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-medium text-slate-800 bg-white appearance-none"
-                  >
-                    <option value="">Any</option>
-                    <option value="1">1 BHK</option>
-                    <option value="2">2 BHK</option>
-                    <option value="3">3 BHK</option>
-                    <option value="4">4 BHK</option>
-                    <option value="5">5+ BHK</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
-                </div>
-              </div>
-            ) : (
-              /* Budget if plot / commercial */
-              <div className="md:col-span-2 text-left">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">
-                  Budget
-                </label>
-                <div className="relative">
-                  <IndianRupee className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            {/* Bedrooms or Budget (Span 3) */}
+            <div className="md:col-span-3 text-left">
+              <label className="block text-[10px] uppercase tracking-widest text-[#252525]/60 font-semibold mb-1.5">
+                {purpose === 'PLOT' || purpose === 'COMMERCIAL' ? 'Price Range' : 'Bedrooms (BHK)'}
+              </label>
+              <div className="relative">
+                {purpose === 'PLOT' || purpose === 'COMMERCIAL' ? (
                   <select
                     value={budget}
                     onChange={(e) => setBudget(e.target.value)}
-                    className="w-full pl-9 pr-6 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-medium text-slate-800 bg-white appearance-none"
+                    className="w-full px-3 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] outline-none appearance-none cursor-pointer"
                   >
-                    <option value="">Any</option>
-                    <option value="0-3000000">&lt; 30 Lakhs</option>
-                    <option value="3000000-6000000">30L - 60 Lakhs</option>
-                    <option value="6000000-10000000">60L - 1 Crore</option>
-                    <option value="10000000-25000000">1 Cr - 2.5 Cr</option>
-                    <option value="25000000-">2.5 Cr +</option>
+                    <option value="">Any Budget</option>
+                    <option value="0-5000000">Up to ₹ 50 Lakhs</option>
+                    <option value="5000000-10000000">₹ 50L - ₹ 1 Crore</option>
+                    <option value="10000000-25000000">₹ 1 Cr - ₹ 2.5 Crore</option>
+                    <option value="25000000-">Above ₹ 2.5 Crore</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
-                </div>
+                ) : (
+                  <select
+                    value={bhk}
+                    onChange={(e) => setBhk(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] outline-none appearance-none cursor-pointer"
+                  >
+                    <option value="">Any Configuration</option>
+                    <option value="1">1 BHK Residence</option>
+                    <option value="2">2 BHK Residence</option>
+                    <option value="3">3 BHK Premium</option>
+                    <option value="4">4 BHK Luxury</option>
+                    <option value="5">5+ BHK Estate</option>
+                  </select>
+                )}
+                <ChevronDown className="w-3.5 h-3.5 text-[#252525]/40 absolute right-3 top-3.5 pointer-events-none" />
               </div>
-            )}
+            </div>
 
-            {/* Search Submit Button (Span 3) */}
-            <div className="md:col-span-3 pt-4 md:pt-5">
+            {/* Search Button (Span 2) */}
+            <div className="md:col-span-2">
               <button
                 type="submit"
-                className="w-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center space-x-2 text-sm hover:scale-[1.02] active:scale-95"
+                className="w-full bg-[#172C3B] hover:bg-[#223D52] text-[#FFFFFF] text-xs uppercase tracking-luxury font-medium py-3 px-4 border border-[#B89A65]/40 transition-colors flex items-center justify-center space-x-2"
               >
-                <Search className="w-4 h-4" />
-                <span>{t('hero.searchBtn')}</span>
+                <Search className="w-3.5 h-3.5 text-[#B89A65]" />
+                <span>Search</span>
               </button>
             </div>
           </form>
         </div>
 
-        {/* Quick Trending Localities Chips */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-300">
-          <span className="font-semibold text-white">Popular in Nagpur:</span>
-          {NAGPUR_POPULAR_LOCALITIES.slice(0, 6).map((loc) => (
+        {/* Minimal Enclave Bar */}
+        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#E9E4DA]/80">
+          <span className="font-serif italic text-white">Distinguished Enclaves:</span>
+          {NAGPUR_POPULAR_LOCALITIES.slice(0, 5).map((loc) => (
             <button
               key={loc}
               type="button"
               onClick={() => navigate(`/properties?locality=${loc}`)}
-              className="bg-white/10 hover:bg-white/20 border border-white/10 px-3 py-1 rounded-full text-slate-200 transition-colors"
+              className="hover:text-[#B89A65] underline decoration-[#B89A65]/50 underline-offset-4 transition-colors"
             >
               {loc}
             </button>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
 export default HeroSearch;
-

@@ -1,14 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import apiClient from '../../api/client';
 import PropertyCard from '../../components/common/PropertyCard';
 
 const FeaturedProperties = ({ onOpenAuth }) => {
-  const { t } = useTranslation();
-
   const { data, isLoading } = useQuery({
     queryKey: ['featured-properties'],
     queryFn: async () => {
@@ -18,36 +15,36 @@ const FeaturedProperties = ({ onOpenAuth }) => {
   });
 
   return (
-    <section className="py-16 bg-slate-50">
+    <section className="py-20 bg-[#F7F4ED] border-b border-[#E9E4DA]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-          <div>
-            <div className="inline-flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-brand-orange bg-orange-50 px-3 py-1 rounded-full mb-2 border border-orange-200">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Handpicked Collection</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-brand-navy">
-              {t('sections.featuredTitle')}
+        {/* Editorial Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 pb-6 border-b border-[#E9E4DA]">
+          <div className="space-y-2">
+            <span className="text-[11px] uppercase tracking-widest text-[#B89A65] font-semibold block">
+              Curated Portfolio
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#172C3B]">
+              Featured Residences & Estates
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              {t('sections.featuredSubtitle')}
+            <p className="text-xs sm:text-sm text-[#252525]/70 max-w-xl font-light">
+              Handpicked luxury apartments, private bungalows, and prime land parcels across Nagpur.
             </p>
           </div>
 
           <Link
             to="/properties?isFeatured=true"
-            className="mt-4 md:mt-0 inline-flex items-center space-x-2 text-sm font-bold text-brand-teal hover:text-brand-orange transition-colors"
+            className="mt-4 md:mt-0 inline-flex items-center space-x-2 text-xs uppercase tracking-luxury font-medium text-[#172C3B] hover:text-[#B89A65] transition-colors group"
           >
-            <span>Explore All Featured</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>View All Curated Listings</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#B89A65] group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        {/* Loading Skeletons */}
+        {/* Listings Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="bg-white rounded-2xl h-80 animate-pulse border border-slate-200"></div>
+              <div key={n} className="bg-white border border-[#E9E4DA] h-84 animate-pulse"></div>
             ))}
           </div>
         ) : data && data.length > 0 ? (
@@ -57,8 +54,8 @@ const FeaturedProperties = ({ onOpenAuth }) => {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-8 text-center text-sm text-slate-500 border border-slate-200">
-            No featured properties at the moment.
+          <div className="bg-white p-12 text-center text-xs text-[#252525]/60 border border-[#E9E4DA]">
+            No featured residences currently available.
           </div>
         )}
       </div>
@@ -67,4 +64,3 @@ const FeaturedProperties = ({ onOpenAuth }) => {
 };
 
 export default FeaturedProperties;
-

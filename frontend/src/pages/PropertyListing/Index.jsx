@@ -7,12 +7,12 @@ import {
   Grid,
   List,
   Search,
-  MapPin,
   X,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
   Building,
+  RotateCcw,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PropertyCard from '../../components/common/PropertyCard';
@@ -46,22 +46,9 @@ const PropertyListingPage = () => {
   const maxPrice = searchParams.get('maxPrice') || '';
   const bedrooms = searchParams.get('bedrooms') || '';
   const furnishing = searchParams.get('furnishing') || '';
-  const possessionStatus = searchParams.get('possessionStatus') || '';
   const isVerified = searchParams.get('isVerified') || '';
-  const isFeatured = searchParams.get('isFeatured') || '';
   const sort = searchParams.get('sort') || 'latest';
   const page = parseInt(searchParams.get('page') || '1', 10);
-
-  // Form input local state for smooth filter editing
-  const [localLocality, setLocalLocality] = useState(locality);
-  const [localMinPrice, setLocalMinPrice] = useState(minPrice);
-  const [localMaxPrice, setLocalMaxPrice] = useState(maxPrice);
-
-  useEffect(() => {
-    setLocalLocality(locality);
-    setLocalMinPrice(minPrice);
-    setLocalMaxPrice(maxPrice);
-  }, [locality, minPrice, maxPrice]);
 
   const updateParam = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -95,48 +82,48 @@ const PropertyListingPage = () => {
       <Helmet>
         <title>
           {locality
-            ? `Properties in ${locality}, Nagpur — Flats, Plots & Villas`
-            : 'Properties for Sale and Rent in Nagpur — Nagpur Real Estate'}
+            ? `Curated Properties in ${locality}, Nagpur | Nagpur Estates`
+            : 'Properties For Sale & Executive Lease in Nagpur | Nagpur Estates'}
         </title>
         <meta
           name="description"
-          content={`Browse verified real estate properties in ${locality || 'Nagpur'}. Buy and rent flats, plots, apartments with transparent pricing and RERA verification.`}
+          content={`Browse verified luxury apartments, independent villas, and NMRDA sanctioned plots in ${locality || 'Nagpur'}. Curated by Nagpur Estates.`}
         />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-8">
+      <div className="bg-ivory-light min-h-screen py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb & Title */}
-          <div className="mb-6">
-            <nav className="text-xs text-slate-500 mb-2 flex items-center space-x-1.5">
-              <Link to="/" className="hover:text-brand-orange">Home</Link>
+          {/* Breadcrumb & Header */}
+          <div className="mb-8">
+            <nav className="text-xs uppercase tracking-luxury text-charcoal-muted mb-3 flex items-center space-x-2">
+              <Link to="/" className="hover:text-navy transition-colors font-medium">Home</Link>
               <span>/</span>
-              <span className="text-slate-800 font-semibold">Nagpur Properties</span>
+              <span className="text-navy font-semibold">Nagpur Portfolio</span>
               {locality && (
                 <>
                   <span>/</span>
-                  <span className="text-brand-orange font-bold">{locality}</span>
+                  <span className="text-gold font-bold">{locality}</span>
                 </>
               )}
             </nav>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-beige pb-6">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-brand-navy">
-                  {locality ? `Properties in ${locality}, Nagpur` : 'Properties for Sale & Rent in Nagpur'}
+                <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
+                  {locality ? `Distinguished Residences in ${locality}` : 'Nagpur Curated Property Portfolio'}
                 </h1>
-                <p className="text-xs text-slate-500 mt-1">
-                  Showing <strong>{meta.totalCount}</strong> verified properties
+                <p className="text-xs text-charcoal-muted mt-2 font-sans">
+                  Presenting <span className="font-semibold text-navy">{meta.totalCount}</span> verified residential and commercial assets
                 </p>
               </div>
 
-              {/* View layout & Mobile filter button */}
+              {/* View Layout & Filters Control */}
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => setMobileFilterOpen(true)}
-                  className="lg:hidden flex items-center space-x-1.5 bg-white border border-slate-200 py-2 px-3.5 rounded-xl text-xs font-bold text-slate-700 shadow-sm"
+                  className="lg:hidden flex items-center space-x-2 bg-white border border-beige py-2 px-3.5 text-xs uppercase tracking-luxury font-medium text-navy shadow-subtle"
                 >
-                  <SlidersHorizontal className="w-4 h-4 text-brand-orange" />
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-gold" />
                   <span>Filters</span>
                 </button>
 
@@ -144,26 +131,28 @@ const PropertyListingPage = () => {
                 <select
                   value={sort}
                   onChange={(e) => updateParam('sort', e.target.value)}
-                  className="bg-white border border-slate-200 py-2 px-3 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  className="bg-white border border-beige py-2 px-3 text-xs text-charcoal focus:outline-none focus:border-gold font-sans font-medium"
                 >
-                  <option value="latest">Sort: Newest First</option>
+                  <option value="latest">Sort: Newest Acquisitions</option>
                   <option value="price_asc">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
-                  <option value="area_desc">Area: High to Low</option>
+                  <option value="area_desc">Area: Largest First</option>
                   <option value="featured">Featured First</option>
                 </select>
 
-                {/* Grid / List layout switcher */}
-                <div className="hidden sm:flex border border-slate-200 rounded-xl bg-white p-1">
+                {/* Grid / List switcher */}
+                <div className="hidden sm:flex border border-beige bg-white">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-slate-100 text-brand-orange' : 'text-slate-400'}`}
+                    className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-navy text-white' : 'text-charcoal-muted hover:text-navy'}`}
+                    title="Grid View"
                   >
                     <Grid className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded-lg ${viewMode === 'list' ? 'bg-slate-100 text-brand-orange' : 'text-slate-400'}`}
+                    className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-navy text-white' : 'text-charcoal-muted hover:text-navy'}`}
+                    title="List View"
                   >
                     <List className="w-4 h-4" />
                   </button>
@@ -174,39 +163,43 @@ const PropertyListingPage = () => {
 
           {/* Main Grid: Sidebar + Listings */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Desktop Filters Sidebar (Span 3) */}
-            <aside className="hidden lg:block lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-card sticky top-28">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
-                <span className="text-sm font-black text-brand-navy flex items-center space-x-1.5">
-                  <SlidersHorizontal className="w-4 h-4 text-brand-orange" />
-                  <span>Filter Properties</span>
+            {/* Desktop Filters Sidebar */}
+            <aside className="hidden lg:block lg:col-span-3 bg-white p-6 border border-beige shadow-subtle sticky top-28">
+              <div className="flex items-center justify-between pb-4 border-b border-beige mb-6">
+                <span className="font-serif text-sm font-semibold uppercase tracking-luxury text-navy flex items-center space-x-2">
+                  <SlidersHorizontal className="w-4 h-4 text-gold" />
+                  <span>Refine Selection</span>
                 </span>
                 <button
                   onClick={clearAllFilters}
-                  className="text-xs text-brand-orange font-bold hover:underline"
+                  className="text-[11px] uppercase tracking-luxury text-charcoal-muted hover:text-navy flex items-center transition-colors"
                 >
-                  Reset All
+                  <RotateCcw className="w-3 h-3 mr-1" />
+                  Reset
                 </button>
               </div>
 
-              <div className="space-y-6 text-xs font-semibold text-slate-700">
-                {/* Purpose Tab */}
+              <div className="space-y-6 text-xs text-charcoal">
+                {/* Purpose */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">
-                    Purpose
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2.5">
+                    Acquisition Purpose
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['BUY', 'RENT'].map((p) => (
+                    {[
+                      { label: 'Buy / Own', value: 'BUY' },
+                      { label: 'Lease / Rent', value: 'RENT' },
+                    ].map((p) => (
                       <button
-                        key={p}
-                        onClick={() => updateParam('purpose', purpose === p ? '' : p)}
-                        className={`py-2 px-3 rounded-xl border text-center transition-all ${
-                          purpose === p
-                            ? 'border-brand-navy bg-brand-navy text-white shadow-sm'
-                            : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                        key={p.value}
+                        onClick={() => updateParam('purpose', purpose === p.value ? '' : p.value)}
+                        className={`py-2 px-2 border text-center transition-colors text-xs font-medium tracking-luxury uppercase ${
+                          purpose === p.value
+                            ? 'border-navy bg-navy text-white'
+                            : 'border-beige bg-ivory-light text-charcoal hover:border-gold'
                         }`}
                       >
-                        {p === 'BUY' ? 'Buy / Sale' : 'Rent / Lease'}
+                        {p.label}
                       </button>
                     ))}
                   </div>
@@ -214,15 +207,15 @@ const PropertyListingPage = () => {
 
                 {/* Nagpur Locality */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">
-                    Nagpur Locality
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2">
+                    Enclave / Corridor
                   </label>
                   <select
                     value={locality}
                     onChange={(e) => updateParam('locality', e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-800"
+                    className="w-full p-2.5 border border-beige bg-ivory-light font-sans text-xs text-charcoal focus:outline-none focus:border-gold"
                   >
-                    <option value="">All Nagpur Localities</option>
+                    <option value="">All Nagpur Enclaves</option>
                     {NAGPUR_LOCALITIES.map((loc) => (
                       <option key={loc} value={loc}>
                         {loc}
@@ -233,37 +226,37 @@ const PropertyListingPage = () => {
 
                 {/* Property Type */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">
-                    Property Type
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2">
+                    Asset Class
                   </label>
                   <select
                     value={subtype}
                     onChange={(e) => updateParam('subtype', e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-800"
+                    className="w-full p-2.5 border border-beige bg-ivory-light font-sans text-xs text-charcoal focus:outline-none focus:border-gold"
                   >
-                    <option value="">All Types</option>
-                    <option value="FLAT">Flat / Apartment</option>
-                    <option value="HOUSE_VILLA">Independent House / Villa</option>
-                    <option value="PLOT">Residential Plot</option>
-                    <option value="COMMERCIAL_SHOP">Commercial Shop</option>
-                    <option value="COMMERCIAL_OFFICE">Office Space</option>
+                    <option value="">All Categories</option>
+                    <option value="FLAT">Luxury Apartment / Flat</option>
+                    <option value="HOUSE_VILLA">Independent Villa / Bungalow</option>
+                    <option value="PLOT">NMRDA Sanctioned Plot</option>
+                    <option value="COMMERCIAL_SHOP">Retail Commercial Suite</option>
+                    <option value="COMMERCIAL_OFFICE">Corporate Office Space</option>
                   </select>
                 </div>
 
                 {/* Bedrooms (BHK) */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">
+                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2">
                     Bedrooms (BHK)
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {['1', '2', '3', '4', '5'].map((b) => (
                       <button
                         key={b}
                         onClick={() => updateParam('bedrooms', bedrooms === b ? '' : b)}
-                        className={`w-10 h-10 rounded-xl border font-bold text-xs flex items-center justify-center transition-all ${
+                        className={`w-9 h-9 border text-xs font-semibold flex items-center justify-center transition-colors ${
                           bedrooms === b
-                            ? 'border-brand-orange bg-brand-orange text-white'
-                            : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                            ? 'border-navy bg-navy text-white'
+                            : 'border-beige bg-ivory-light text-charcoal hover:border-gold'
                         }`}
                       >
                         {b}{b === '5' ? '+' : ''}
@@ -272,47 +265,115 @@ const PropertyListingPage = () => {
                   </div>
                 </div>
 
-                {/* Furnishing */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">
-                    Furnishing
-                  </label>
-                  <select
-                    value={furnishing}
-                    onChange={(e) => updateParam('furnishing', e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-800"
-                  >
-                    <option value="">Any Furnishing</option>
-                    <option value="UNFURNISHED">Unfurnished</option>
-                    <option value="SEMI_FURNISHED">Semi-Furnished</option>
-                    <option value="FULLY_FURNISHED">Fully Furnished</option>
-                  </select>
-                </div>
-
                 {/* Verified Only Checkbox */}
-                <div className="pt-2">
+                <div className="pt-2 border-t border-beige">
                   <label className="flex items-center space-x-2.5 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isVerified === 'true'}
                       onChange={(e) => updateParam('isVerified', e.target.checked ? 'true' : '')}
-                      className="w-4 h-4 rounded text-brand-orange focus:ring-brand-orange accent-brand-orange"
+                      className="w-4 h-4 accent-gold"
                     />
-                    <span className="text-xs font-bold text-slate-800 flex items-center space-x-1">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      <span>Verified Properties Only</span>
+                    <span className="text-xs text-navy font-medium flex items-center space-x-1.5 font-sans">
+                      <ShieldCheck className="w-4 h-4 text-gold" />
+                      <span>MahaRERA Verified Only</span>
                     </span>
                   </label>
                 </div>
               </div>
             </aside>
 
-            {/* Listings Section (Span 9) */}
-            <main className="lg:col-span-9 space-y-6">
+            {/* Mobile Filter Drawer */}
+            {mobileFilterOpen && (
+              <div className="fixed inset-0 z-50 flex lg:hidden">
+                <div
+                  className="fixed inset-0 bg-navy-deep/60 backdrop-blur-sm"
+                  onClick={() => setMobileFilterOpen(false)}
+                />
+                <div className="relative ml-auto w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-card z-10 space-y-6">
+                  <div className="flex items-center justify-between pb-4 border-b border-beige">
+                    <span className="font-serif text-base text-navy font-semibold">Filter Portfolio</span>
+                    <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-charcoal-muted">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Purpose */}
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-2 font-medium">
+                      Purpose
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['BUY', 'RENT'].map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => updateParam('purpose', purpose === p ? '' : p)}
+                          className={`py-2 px-2 border text-center text-xs font-medium uppercase ${
+                            purpose === p
+                              ? 'border-navy bg-navy text-white'
+                              : 'border-beige bg-ivory text-charcoal'
+                          }`}
+                        >
+                          {p === 'BUY' ? 'Buy' : 'Rent'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Locality */}
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-2 font-medium">
+                      Locality
+                    </label>
+                    <select
+                      value={locality}
+                      onChange={(e) => updateParam('locality', e.target.value)}
+                      className="w-full p-2.5 border border-beige bg-ivory text-xs"
+                    >
+                      <option value="">All Nagpur Enclaves</option>
+                      {NAGPUR_LOCALITIES.map((loc) => (
+                        <option key={loc} value={loc}>{loc}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Verified */}
+                  <div>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={isVerified === 'true'}
+                        onChange={(e) => updateParam('isVerified', e.target.checked ? 'true' : '')}
+                        className="accent-gold w-4 h-4"
+                      />
+                      <span className="text-xs text-navy font-medium">MahaRERA Verified Only</span>
+                    </label>
+                  </div>
+
+                  <div className="pt-4 border-t border-beige flex gap-2">
+                    <button
+                      onClick={clearAllFilters}
+                      className="w-1/2 py-2.5 border border-beige text-xs uppercase tracking-luxury text-charcoal"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={() => setMobileFilterOpen(false)}
+                      className="w-1/2 py-2.5 bg-navy text-white text-xs uppercase tracking-luxury"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Listings Section */}
+            <main className="lg:col-span-9 space-y-8">
               {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {[1, 2, 3, 4, 5, 6].map((n) => (
-                    <div key={n} className="bg-white rounded-2xl h-80 animate-pulse border border-slate-200"></div>
+                    <div key={n} className="bg-white border border-beige h-96 animate-pulse"></div>
                   ))}
                 </div>
               ) : properties.length > 0 ? (
@@ -320,7 +381,7 @@ const PropertyListingPage = () => {
                   <div
                     className={
                       viewMode === 'grid'
-                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'
                         : 'space-y-6'
                     }
                   >
@@ -335,23 +396,23 @@ const PropertyListingPage = () => {
 
                   {/* Pagination Controls */}
                   {meta.totalPages > 1 && (
-                    <div className="pt-8 flex items-center justify-center space-x-2">
+                    <div className="pt-10 flex items-center justify-center space-x-2 border-t border-beige mt-10">
                       <button
                         disabled={page <= 1}
                         onClick={() => updateParam('page', (page - 1).toString())}
-                        className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50"
+                        className="p-2.5 border border-beige bg-white text-charcoal hover:border-gold disabled:opacity-30 transition-colors"
                       >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="w-4 h-4" />
                       </button>
 
                       {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
                         <button
                           key={p}
                           onClick={() => updateParam('page', p.toString())}
-                          className={`w-10 h-10 rounded-xl font-bold text-xs ${
+                          className={`w-9 h-9 border text-xs font-semibold transition-colors ${
                             page === p
-                              ? 'bg-brand-navy text-white shadow-md'
-                              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                              ? 'border-navy bg-navy text-white'
+                              : 'border-beige bg-white text-charcoal hover:border-gold'
                           }`}
                         >
                           {p}
@@ -361,27 +422,27 @@ const PropertyListingPage = () => {
                       <button
                         disabled={page >= meta.totalPages}
                         onClick={() => updateParam('page', (page + 1).toString())}
-                        className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50"
+                        className="p-2.5 border border-beige bg-white text-charcoal hover:border-gold disabled:opacity-30 transition-colors"
                       >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
                   )}
                 </>
               ) : (
-                <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-orange-50 text-brand-orange flex items-center justify-center mx-auto">
-                    <Search className="w-8 h-8" />
+                <div className="bg-white p-14 text-center border border-beige shadow-subtle space-y-4">
+                  <div className="w-14 h-14 border border-gold/40 text-gold flex items-center justify-center mx-auto bg-ivory">
+                    <Search className="w-6 h-6 stroke-[1.5]" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">No properties matched your criteria</h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Try broadening your filters or clearing locality and budget constraints to view more properties in Nagpur.
+                  <h3 className="font-serif text-2xl text-navy font-normal">No Properties Matched</h3>
+                  <p className="text-xs text-charcoal-muted max-w-sm mx-auto font-sans leading-relaxed">
+                    Adjust your corridor selections, budget parameters, or remove specific amenity filters to view broader listings in Nagpur.
                   </p>
                   <button
                     onClick={clearAllFilters}
-                    className="bg-brand-teal hover:bg-brand-teal-light text-white text-xs font-bold py-2.5 px-5 rounded-xl transition-all"
+                    className="inline-block bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase px-6 py-3 transition-colors mt-2"
                   >
-                    Clear All Filters
+                    Reset All Filters
                   </button>
                 </div>
               )}
@@ -396,4 +457,3 @@ const PropertyListingPage = () => {
 };
 
 export default PropertyListingPage;
-

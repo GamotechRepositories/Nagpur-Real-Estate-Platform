@@ -46,95 +46,97 @@ const AreaConverterPage = () => {
   return (
     <>
       <Helmet>
-        <title>Nagpur Real Estate Area Converter — Sq Ft, Guntha, Acre, Gaj</title>
-        <meta name="description" content="Accurate land and property area unit converter for Nagpur & Maharashtra. Convert square feet, guntha, square yards, acres and hectares." />
+        <title>Maharashtra Land & Area Unit Converter | Nagpur Estates</title>
+        <meta
+          name="description"
+          content="Accurate land and plot dimension conversions for Nagpur & Maharashtra: Square Feet, Guntha, Gaj, Acres, and Hectares."
+        />
       </Helmet>
 
-      <div className="bg-slate-50 min-h-screen py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="text-center max-w-xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-orange">
-              Maharashtra Real Estate
+      <div className="bg-ivory-light min-h-screen py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="text-center max-w-xl mx-auto border-b border-beige pb-6">
+            <span className="text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-3 py-1 bg-white mb-3 inline-block">
+              Vidarbha Land Measurement
             </span>
-            <h1 className="text-3xl font-black text-brand-navy mt-1">
+            <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
               Property Area Converter
             </h1>
-            <p className="text-xs text-slate-500 mt-2">
-              Convert land and plot areas instantly between Square Feet, Guntha, Gaj, Acres, and Hectares
+            <p className="text-xs sm:text-sm text-charcoal-muted mt-2 font-sans leading-relaxed">
+              Standardized dimensional translations across Maharashtra revenue units including Guntha, Gaj, Sq.Ft, and Acres.
             </p>
           </div>
 
           {/* Interactive Converter Card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-card">
+          <div className="bg-white p-8 sm:p-10 border border-beige shadow-subtle">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Enter Area Value
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                  Enter Land Magnitude
                 </label>
                 <input
                   type="number"
-                  min={1}
                   value={value}
-                  onChange={(e) => handleConvert(Number(e.target.value), unit)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-lg font-black text-brand-navy"
+                  onChange={(e) => handleConvert(e.target.value, unit)}
+                  className="w-full px-4 py-3 border border-beige bg-ivory-light text-navy text-sm font-semibold focus:outline-none focus:border-gold transition-colors font-sans"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Select Input Unit
+                <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                  Source Measurement Unit
                 </label>
                 <select
                   value={unit}
                   onChange={(e) => handleConvert(value, e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange text-sm font-bold text-slate-800 bg-white"
+                  className="w-full px-4 py-3 border border-beige bg-ivory-light text-navy text-sm font-medium focus:outline-none focus:border-gold transition-colors font-sans"
                 >
                   <option value="sqft">Square Feet (Sq.Ft)</option>
-                  <option value="guntha">Guntha (Nagpur Standard: 1,089 Sq.Ft)</option>
-                  <option value="sqyd">Square Yard / Gaj (9 Sq.Ft)</option>
-                  <option value="sqmtr">Square Metre (Sq.Mtr)</option>
-                  <option value="acre">Acre (43,560 Sq.Ft)</option>
-                  <option value="hectare">Hectare (1,07,639 Sq.Ft)</option>
+                  <option value="guntha">Guntha (1 Guntha = 1,089 Sq.Ft)</option>
+                  <option value="sqyd">Square Yard / Gaj (Sq.Yd)</option>
+                  <option value="sqmtr">Square Meter (Sq.Mtr)</option>
+                  <option value="acre">Acre (40 Gunthas)</option>
+                  <option value="hectare">Hectare (2.471 Acres)</option>
                 </select>
               </div>
             </div>
 
             {/* Results Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="text-[11px] text-slate-400 font-bold uppercase block">Square Feet</span>
-                <div className="text-xl font-black text-brand-navy mt-1">{results.sqFt?.toLocaleString()}</div>
-                <span className="text-[10px] text-slate-500">Standard residential unit</span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-beige">
+              <div className="bg-ivory-light p-4 border border-beige">
+                <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Square Feet</span>
+                <strong className="text-lg font-semibold text-navy font-sans">{results.sqFt}</strong>
+                <span className="text-[10px] text-charcoal-muted block mt-0.5">sq.ft</span>
               </div>
 
-              <div className="bg-orange-50 p-4 rounded-2xl border border-orange-200">
-                <span className="text-[11px] text-brand-orange font-bold uppercase block">Guntha (गुंठा)</span>
-                <div className="text-xl font-black text-brand-orange mt-1">{results.guntha}</div>
-                <span className="text-[10px] text-orange-700">1 Guntha = 1,089 Sq.Ft</span>
+              <div className="bg-ivory-light p-4 border border-beige">
+                <span className="text-[10px] uppercase tracking-luxury text-gold block mb-1">Maharashtra Guntha</span>
+                <strong className="text-lg font-semibold text-navy font-sans">{results.guntha}</strong>
+                <span className="text-[10px] text-charcoal-muted block mt-0.5">Gunthas</span>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="text-[11px] text-slate-400 font-bold uppercase block">Square Yard / Gaj</span>
-                <div className="text-xl font-black text-brand-navy mt-1">{results.sqYd?.toLocaleString()}</div>
-                <span className="text-[10px] text-slate-500">1 Gaj = 9 Sq.Ft</span>
+              <div className="bg-ivory-light p-4 border border-beige">
+                <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Square Yards (Gaj)</span>
+                <strong className="text-lg font-semibold text-navy font-sans">{results.sqYd}</strong>
+                <span className="text-[10px] text-charcoal-muted block mt-0.5">sq.yd</span>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="text-[11px] text-slate-400 font-bold uppercase block">Square Metre</span>
-                <div className="text-xl font-black text-brand-navy mt-1">{results.sqMtr?.toLocaleString()}</div>
-                <span className="text-[10px] text-slate-500">Metric standard</span>
+              <div className="bg-ivory-light p-4 border border-beige">
+                <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Square Meters</span>
+                <strong className="text-lg font-semibold text-navy font-sans">{results.sqMtr}</strong>
+                <span className="text-[10px] text-charcoal-muted block mt-0.5">sq.m</span>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="text-[11px] text-slate-400 font-bold uppercase block">Acre (एकड़)</span>
-                <div className="text-xl font-black text-brand-navy mt-1">{results.acre}</div>
-                <span className="text-[10px] text-slate-500">1 Acre = 40 Gunthas</span>
+              <div className="bg-ivory-light p-4 border border-beige">
+                <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Acre</span>
+                <strong className="text-lg font-semibold text-navy font-sans">{results.acre}</strong>
+                <span className="text-[10px] text-charcoal-muted block mt-0.5">Acres</span>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="text-[11px] text-slate-400 font-bold uppercase block">Hectare (हेक्टर)</span>
-                <div className="text-xl font-black text-brand-navy mt-1">{results.hectare}</div>
-                <span className="text-[10px] text-slate-500">1 Hectare = 2.47 Acres</span>
+              <div className="bg-ivory-light p-4 border border-beige">
+                <span className="text-[10px] uppercase tracking-luxury text-charcoal-muted block mb-1">Hectare</span>
+                <strong className="text-lg font-semibold text-navy font-sans">{results.hectare}</strong>
+                <span className="text-[10px] text-charcoal-muted block mt-0.5">Hectares</span>
               </div>
             </div>
           </div>
@@ -145,4 +147,3 @@ const AreaConverterPage = () => {
 };
 
 export default AreaConverterPage;
-

@@ -1,14 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import { ShieldCheck, ArrowRight } from 'lucide-react';
 import apiClient from '../../api/client';
 import PropertyCard from '../../components/common/PropertyCard';
 
 const VerifiedProperties = ({ onOpenAuth }) => {
-  const { t } = useTranslation();
-
   const { data, isLoading } = useQuery({
     queryKey: ['verified-properties'],
     queryFn: async () => {
@@ -18,46 +15,46 @@ const VerifiedProperties = ({ onOpenAuth }) => {
   });
 
   return (
-    <section className="py-16 bg-white border-t border-slate-100">
+    <section className="py-20 bg-white border-t border-beige">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <div className="inline-flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-2 border border-emerald-200">
+            <div className="inline-flex items-center space-x-1.5 text-[10px] font-semibold uppercase tracking-luxury text-gold border border-gold/40 px-3 py-1 bg-ivory mb-3">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>100% Inspected & Verified</span>
+              <span>Sanction & Title Cleared</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-brand-navy">
-              {t('sections.verifiedTitle')}
+            <h2 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
+              Verified Residences & Estates
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              {t('sections.verifiedSubtitle')}
+            <p className="text-xs sm:text-sm text-charcoal-muted mt-2 max-w-2xl font-sans leading-relaxed">
+              Every property on this roster has undergone physical documentation verification, NMRDA/NMC approval review, and title validation by our real estate desk.
             </p>
           </div>
 
           <Link
             to="/properties?isVerified=true"
-            className="mt-4 md:mt-0 inline-flex items-center space-x-2 text-sm font-bold text-brand-teal hover:text-brand-orange transition-colors"
+            className="mt-6 md:mt-0 inline-flex items-center space-x-2 text-xs uppercase tracking-luxury text-navy hover:text-gold transition-colors font-medium border-b border-navy/20 pb-1"
           >
-            <span>View All Verified Properties</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Explore All Verified Assets</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="bg-slate-100 rounded-2xl h-80 animate-pulse"></div>
+              <div key={n} className="bg-ivory border border-beige h-96 animate-pulse"></div>
             ))}
           </div>
         ) : data && data.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {data.map((property) => (
               <PropertyCard key={property._id} property={property} onOpenAuth={onOpenAuth} />
             ))}
           </div>
         ) : (
-          <div className="bg-slate-50 rounded-2xl p-8 text-center text-sm text-slate-500">
-            No properties found.
+          <div className="bg-ivory border border-beige p-12 text-center text-xs uppercase tracking-luxury text-charcoal-muted">
+            No verified properties cataloged at present.
           </div>
         )}
       </div>
@@ -66,4 +63,3 @@ const VerifiedProperties = ({ onOpenAuth }) => {
 };
 
 export default VerifiedProperties;
-
