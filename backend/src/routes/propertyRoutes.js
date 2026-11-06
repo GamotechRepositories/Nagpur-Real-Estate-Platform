@@ -17,3 +17,4 @@ router.post('/:id/media', authenticate, upload.array('files', 15), propertyContr
 router.post('/:id/status', authenticate, propertyController.updatePropertyStatus);
 
 module.exports = router;
+

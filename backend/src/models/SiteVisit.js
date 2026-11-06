@@ -69,3 +69,4 @@ const siteVisitSchema = new mongoose.Schema(
 siteVisitSchema.index({ preferredDate: 1, status: 1 });
 
 module.exports = mongoose.model('SiteVisit', siteVisitSchema);
+

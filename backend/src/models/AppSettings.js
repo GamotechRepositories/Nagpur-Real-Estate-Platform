@@ -66,3 +66,4 @@ const appSettingsSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('AppSettings', appSettingsSchema);
+

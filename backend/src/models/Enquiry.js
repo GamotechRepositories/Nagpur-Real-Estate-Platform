@@ -90,3 +90,4 @@ const enquirySchema = new mongoose.Schema(
 enquirySchema.index({ leadStatus: 1, assignedAgent: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Enquiry', enquirySchema);
+

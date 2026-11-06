@@ -34,3 +34,4 @@ const logAudit = async ({
 module.exports = {
   logAudit,
 };
+

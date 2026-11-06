@@ -275,3 +275,4 @@ const HeroSearch = () => {
 };
 
 export default HeroSearch;
+

@@ -26,3 +26,4 @@ router.get('/me', authenticate, authController.handleGetMe);
 router.patch('/profile', authenticate, authController.handleUpdateProfile);
 
 module.exports = router;
+

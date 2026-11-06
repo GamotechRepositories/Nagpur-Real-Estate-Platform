@@ -35,3 +35,4 @@ const leadActivitySchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('LeadActivity', leadActivitySchema);
+

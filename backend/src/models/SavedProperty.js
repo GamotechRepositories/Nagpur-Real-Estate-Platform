@@ -24,3 +24,4 @@ const savedPropertySchema = new mongoose.Schema(
 savedPropertySchema.index({ user: 1, property: 1 }, { unique: true });
 
 module.exports = mongoose.model('SavedProperty', savedPropertySchema);
+

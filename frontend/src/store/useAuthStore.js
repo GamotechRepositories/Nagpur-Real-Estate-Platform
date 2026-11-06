@@ -54,3 +54,4 @@ export const useAuthStore = create((set, get) => ({
 
   setSavedPropertyIds: (ids) => set({ savedPropertyIds: new Set(ids) }),
 }));
+

@@ -44,3 +44,4 @@ const auditLogSchema = new mongoose.Schema(
 auditLogSchema.index({ targetType: 1, targetId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('AuditLog', auditLogSchema);
+

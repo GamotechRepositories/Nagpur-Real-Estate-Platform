@@ -90,3 +90,4 @@ const localitySchema = new mongoose.Schema(
 localitySchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Locality', localitySchema);
+

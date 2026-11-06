@@ -771,3 +771,4 @@ const PostPropertyPage = () => {
 };
 
 export default PostPropertyPage;
+

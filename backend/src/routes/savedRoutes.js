@@ -16,3 +16,4 @@ router.post('/searches', savedController.createSavedSearch);
 router.delete('/searches/:id', savedController.deleteSavedSearch);
 
 module.exports = router;
+

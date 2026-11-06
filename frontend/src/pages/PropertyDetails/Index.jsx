@@ -470,3 +470,4 @@ const PropertyDetailsPage = () => {
 };
 
 export default PropertyDetailsPage;
+

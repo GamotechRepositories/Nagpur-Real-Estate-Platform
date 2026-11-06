@@ -101,3 +101,4 @@ const LocalitiesPage = () => {
 };
 
 export default LocalitiesPage;
+

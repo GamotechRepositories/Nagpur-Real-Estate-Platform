@@ -40,3 +40,4 @@ const amenitySchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Amenity', amenitySchema);
+

@@ -177,3 +177,4 @@ const EnquiryModal = ({ isOpen, onClose, property }) => {
 };
 
 export default EnquiryModal;
+

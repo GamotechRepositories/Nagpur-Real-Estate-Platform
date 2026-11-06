@@ -121,3 +121,4 @@ module.exports = {
   NOTIFICATION_TYPES,
   SUPPORTED_LANGUAGES,
 };
+

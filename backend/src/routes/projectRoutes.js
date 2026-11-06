@@ -13,3 +13,4 @@ router.get('/:slug', projectController.getProjectBySlug);
 router.post('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR), projectController.createOrUpdateProject);
 
 module.exports = router;
+

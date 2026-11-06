@@ -12,3 +12,4 @@ router.get('/', authenticate, siteVisitController.getSiteVisits);
 router.patch('/:id', authenticate, siteVisitController.updateSiteVisit);
 
 module.exports = router;
+

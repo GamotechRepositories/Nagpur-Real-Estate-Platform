@@ -67,3 +67,4 @@ const FeaturedProperties = ({ onOpenAuth }) => {
 };
 
 export default FeaturedProperties;
+

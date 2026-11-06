@@ -289,3 +289,4 @@ propertySchema.index({ status: 1, subtype: 1, bedrooms: 1 });
 propertySchema.index({ status: 1, isFeatured: -1, createdAt: -1 });
 
 module.exports = mongoose.model('Property', propertySchema);
+

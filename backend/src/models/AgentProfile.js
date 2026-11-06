@@ -82,3 +82,4 @@ const agentProfileSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('AgentProfile', agentProfileSchema);
+

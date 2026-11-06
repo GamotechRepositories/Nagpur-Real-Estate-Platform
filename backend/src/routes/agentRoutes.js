@@ -13,3 +13,4 @@ router.get('/:id', agentController.getAgentById);
 router.patch('/me/profile', authenticate, authorize(ROLES.AGENT), agentController.updateMyAgentProfile);
 
 module.exports = router;
+

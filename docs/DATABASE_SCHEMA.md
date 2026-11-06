@@ -54,3 +54,4 @@ This document details the MongoDB Atlas collections, Mongoose schemas, and index
 
 ### `AppSettings`
 - **Fields:** `key`, `leadRouting` (routingMode, defaultSlaHours, autoEscalateAfterSla), `listingConfig` (validityDays: 90, reminderDays: [7, 1]), `contacts`.
+

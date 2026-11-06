@@ -39,3 +39,4 @@ const savedSearchSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('SavedSearch', savedSearchSchema);
+

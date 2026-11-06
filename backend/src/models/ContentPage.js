@@ -68,3 +68,4 @@ const contentPageSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('ContentPage', contentPageSchema);
+

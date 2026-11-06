@@ -202,3 +202,4 @@ const PropertyCard = ({ property, onOpenAuth }) => {
 };
 
 export default PropertyCard;
+

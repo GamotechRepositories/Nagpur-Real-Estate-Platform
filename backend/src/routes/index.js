@@ -39,3 +39,4 @@ router.use('/content', contentRoutes);
 router.use('/notifications', notificationRoutes);
 
 module.exports = router;
+

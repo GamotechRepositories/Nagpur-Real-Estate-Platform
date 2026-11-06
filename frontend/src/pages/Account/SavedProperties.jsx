@@ -60,3 +60,4 @@ const SavedPropertiesPage = () => {
 };
 
 export default SavedPropertiesPage;
+

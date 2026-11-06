@@ -66,3 +66,4 @@ const VerifiedProperties = ({ onOpenAuth }) => {
 };
 
 export default VerifiedProperties;
+

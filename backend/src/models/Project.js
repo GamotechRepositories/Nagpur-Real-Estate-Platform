@@ -130,3 +130,4 @@ const projectSchema = new mongoose.Schema(
 projectSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Project', projectSchema);
+

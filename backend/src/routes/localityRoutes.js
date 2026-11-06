@@ -13,3 +13,4 @@ router.get('/:slug', localityController.getLocalityBySlug);
 router.post('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR), localityController.upsertLocality);
 
 module.exports = router;
+
