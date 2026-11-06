@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Search, MapPin, Building, ChevronDown, Check } from 'lucide-react';
+import {
+  Search,
+  MapPin,
+  ChevronDown,
+  ShieldCheck,
+  UserCheck,
+  CalendarCheck,
+  Landmark,
+} from 'lucide-react';
 
 const NAGPUR_POPULAR_LOCALITIES = [
   'Dharampeth',
@@ -14,48 +22,61 @@ const NAGPUR_POPULAR_LOCALITIES = [
   'Sitabuldi',
 ];
 
+const PROPERTY_TYPES = [
+  { value: '', label: 'All Types' },
+  { value: 'FLAT', label: 'Flat / Apartment' },
+  { value: 'INDEPENDENT_HOUSE', label: 'Independent House' },
+  { value: 'VILLA', label: 'Villa' },
+  { value: 'PLOT', label: 'Plot / Land' },
+  { value: 'COMMERCIAL_OFFICE', label: 'Commercial Office' },
+];
+
+const BUDGET_OPTIONS = [
+  { value: '', label: '₹ Min - ₹ Max' },
+  { value: '0-5000000', label: 'Under ₹50 Lakh' },
+  { value: '5000000-10000000', label: '₹50 Lakh - ₹1 Cr' },
+  { value: '10000000-20000000', label: '₹1 Cr - ₹2 Cr' },
+  { value: '20000000-50000000', label: '₹2 Cr - ₹5 Cr' },
+  { value: '50000000-999999999', label: 'Above ₹5 Cr' },
+];
+
+const BEDROOM_OPTIONS = [
+  { value: '', label: 'Any' },
+  { value: '1', label: '1 BHK' },
+  { value: '2', label: '2 BHK' },
+  { value: '3', label: '3 BHK' },
+  { value: '4', label: '4+ BHK' },
+];
+
 const HeroSearch = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [purpose, setPurpose] = useState('BUY'); // 'BUY' | 'RENT' | 'PLOT' | 'COMMERCIAL'
+  const [activeTab, setActiveTab] = useState('Buy'); // 'Buy', 'Rent', 'Plots', 'Commercial'
   const [locality, setLocality] = useState('');
-  const [subtype, setSubtype] = useState('');
-  const [bhk, setBhk] = useState('');
+  const [propertyType, setPropertyType] = useState('');
   const [budget, setBudget] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const handleLocalityInput = (val) => {
-    setLocality(val);
-    if (val.trim().length > 0) {
-      const filtered = NAGPUR_POPULAR_LOCALITIES.filter((loc) =>
-        loc.toLowerCase().includes(val.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  };
+  const [bedrooms, setBedrooms] = useState('');
+  const [showLocalityDropdown, setShowLocalityDropdown] = useState(false);
 
   const handleSearch = (e) => {
-    e.preventDefault();
-
+    e?.preventDefault();
     const params = new URLSearchParams();
 
-    if (purpose === 'PLOT') {
+    if (activeTab === 'Plots') {
       params.append('category', 'PLOT');
-    } else if (purpose === 'COMMERCIAL') {
+      params.append('purpose', 'BUY');
+    } else if (activeTab === 'Commercial') {
       params.append('category', 'COMMERCIAL');
+    } else if (activeTab === 'Rent') {
+      params.append('purpose', 'RENT');
     } else {
-      params.append('purpose', purpose);
+      params.append('purpose', 'BUY');
     }
 
     if (locality) params.append('locality', locality);
-    if (subtype) params.append('subtype', subtype);
-    if (bhk) params.append('bedrooms', bhk);
+    if (propertyType) params.append('subtype', propertyType);
+    if (bedrooms) params.append('bedrooms', bedrooms);
 
     if (budget) {
       const [min, max] = budget.split('-');
@@ -67,202 +88,251 @@ const HeroSearch = () => {
   };
 
   return (
-    <section className="relative bg-[#172C3B] text-white overflow-hidden border-b border-[#E9E4DA]">
-      {/* Background Architectural Luxury Image with Editorial Tint */}
-      <div className="absolute inset-0 z-0">
+    <section className="relative bg-[#172C3B] text-white pt-8 sm:pt-14 pb-12 sm:pb-16 overflow-hidden">
+      {/* Background Architectural Accent & Soft Lighting */}
+      <div className="absolute inset-0 opacity-15 pointer-events-none mix-blend-overlay">
         <img
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85"
-          alt="Luxury Architecture in Nagpur"
-          className="w-full h-full object-cover object-center opacity-30 mix-blend-luminosity filter brightness-90 contrast-125"
+          src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1600&q=80"
+          alt="Nagpur Architecture"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#172C3B] via-[#172C3B]/90 to-[#172C3B]/70"></div>
       </div>
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#B89A65]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 relative z-10">
-        {/* Editorial Headline & Subtitle */}
-        <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-[11px] uppercase tracking-widest text-[#B89A65] font-semibold">
-            <span className="w-6 h-px bg-[#B89A65]"></span>
-            <span>Nagpur's Premier Real Estate Portfolio</span>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Split Hero Layout as in Reference Image Screen 1 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          {/* Left Column: Heading + Subtitle + Search Card */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="space-y-3">
+              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.15]">
+                Find Your Place in Nagpur.
+              </h1>
+              <p className="text-sm sm:text-base text-white/80 font-normal max-w-xl leading-relaxed">
+                Discover exceptional properties, trusted agents, and the perfect place to call home.
+              </p>
+            </div>
 
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#FFFFFF] leading-[1.1]">
-            Find Your Place in Nagpur.
-          </h1>
-
-          <p className="text-base sm:text-lg text-[#E9E4DA]/90 font-light max-w-2xl leading-relaxed pt-1">
-            Discover exceptional properties, trusted agents, and the perfect place to call home.
-          </p>
-        </div>
-
-        {/* Luxury Search Interface Panel */}
-        <div className="mt-12 bg-[#FFFFFF] border border-[#E9E4DA] shadow-hover p-4 sm:p-6 text-[#252525]">
-          {/* Top Category Tabs */}
-          <div className="flex border-b border-[#E9E4DA] mb-6 space-x-6 sm:space-x-10 overflow-x-auto text-xs uppercase tracking-luxury font-medium">
-            {[
-              { id: 'BUY', label: 'Buy Residence' },
-              { id: 'RENT', label: 'Rent Residence' },
-              { id: 'PLOT', label: 'Land & Plots' },
-              { id: 'COMMERCIAL', label: 'Commercial' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setPurpose(tab.id);
-                  setSubtype('');
-                }}
-                className={`pb-3 border-b-2 transition-all whitespace-nowrap ${
-                  purpose === tab.id
-                    ? 'border-[#B89A65] text-[#172C3B] font-bold'
-                    : 'border-transparent text-[#252525]/60 hover:text-[#172C3B]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Fields Grid */}
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            {/* Location (Span 4) */}
-            <div className="md:col-span-4 relative text-left">
-              <label className="block text-[10px] uppercase tracking-widest text-[#252525]/60 font-semibold mb-1.5">
-                Location / Neighborhood
-              </label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-[#B89A65] absolute left-3 top-3 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Dharampeth, Civil Lines, Manish Nagar..."
-                  value={locality}
-                  onChange={(e) => handleLocalityInput(e.target.value)}
-                  onFocus={() => {
-                    if (locality) setShowSuggestions(true);
-                  }}
-                  className="w-full pl-9 pr-3 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] placeholder-[#252525]/40 outline-none transition-colors"
-                />
+            {/* Prominent Floating Search Card */}
+            <div className="bg-white rounded-2xl p-5 sm:p-6 text-[#252525] shadow-2xl border border-[#E9E4DA]">
+              {/* Category Tabs: Buy | Rent | Plots | Commercial */}
+              <div className="flex items-center space-x-2 pb-4 mb-4 border-b border-gray-100 overflow-x-auto">
+                {['Buy', 'Rent', 'Plots', 'Commercial'].map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
+                      activeTab === tab
+                        ? 'bg-[#F7F4ED] text-[#172C3B] border border-[#B89A65]/40 shadow-sm'
+                        : 'text-gray-500 hover:text-[#172C3B] hover:bg-gray-50'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
 
-              {/* Suggestions */}
-              {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 mt-1 bg-white border border-[#E9E4DA] shadow-dropdown py-1 z-50 text-xs">
-                  {suggestions.map((loc) => (
-                    <button
-                      key={loc}
-                      type="button"
-                      onClick={() => {
-                        setLocality(loc);
-                        setShowSuggestions(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-slate-700 hover:bg-[#F7F4ED] hover:text-[#B89A65] flex items-center justify-between"
-                    >
-                      <span>{loc}, Nagpur</span>
-                      <span className="text-[10px] text-slate-400">Maharashtra</span>
-                    </button>
-                  ))}
+              {/* Form Input Controls */}
+              <form onSubmit={handleSearch} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {/* Select Locality */}
+                  <div className="relative">
+                    <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                      Select Locality
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <MapPin className="w-4 h-4 text-[#B89A65]" />
+                      </div>
+                      <input
+                        type="text"
+                        value={locality}
+                        onChange={(e) => {
+                          setLocality(e.target.value);
+                          setShowLocalityDropdown(true);
+                        }}
+                        onFocus={() => setShowLocalityDropdown(true)}
+                        placeholder="Dharampeth, Manish..."
+                        className="w-full pl-9 pr-7 py-2 text-xs sm:text-sm bg-gray-50/80 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white text-gray-800 placeholder-gray-400"
+                      />
+                      <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+
+                    {showLocalityDropdown && (
+                      <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-48 overflow-y-auto">
+                        {NAGPUR_POPULAR_LOCALITIES.map((loc) => (
+                          <button
+                            key={loc}
+                            type="button"
+                            onClick={() => {
+                              setLocality(loc);
+                              setShowLocalityDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-[#F7F4ED] text-gray-700 hover:text-[#172C3B]"
+                          >
+                            {loc}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Property Type */}
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                      Property Type
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={propertyType}
+                        onChange={(e) => setPropertyType(e.target.value)}
+                        className="w-full appearance-none pl-3 pr-8 py-2 text-xs sm:text-sm bg-gray-50/80 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white text-gray-800 cursor-pointer"
+                      >
+                        {PROPERTY_TYPES.map((t) => (
+                          <option key={t.value} value={t.value}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Budget */}
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                      Budget
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={budget}
+                        onChange={(e) => setBudget(e.target.value)}
+                        className="w-full appearance-none pl-3 pr-8 py-2 text-xs sm:text-sm bg-gray-50/80 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white text-gray-800 cursor-pointer"
+                      >
+                        {BUDGET_OPTIONS.map((b) => (
+                          <option key={b.value} value={b.value}>
+                            {b.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bedrooms */}
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                      Bedrooms
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={bedrooms}
+                        onChange={(e) => setBedrooms(e.target.value)}
+                        className="w-full appearance-none pl-3 pr-8 py-2 text-xs sm:text-sm bg-gray-50/80 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white text-gray-800 cursor-pointer"
+                      >
+                        {BEDROOM_OPTIONS.map((b) => (
+                          <option key={b.value} value={b.value}>
+                            {b.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-gray-400">
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            {/* Property Type (Span 3) */}
-            <div className="md:col-span-3 text-left">
-              <label className="block text-[10px] uppercase tracking-widest text-[#252525]/60 font-semibold mb-1.5">
-                Property Category
-              </label>
-              <div className="relative">
-                <Building className="w-4 h-4 text-[#252525]/40 absolute left-3 top-3 pointer-events-none" />
-                <select
-                  value={subtype}
-                  onChange={(e) => setSubtype(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] outline-none appearance-none cursor-pointer transition-colors"
-                >
-                  <option value="">All Categories</option>
-                  {purpose === 'COMMERCIAL' ? (
-                    <>
-                      <option value="COMMERCIAL_SHOP">Retail Space & Shop</option>
-                      <option value="COMMERCIAL_OFFICE">Corporate Office Space</option>
-                      <option value="WAREHOUSE">Warehouse / Industrial</option>
-                    </>
-                  ) : purpose === 'PLOT' ? (
-                    <>
-                      <option value="PLOT">Residential Layout Plot</option>
-                      <option value="FARM_LAND">Agricultural & Farm Land</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="FLAT">Luxury Apartment / Flat</option>
-                      <option value="HOUSE_VILLA">Independent Bungalow / Villa</option>
-                      <option value="PENTHOUSE">Exclusive Penthouse</option>
-                    </>
-                  )}
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-[#252525]/40 absolute right-3 top-3.5 pointer-events-none" />
+                {/* Search Button (Full width or aligned right) */}
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    className="w-full sm:w-auto px-8 py-2.5 bg-[#B89A65] hover:bg-[#A38753] text-white font-semibold text-sm rounded-lg transition-colors shadow-md flex items-center justify-center space-x-2"
+                  >
+                    <Search className="w-4 h-4" />
+                    <span>Search</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Right Column: High Quality Modern Luxury Architecture Building Photo */}
+          <div className="lg:col-span-5 hidden lg:block">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 aspect-[4/3] group">
+              <img
+                src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1000&q=85"
+                alt="Luxury Residences in Nagpur"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-3 shadow-lg flex items-center justify-between text-charcoal">
+                <div>
+                  <p className="text-xs font-bold text-[#172C3B]">Skyline Residency</p>
+                  <p className="text-[10px] text-gray-500">Wardha Road, Nagpur • From ₹82 Lakh</p>
+                </div>
+                <span className="text-[10px] bg-[#B89A65] text-white font-semibold px-2 py-1 rounded">
+                  Featured
+                </span>
               </div>
             </div>
-
-            {/* Bedrooms or Budget (Span 3) */}
-            <div className="md:col-span-3 text-left">
-              <label className="block text-[10px] uppercase tracking-widest text-[#252525]/60 font-semibold mb-1.5">
-                {purpose === 'PLOT' || purpose === 'COMMERCIAL' ? 'Price Range' : 'Bedrooms (BHK)'}
-              </label>
-              <div className="relative">
-                {purpose === 'PLOT' || purpose === 'COMMERCIAL' ? (
-                  <select
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="">Any Budget</option>
-                    <option value="0-5000000">Up to ₹ 50 Lakhs</option>
-                    <option value="5000000-10000000">₹ 50L - ₹ 1 Crore</option>
-                    <option value="10000000-25000000">₹ 1 Cr - ₹ 2.5 Crore</option>
-                    <option value="25000000-">Above ₹ 2.5 Crore</option>
-                  </select>
-                ) : (
-                  <select
-                    value={bhk}
-                    onChange={(e) => setBhk(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#F7F4ED] border border-[#E9E4DA] focus:border-[#172C3B] text-xs font-medium text-[#252525] outline-none appearance-none cursor-pointer"
-                  >
-                    <option value="">Any Configuration</option>
-                    <option value="1">1 BHK Residence</option>
-                    <option value="2">2 BHK Residence</option>
-                    <option value="3">3 BHK Premium</option>
-                    <option value="4">4 BHK Luxury</option>
-                    <option value="5">5+ BHK Estate</option>
-                  </select>
-                )}
-                <ChevronDown className="w-3.5 h-3.5 text-[#252525]/40 absolute right-3 top-3.5 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Search Button (Span 2) */}
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                className="w-full bg-[#172C3B] hover:bg-[#223D52] text-[#FFFFFF] text-xs uppercase tracking-luxury font-medium py-3 px-4 border border-[#B89A65]/40 transition-colors flex items-center justify-center space-x-2"
-              >
-                <Search className="w-3.5 h-3.5 text-[#B89A65]" />
-                <span>Search</span>
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
 
-        {/* Minimal Enclave Bar */}
-        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#E9E4DA]/80">
-          <span className="font-serif italic text-white">Distinguished Enclaves:</span>
-          {NAGPUR_POPULAR_LOCALITIES.slice(0, 5).map((loc) => (
-            <button
-              key={loc}
-              type="button"
-              onClick={() => navigate(`/properties?locality=${loc}`)}
-              className="hover:text-[#B89A65] underline decoration-[#B89A65]/50 underline-offset-4 transition-colors"
-            >
-              {loc}
-            </button>
-          ))}
+        {/* 4 Feature Items Bar below Hero (Screen 1 & 2) */}
+        <div className="mt-12 bg-white rounded-2xl p-6 shadow-xl border border-[#E9E4DA] text-[#252525]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            {/* Feature 1 */}
+            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-4 first:pl-0">
+              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
+                <ShieldCheck className="w-6 h-6 text-[#B89A65]" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Verified Properties</h4>
+                <p className="text-[11px] text-gray-500">100% Verified Listings</p>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-6">
+              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
+                <UserCheck className="w-6 h-6 text-[#B89A65]" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Trusted Agents</h4>
+                <p className="text-[11px] text-gray-500">RERA Registered</p>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-6">
+              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
+                <CalendarCheck className="w-6 h-6 text-[#B89A65]" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Easy Site Visit</h4>
+                <p className="text-[11px] text-gray-500">Book At Your Convenience</p>
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="flex items-center space-x-3.5 pt-3 md:pt-0 pl-0 md:pl-6">
+              <div className="w-12 h-12 rounded-full bg-[#F7F4ED] border border-[#B89A65]/30 flex items-center justify-center flex-shrink-0">
+                <Landmark className="w-6 h-6 text-[#B89A65]" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-xs sm:text-sm text-[#172C3B]">Home Loan Support</h4>
+                <p className="text-[11px] text-gray-500">Get Best Loan Options</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   CheckCircle,
@@ -9,22 +9,21 @@ import {
   Home,
   MapPin,
   Image as ImageIcon,
-  Send,
-  Save,
+  Check,
   AlertCircle,
-  Upload,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 import AuthModal from '../../components/common/AuthModal';
 
 const STEPS = [
-  { id: 1, name: 'Purpose' },
-  { id: 2, name: 'Asset Type' },
-  { id: 3, name: 'Specifications' },
-  { id: 4, name: 'Enclave & Map' },
-  { id: 5, name: 'Photography' },
-  { id: 6, name: 'Review & Submit' },
+  { id: 1, name: 'Basic Info' },
+  { id: 2, name: 'Details' },
+  { id: 3, name: 'Location' },
+  { id: 4, name: 'Media' },
+  { id: 5, name: 'Review' },
 ];
 
 const NAGPUR_LOCALITY_OPTIONS = [
@@ -47,10 +46,8 @@ const STANDARD_AMENITIES = [
   'Gymnasium & Fitness',
   'Swimming Pool',
   'Reserved Covered Parking',
-  'Children Play Area & Park',
+  'Children Play Area',
   'Club House',
-  'Rainwater Harvesting',
-  'Piped Gas Connection',
 ];
 
 const PostPropertyPage = () => {
@@ -79,8 +76,8 @@ const PostPropertyPage = () => {
     furnishing: 'SEMI_FURNISHED',
     possessionStatus: 'READY_TO_MOVE',
     facing: 'EAST',
-    floor: 4,
-    totalFloors: 10,
+    floor: 3,
+    totalFloors: 8,
     localityName: 'Dharampeth',
     address: '',
     pincode: '440010',
@@ -88,7 +85,10 @@ const PostPropertyPage = () => {
     longitude: 79.0607,
     amenities: ['24x7 Security & CCTV', 'Reserved Covered Parking'],
     images: [
-      { url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80', caption: 'Living Room' },
+      {
+        url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Property Photo',
+      },
     ],
   });
 
@@ -139,25 +139,31 @@ const PostPropertyPage = () => {
     }
   };
 
-  const validateCurrentStep = () => {
+  const validateStep = (step) => {
     setError('');
-    if (currentStep === 3) {
+    if (step === 1) {
       if (!formData.title.trim()) {
-        setError('Please provide a listing title');
+        setError('Please provide a property title.');
         return false;
       }
-      if (!formData.price || Number(formData.price) <= 0) {
-        setError('Please provide a valid property valuation/price');
-        return false;
-      }
-      if (!formData.areaSqFt || Number(formData.areaSqFt) <= 0) {
-        setError('Please enter the built-up area in square feet');
+      if (!formData.description.trim()) {
+        setError('Please provide a brief property description.');
         return false;
       }
     }
-    if (currentStep === 4) {
+    if (step === 2) {
+      if (!formData.price || Number(formData.price) <= 0) {
+        setError('Please enter a valid price/budget in Rupees.');
+        return false;
+      }
+      if (!formData.areaSqFt || Number(formData.areaSqFt) <= 0) {
+        setError('Please enter the built-up area in square feet.');
+        return false;
+      }
+    }
+    if (step === 3) {
       if (!formData.address.trim()) {
-        setError('Please provide a detailed address or landmark in Nagpur');
+        setError('Please provide the property address or landmark.');
         return false;
       }
     }
@@ -165,8 +171,8 @@ const PostPropertyPage = () => {
   };
 
   const handleNext = () => {
-    if (validateCurrentStep()) {
-      setCurrentStep((prev) => Math.min(prev + 1, 6));
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => Math.min(prev + 1, 5));
     }
   };
 
@@ -175,7 +181,7 @@ const PostPropertyPage = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = async (isDraft = false) => {
+  const handleSubmit = async () => {
     if (!isAuthenticated) {
       setAuthModalOpen(true);
       return;
@@ -198,10 +204,13 @@ const PostPropertyPage = () => {
         longitude: Number(formData.longitude),
       };
 
-      await apiClient.post(`/properties?draft=${isDraft}`, payload);
+      await apiClient.post('/properties', payload);
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit property. Please check the fields and try again.');
+      setError(
+        err.response?.data?.message ||
+          'Failed to submit property. Please verify all details and try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -209,28 +218,32 @@ const PostPropertyPage = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-ivory-light py-20">
-        <div className="max-w-2xl mx-auto px-4 text-center space-y-6 bg-white p-12 border border-beige shadow-subtle">
-          <div className="w-16 h-16 border border-gold text-gold flex items-center justify-center mx-auto bg-ivory">
-            <CheckCircle className="w-8 h-8 stroke-[1.5]" />
-          </div>
-          <h2 className="font-serif text-3xl text-navy">Asset Listing Submitted</h2>
-          <p className="text-xs text-charcoal-muted max-w-md mx-auto font-sans leading-relaxed">
-            Your property portfolio asset has been recorded for review. Our compliance desk will verify title documentation to publish it live on the marketplace.
-          </p>
-          <div className="pt-4 flex justify-center space-x-4">
-            <button
-              onClick={() => navigate('/account/my-properties')}
-              className="bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3.5 px-6 transition-colors"
-            >
-              My Listings
-            </button>
-            <button
-              onClick={() => navigate('/properties')}
-              className="border border-beige bg-ivory text-charcoal text-xs font-medium tracking-luxury uppercase py-3.5 px-6 hover:border-gold transition-colors"
-            >
-              Browse Marketplace
-            </button>
+      <div className="bg-[#F7F4ED] min-h-screen py-16">
+        <div className="max-w-xl mx-auto px-4">
+          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-[#E9E4DA] shadow-card text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-green-50 border border-green-200 text-green-600 flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8" />
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#172C3B]">
+              Property Submitted Successfully!
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+              Your property has been submitted for moderation. Once verified by our team, it will go live for thousands of verified Nagpur buyers and tenants.
+            </p>
+            <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+              <Link
+                to="/account/my-properties"
+                className="px-6 py-2.5 bg-[#B89A65] hover:bg-[#A38753] text-white text-xs font-semibold rounded-lg transition-colors"
+              >
+                View My Listings
+              </Link>
+              <Link
+                to="/"
+                className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Back to Homepage
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -240,495 +253,600 @@ const PostPropertyPage = () => {
   return (
     <>
       <Helmet>
-        <title>List Your Property in Nagpur | Nagpur Estates Private Portal</title>
+        <title>Post Your Property | Nagpur Realty</title>
         <meta
           name="description"
-          content="Privately list your luxury apartment, independent bungalow, or NMRDA sanctioned plot in Nagpur."
+          content="List your flat, house, villa, plot, or commercial property on Nagpur Realty. Reach thousands of verified buyers and tenants in Nagpur."
         />
       </Helmet>
 
-      <div className="bg-ivory-light min-h-screen py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-10 border-b border-beige pb-6">
-            <span className="text-[10px] uppercase tracking-luxury text-gold font-semibold block mb-1">
-              Private Placement & Public Listing
-            </span>
-            <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
-              Publish Your Nagpur Property Asset
+      <div className="bg-[#F7F4ED] min-h-screen py-8 sm:py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          {/* Header Title & Subtitle matching Screen 7 & 8 */}
+          <div className="text-center sm:text-left space-y-2">
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#172C3B]">
+              Post Your Property
             </h1>
-            <p className="text-xs sm:text-sm text-charcoal-muted mt-2 font-sans">
-              Connect directly with verified investors, homebuyers, and executive corporate tenants
+            <p className="text-xs sm:text-sm text-gray-500 max-w-2xl">
+              List your property on Nagpur's leading real estate platform get genuine buyers and tenants.
             </p>
           </div>
 
-          {/* Stepper Wizard Indicator */}
-          <div className="bg-white p-5 border border-beige shadow-subtle mb-10">
-            <div className="flex items-center justify-between overflow-x-auto pb-2 sm:pb-0">
-              {STEPS.map((s) => (
-                <div key={s.id} className="flex items-center space-x-2 shrink-0">
-                  <div
-                    className={`w-7 h-7 flex items-center justify-center text-xs font-mono transition-colors ${
-                      currentStep === s.id
-                        ? 'bg-navy text-gold border border-gold'
-                        : currentStep > s.id
-                        ? 'bg-gold text-navy font-bold'
-                        : 'bg-ivory text-charcoal-muted border border-beige'
-                    }`}
-                  >
-                    {currentStep > s.id ? '✓' : s.id}
-                  </div>
-                  <span
-                    className={`text-[11px] uppercase tracking-luxury hidden sm:inline font-sans ${
-                      currentStep === s.id ? 'text-navy font-semibold' : 'text-charcoal-muted'
-                    }`}
-                  >
-                    {s.name}
-                  </span>
-                  {s.id < STEPS.length && (
-                    <div className="w-4 sm:w-8 h-[1px] bg-beige mx-1 sm:mx-2"></div>
-                  )}
-                </div>
-              ))}
+          {/* 5-Step Stepper Bar matching Screen 7 & 8 */}
+          <div className="bg-white rounded-xl border border-[#E9E4DA] p-4 sm:p-5 shadow-sm">
+            <div className="flex items-center justify-between max-w-3xl mx-auto">
+              {STEPS.map((step, idx) => {
+                const isActive = currentStep === step.id;
+                const isPassed = currentStep > step.id;
+                return (
+                  <React.Fragment key={step.id}>
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                          isActive
+                            ? 'bg-[#B89A65] text-white shadow-sm ring-4 ring-[#B89A65]/20'
+                            : isPassed
+                            ? 'bg-[#172C3B] text-white'
+                            : 'bg-gray-100 text-gray-500 border border-gray-200'
+                        }`}
+                      >
+                        {isPassed ? <Check className="w-4 h-4" /> : step.id}
+                      </div>
+                      <span
+                        className={`hidden md:inline text-xs font-medium ${
+                          isActive
+                            ? 'text-[#172C3B] font-bold'
+                            : isPassed
+                            ? 'text-gray-700'
+                            : 'text-gray-400'
+                        }`}
+                      >
+                        {step.name}
+                      </span>
+                    </div>
+                    {idx < STEPS.length - 1 && (
+                      <div
+                        className={`flex-1 h-0.5 mx-2 sm:mx-4 ${
+                          isPassed ? 'bg-[#172C3B]' : 'bg-gray-200'
+                        }`}
+                      ></div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
 
-          {/* Form Card */}
-          <div className="bg-white p-8 sm:p-12 border border-beige shadow-subtle">
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 text-xs text-red-800 flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
+          {/* Error notification if any */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-            {/* STEP 1: PURPOSE */}
-            {currentStep === 1 && (
-              <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-navy font-normal">Step 1: Listing Mandate Purpose</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { id: 'BUY', label: 'Sell Property / Capital Disposition', desc: 'Attract qualified buyers for flats, villas, plots, or commercial suites' },
-                    { id: 'RENT', label: 'Executive Lease / Rental', desc: 'Engage high-caliber corporate and residential tenants' },
-                  ].map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => updateField('purpose', p.id)}
-                      className={`p-6 border text-left transition-colors ${
-                        formData.purpose === p.id
-                          ? 'border-navy bg-ivory text-navy'
-                          : 'border-beige hover:border-gold'
-                      }`}
-                    >
-                      <h3 className="font-serif text-lg text-navy">{p.label}</h3>
-                      <p className="text-xs text-charcoal-muted mt-1 font-sans">{p.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* 2-Column Grid Layout matching screen 7 */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Form Card */}
+            <div className="lg:col-span-8 bg-white rounded-2xl border border-[#E9E4DA] p-6 sm:p-8 shadow-sm space-y-6">
+              {/* STEP 1: Basic Information matching Screen 7 */}
+              {currentStep === 1 && (
+                <div className="space-y-6">
+                  <h2 className="font-serif text-xl font-bold text-[#172C3B] pb-3 border-b border-gray-100">
+                    Basic Information
+                  </h2>
 
-            {/* STEP 2: ASSET TYPE */}
-            {currentStep === 2 && (
-              <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-navy font-normal">Step 2: Property Asset Classification</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {[
-                    { subtype: 'FLAT', category: 'RESIDENTIAL', label: 'Luxury Apartment / Flat' },
-                    { subtype: 'HOUSE_VILLA', category: 'RESIDENTIAL', label: 'Independent Villa / Bungalow' },
-                    { subtype: 'PLOT', category: 'PLOT', label: 'NMRDA Sanctioned Plot' },
-                    { subtype: 'COMMERCIAL_SHOP', category: 'COMMERCIAL', label: 'Retail Commercial Shop' },
-                    { subtype: 'COMMERCIAL_OFFICE', category: 'COMMERCIAL', label: 'Grade-A Office Suite' },
-                    { subtype: 'WAREHOUSE', category: 'COMMERCIAL', label: 'Industrial Warehouse' },
-                  ].map((item) => (
-                    <button
-                      key={item.subtype}
-                      type="button"
-                      onClick={() => {
-                        updateField('subtype', item.subtype);
-                        updateField('category', item.category);
+                  {/* Listing Type Radio: Buy / Rent */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-gray-700">
+                      Listing Type <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center space-x-6 text-sm text-gray-700 pt-1">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="purpose"
+                          checked={formData.purpose === 'BUY'}
+                          onChange={() => updateField('purpose', 'BUY')}
+                          className="h-4 w-4 text-[#B89A65] focus:ring-[#B89A65] border-gray-300"
+                        />
+                        <span>Buy</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="purpose"
+                          checked={formData.purpose === 'RENT'}
+                          onChange={() => updateField('purpose', 'RENT')}
+                          className="h-4 w-4 text-[#B89A65] focus:ring-[#B89A65] border-gray-300"
+                        />
+                        <span>Rent</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Property Type Dropdown */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">
+                      Property Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.subtype}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateField('subtype', val);
+                        if (val === 'PLOT') updateField('category', 'PLOT');
+                        else if (val.startsWith('COMMERCIAL')) updateField('category', 'COMMERCIAL');
+                        else updateField('category', 'RESIDENTIAL');
                       }}
-                      className={`p-6 border text-center transition-colors ${
-                        formData.subtype === item.subtype
-                          ? 'border-navy bg-ivory text-navy font-semibold'
-                          : 'border-beige text-charcoal hover:border-gold'
-                      }`}
+                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white"
                     >
-                      <Building className="w-6 h-6 mx-auto mb-2 text-gold stroke-[1.5]" />
-                      <span className="text-xs block font-sans uppercase tracking-luxury">{item.label}</span>
+                      <option value="FLAT">Flat / Apartment</option>
+                      <option value="INDEPENDENT_HOUSE">Independent House</option>
+                      <option value="VILLA">Villa</option>
+                      <option value="PLOT">Plot / Land</option>
+                      <option value="COMMERCIAL_OFFICE">Commercial Office</option>
+                    </select>
+                  </div>
+
+                  {/* Property Title */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700">
+                      Property Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => updateField('title', e.target.value)}
+                      placeholder="e.g., 3 BHK Apartment in Manish Nagar"
+                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white text-gray-800"
+                    />
+                  </div>
+
+                  {/* Property Description */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-xs font-bold text-gray-700">
+                        Property Description <span className="text-red-500">*</span>
+                      </label>
+                      <span className="text-[10px] text-gray-400">
+                        {formData.description.length} / 500
+                      </span>
+                    </div>
+                    <textarea
+                      rows={4}
+                      maxLength={500}
+                      value={formData.description}
+                      onChange={(e) => updateField('description', e.target.value)}
+                      placeholder="Describe your property, features, and highlights..."
+                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65] focus:bg-white text-gray-800"
+                    ></textarea>
+                  </div>
+
+                  {/* Next Button */}
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="w-full sm:w-auto px-8 py-3 bg-[#B89A65] hover:bg-[#A38753] text-white font-semibold text-xs sm:text-sm rounded-lg transition-colors shadow-sm flex items-center justify-center space-x-2"
+                    >
+                      <span>Next: Property Details</span>
+                      <ChevronRight className="w-4 h-4" />
                     </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: DETAILS */}
-            {currentStep === 3 && (
-              <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-navy font-normal">Step 3: Specifications & Capital Valuation</h2>
-
-                <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                    Asset Headline Title
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Spacious 3 BHK Garden Facing Residence in Dharampeth West"
-                    value={formData.title}
-                    onChange={(e) => updateField('title', e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                      Valuation (₹ in Rupees)
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="e.g. 8500000"
-                      value={formData.price}
-                      onChange={(e) => updateField('price', e.target.value)}
-                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                      Super Built-up Area (Sq.Ft)
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="e.g. 1650"
-                      value={formData.areaSqFt}
-                      onChange={(e) => updateField('areaSqFt', e.target.value)}
-                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                    />
                   </div>
                 </div>
+              )}
 
-                {formData.category === 'RESIDENTIAL' && formData.subtype !== 'PLOT' && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {/* STEP 2: Details */}
+              {currentStep === 2 && (
+                <div className="space-y-6">
+                  <h2 className="font-serif text-xl font-bold text-[#172C3B] pb-3 border-b border-gray-100">
+                    Property Specifications & Price
+                  </h2>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Expected Price (₹) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.price}
+                        onChange={(e) => updateField('price', e.target.value)}
+                        placeholder="e.g. 7500000"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Super Built-up Area (Sq.Ft.) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.areaSqFt}
+                        onChange={(e) => updateField('areaSqFt', e.target.value)}
+                        placeholder="e.g. 1450"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
                         Bedrooms
                       </label>
                       <select
                         value={formData.bedrooms}
                         onChange={(e) => updateField('bedrooms', Number(e.target.value))}
-                        className="w-full p-2.5 border border-beige bg-ivory-light text-xs text-navy font-sans"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
                       >
                         {[1, 2, 3, 4, 5].map((b) => (
-                          <option key={b} value={b}>{b} BHK</option>
+                          <option key={b} value={b}>
+                            {b} BHK
+                          </option>
                         ))}
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
                         Bathrooms
                       </label>
                       <select
                         value={formData.bathrooms}
                         onChange={(e) => updateField('bathrooms', Number(e.target.value))}
-                        className="w-full p-2.5 border border-beige bg-ivory-light text-xs text-navy font-sans"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
                       >
                         {[1, 2, 3, 4].map((b) => (
-                          <option key={b} value={b}>{b} Baths</option>
+                          <option key={b} value={b}>
+                            {b}
+                          </option>
                         ))}
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                        Furnishing
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Furnishing Status
                       </label>
                       <select
                         value={formData.furnishing}
                         onChange={(e) => updateField('furnishing', e.target.value)}
-                        className="w-full p-2.5 border border-beige bg-ivory-light text-xs text-navy font-sans"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
                       >
                         <option value="UNFURNISHED">Unfurnished</option>
                         <option value="SEMI_FURNISHED">Semi-Furnished</option>
-                        <option value="FULLY_FURNISHED">Fully Furnished</option>
+                        <option value="FULLY_FURNISHED">Fully-Furnished</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                        Possession
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Possession Status
                       </label>
                       <select
                         value={formData.possessionStatus}
                         onChange={(e) => updateField('possessionStatus', e.target.value)}
-                        className="w-full p-2.5 border border-beige bg-ivory-light text-xs text-navy font-sans"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
                       >
                         <option value="READY_TO_MOVE">Ready to Move</option>
                         <option value="UNDER_CONSTRUCTION">Under Construction</option>
                       </select>
                     </div>
                   </div>
-                )}
 
-                <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                    Detailed Narrative & Features
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="Describe architectural attributes, natural illumination, cross ventilation, distance to Nagpur Metro, MahaRERA certifications..."
-                    value={formData.description}
-                    onChange={(e) => updateField('description', e.target.value)}
-                    className="w-full p-3.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-2 font-medium">
-                    Amenities Provided
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {STANDARD_AMENITIES.map((am) => (
-                      <button
-                        key={am}
-                        type="button"
-                        onClick={() => toggleAmenity(am)}
-                        className={`p-2.5 border text-xs text-left transition-colors font-sans ${
-                          formData.amenities.includes(am)
-                            ? 'border-navy bg-navy text-white font-medium'
-                            : 'border-beige bg-ivory-light text-charcoal hover:border-gold'
-                        }`}
-                      >
-                        {formData.amenities.includes(am) ? '✓ ' : '+ '}
-                        {am}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 4: LOCATION */}
-            {currentStep === 4 && (
-              <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-navy font-normal">Step 4: Nagpur Enclave & Precise Address</h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                      Corridor / Locality
+                  {/* Amenities */}
+                  <div className="pt-2">
+                    <label className="block text-xs font-bold text-gray-700 mb-2">
+                      Key Amenities
                     </label>
-                    <select
-                      value={formData.localityName}
-                      onChange={(e) => handleLocalitySelect(e.target.value)}
-                      className="w-full p-2.5 border border-beige bg-ivory-light text-xs text-navy font-sans"
-                    >
-                      {NAGPUR_LOCALITY_OPTIONS.map((loc) => (
-                        <option key={loc.name} value={loc.name}>
-                          {loc.name} (Pincode: {loc.pincode})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                      Pincode
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={formData.pincode}
-                      onChange={(e) => updateField('pincode', e.target.value)}
-                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                    Building / Street / Landmark Address
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Suite 402, Shiv Regency, West High Court Road"
-                    value={formData.address}
-                    onChange={(e) => updateField('address', e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                      Latitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.latitude}
-                      onChange={(e) => updateField('latitude', Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs font-sans"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-1 font-medium">
-                      Longitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.longitude}
-                      onChange={(e) => updateField('longitude', Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs font-sans"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 5: MEDIA */}
-            {currentStep === 5 && (
-              <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-navy font-normal">Step 5: Architectural Photography</h2>
-                <p className="text-xs text-charcoal-muted font-sans leading-relaxed">
-                  High-definition photography enhances client engagement and expedites qualification viewings.
-                </p>
-
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    placeholder="Paste image URL (Unsplash, Cloudinary, etc.)"
-                    value={imageUrlInput}
-                    onChange={(e) => setImageUrlInput(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 border border-beige bg-ivory-light text-navy text-xs focus:outline-none focus:border-gold transition-colors font-sans"
-                  />
-                  <button
-                    type="button"
-                    onClick={addImageUrl}
-                    className="bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase px-5 py-2.5 transition-colors"
-                  >
-                    Add Image
-                  </button>
-                </div>
-
-                {/* Images Preview Grid */}
-                {formData.images.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
-                    {formData.images.map((img, idx) => (
-                      <div key={idx} className="relative aspect-video overflow-hidden border border-beige group">
-                        <img src={img.url} alt={`Photo ${idx}`} className="w-full h-full object-cover" />
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {STANDARD_AMENITIES.map((amenity) => (
                         <button
+                          key={amenity}
                           type="button"
-                          onClick={() => removeImage(idx)}
-                          className="absolute top-1.5 right-1.5 bg-navy text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => toggleAmenity(amenity)}
+                          className={`p-2.5 text-xs rounded-lg border text-left flex items-center space-x-1.5 transition-all ${
+                            formData.amenities.includes(amenity)
+                              ? 'bg-[#F7F4ED] border-[#B89A65] text-[#172C3B] font-semibold'
+                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                          }`}
                         >
-                          ✕
+                          <Check
+                            className={`w-3.5 h-3.5 ${
+                              formData.amenities.includes(amenity)
+                                ? 'text-[#B89A65]'
+                                : 'opacity-0'
+                            }`}
+                          />
+                          <span className="truncate">{amenity}</span>
                         </button>
-                        {idx === 0 && (
-                          <span className="absolute bottom-1 left-1 bg-navy text-gold text-[9px] uppercase tracking-luxury px-1.5 py-0.5">
-                            Primary
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* STEP 6: PREVIEW & SUBMIT */}
-            {currentStep === 6 && (
-              <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-navy font-normal">Step 6: Dossier Review & Placement</h2>
-
-                <div className="bg-ivory-light p-6 border border-beige space-y-3 text-xs font-sans">
-                  <div className="flex justify-between">
-                    <span className="text-charcoal-muted uppercase tracking-luxury text-[10px]">Headline:</span>
-                    <strong className="text-navy">{formData.title}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-charcoal-muted uppercase tracking-luxury text-[10px]">Mandate:</span>
-                    <strong className="text-navy">{formData.purpose} — {formData.subtype}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-charcoal-muted uppercase tracking-luxury text-[10px]">Valuation:</span>
-                    <strong className="text-navy font-semibold text-sm">₹ {Number(formData.price).toLocaleString('en-IN')}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-charcoal-muted uppercase tracking-luxury text-[10px]">Area:</span>
-                    <strong className="text-navy">{formData.areaSqFt} Sq.Ft</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-charcoal-muted uppercase tracking-luxury text-[10px]">Enclave:</span>
-                    <strong className="text-navy">{formData.address}, {formData.localityName}, Nagpur</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-charcoal-muted uppercase tracking-luxury text-[10px]">Photographs:</span>
-                    <strong className="text-navy">{formData.images.length} Image(s) Attached</strong>
+                  {/* Action Buttons */}
+                  <div className="pt-4 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      className="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 flex items-center space-x-1"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="px-8 py-2.5 bg-[#B89A65] hover:bg-[#A38753] text-white font-semibold text-xs sm:text-sm rounded-lg flex items-center space-x-2"
+                    >
+                      <span>Next: Location</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-
-                <p className="text-xs text-charcoal-muted leading-relaxed font-sans">
-                  Upon submission, your asset will be queued in the Nagpur Estates moderation desk. Following title and sanction validation, the listing will be initiated for its 90-day marketplace cycle.
-                </p>
-              </div>
-            )}
-
-            {/* Controls */}
-            <div className="pt-8 border-t border-beige flex items-center justify-between">
-              {currentStep > 1 ? (
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  className="flex items-center space-x-1.5 text-xs font-medium tracking-luxury uppercase text-charcoal-muted hover:text-navy py-3 px-4 border border-beige transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Previous</span>
-                </button>
-              ) : (
-                <div></div>
               )}
 
-              <div className="flex items-center space-x-3">
-                {currentStep === 6 ? (
-                  <>
+              {/* STEP 3: Location */}
+              {currentStep === 3 && (
+                <div className="space-y-6">
+                  <h2 className="font-serif text-xl font-bold text-[#172C3B] pb-3 border-b border-gray-100">
+                    Location & Nagpur Enclave
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Nagpur Locality <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={formData.localityName}
+                        onChange={(e) => handleLocalitySelect(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      >
+                        {NAGPUR_LOCALITY_OPTIONS.map((loc) => (
+                          <option key={loc.name} value={loc.name}>
+                            {loc.name} (Pincode: {loc.pincode})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Complete Address & Landmark <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) => updateField('address', e.target.value)}
+                        placeholder="e.g., Flat 402, Royal Palms, Near Shankar Nagar Square"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Postal Pincode
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.pincode}
+                        onChange={(e) => updateField('pincode', e.target.value)}
+                        placeholder="440010"
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-4 flex items-center justify-between">
                     <button
                       type="button"
-                      disabled={loading}
-                      onClick={() => handleSubmit(true)}
-                      className="border border-beige bg-ivory text-charcoal text-xs font-medium tracking-luxury uppercase py-3 px-5 hover:border-gold transition-colors flex items-center space-x-1.5"
+                      onClick={handlePrev}
+                      className="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 flex items-center space-x-1"
                     >
-                      <Save className="w-3.5 h-3.5" />
-                      <span>Save Draft</span>
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="px-8 py-2.5 bg-[#B89A65] hover:bg-[#A38753] text-white font-semibold text-xs sm:text-sm rounded-lg flex items-center space-x-2"
+                    >
+                      <span>Next: Media</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: Media */}
+              {currentStep === 4 && (
+                <div className="space-y-6">
+                  <h2 className="font-serif text-xl font-bold text-[#172C3B] pb-3 border-b border-gray-100">
+                    Property Photography
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={imageUrlInput}
+                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        placeholder="Paste image URL (https://...)"
+                        className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      />
+                      <button
+                        type="button"
+                        onClick={addImageUrl}
+                        className="px-4 py-2.5 bg-[#B89A65] text-white text-xs font-semibold rounded-lg flex items-center space-x-1 hover:bg-[#A38753]"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Photo</span>
+                      </button>
+                    </div>
+
+                    {/* Image Preview Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                      {formData.images.map((img, idx) => (
+                        <div
+                          key={idx}
+                          className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 group bg-gray-100"
+                        >
+                          <img
+                            src={img.url}
+                            alt={`Preview ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-4 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      className="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 flex items-center space-x-1"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="px-8 py-2.5 bg-[#B89A65] hover:bg-[#A38753] text-white font-semibold text-xs sm:text-sm rounded-lg flex items-center space-x-2"
+                    >
+                      <span>Next: Review</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: Review */}
+              {currentStep === 5 && (
+                <div className="space-y-6">
+                  <h2 className="font-serif text-xl font-bold text-[#172C3B] pb-3 border-b border-gray-100">
+                    Review & Publish Listing
+                  </h2>
+
+                  {/* Property Summary Preview Card */}
+                  <div className="bg-[#F7F4ED] rounded-xl p-5 border border-[#B89A65]/40 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-[10px] font-semibold uppercase px-2 py-0.5 bg-[#B89A65] text-white rounded">
+                          {formData.purpose === 'BUY' ? 'For Sale' : 'For Rent'}
+                        </span>
+                        <h3 className="font-serif text-lg font-bold text-[#172C3B] mt-2">
+                          {formData.title}
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          {formData.localityName}, Nagpur • Pincode {formData.pincode}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-bold text-[#172C3B] block">
+                          ₹ {Number(formData.price).toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formData.areaSqFt} Sq.Ft.
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-600 line-clamp-3">
+                      {formData.description}
+                    </p>
+
+                    <div className="pt-2 border-t border-gray-200/60 flex items-center space-x-4 text-xs text-gray-600">
+                      <span>{formData.bedrooms} BHK</span>
+                      <span>•</span>
+                      <span>{formData.bathrooms} Bath</span>
+                      <span>•</span>
+                      <span>{formData.furnishing?.replace(/_/g, ' ')}</span>
+                      <span>•</span>
+                      <span>{formData.possessionStatus?.replace(/_/g, ' ')}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-4 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      className="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 flex items-center space-x-1"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Back</span>
                     </button>
                     <button
                       type="button"
                       disabled={loading}
-                      onClick={() => handleSubmit(false)}
-                      className="bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3 px-6 transition-colors flex items-center space-x-2 disabled:opacity-50"
+                      onClick={handleSubmit}
+                      className="px-8 py-3 bg-[#B89A65] hover:bg-[#A38753] text-white font-semibold text-xs sm:text-sm rounded-lg transition-colors shadow-sm flex items-center space-x-2"
                     >
-                      <Send className="w-3.5 h-3.5 text-gold" />
-                      <span>{loading ? 'Submitting...' : 'Submit For Moderation'}</span>
+                      {loading ? (
+                        <span>Publishing Property...</span>
+                      ) : (
+                        <span>Publish Property Free</span>
+                      )}
                     </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase py-3 px-6 transition-colors flex items-center space-x-1.5"
-                  >
-                    <span>Proceed Next</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column: "Why List With Us?" Card matching Screen 7 */}
+            <div className="lg:col-span-4 bg-white rounded-2xl border border-[#E9E4DA] overflow-hidden shadow-sm sticky top-24">
+              <div className="relative aspect-[16/10] bg-gray-100 overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+                  alt="Why List With Us"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="p-6 space-y-4">
+                <h3 className="font-serif text-lg font-bold text-[#172C3B]">
+                  Why List With Us?
+                </h3>
+
+                <ul className="space-y-3 text-xs text-gray-700">
+                  <li className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-[#F7F4ED] text-[#B89A65] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Reach thousands of verified buyers and tenants in Nagpur</span>
+                  </li>
+                  <li className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-[#F7F4ED] text-[#B89A65] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Verified & trusted platform with MahaRERA compliance</span>
+                  </li>
+                  <li className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-[#F7F4ED] text-[#B89A65] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Dedicated site visit scheduling and direct inquiries</span>
+                  </li>
+                  <li className="flex items-start space-x-2.5">
+                    <div className="w-5 h-5 rounded-full bg-[#F7F4ED] text-[#B89A65] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Zero upfront fee for property owners</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>

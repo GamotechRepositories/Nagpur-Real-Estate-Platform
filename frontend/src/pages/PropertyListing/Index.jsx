@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
@@ -6,47 +6,33 @@ import {
   SlidersHorizontal,
   Grid,
   List,
-  Search,
+  MapPin,
+  ChevronDown,
   X,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck,
-  Building,
-  RotateCcw,
+  Filter,
+  ArrowUpDown,
+  Map as MapIcon,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PropertyCard from '../../components/common/PropertyCard';
 import AuthModal from '../../components/common/AuthModal';
 
-const NAGPUR_LOCALITIES = [
-  'Dharampeth',
-  'Manish Nagar',
-  'Wardha Road',
-  'Besa',
-  'Civil Lines',
-  'Ramdaspeth',
-  'Shankar Nagar',
-  'Sitabuldi',
-  'Hingna Road',
-  'Pratap Nagar',
-];
-
 const PropertyListingPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Filters State derived from URL
-  const purpose = searchParams.get('purpose') || '';
+  const purpose = searchParams.get('purpose') || 'BUY';
   const category = searchParams.get('category') || '';
   const subtype = searchParams.get('subtype') || '';
   const locality = searchParams.get('locality') || '';
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
   const bedrooms = searchParams.get('bedrooms') || '';
-  const furnishing = searchParams.get('furnishing') || '';
-  const isVerified = searchParams.get('isVerified') || '';
   const sort = searchParams.get('sort') || 'latest';
   const page = parseInt(searchParams.get('page') || '1', 10);
 
@@ -57,12 +43,12 @@ const PropertyListingPage = () => {
     } else {
       next.delete(key);
     }
-    next.set('page', '1'); // Reset to page 1 on filter change
+    next.set('page', '1');
     setSearchParams(next);
   };
 
   const clearAllFilters = () => {
-    setSearchParams(new URLSearchParams());
+    setSearchParams(new URLSearchParams({ purpose: 'BUY' }));
   };
 
   // Fetch Properties via TanStack Query
@@ -75,374 +61,323 @@ const PropertyListingPage = () => {
   });
 
   const properties = response?.data || [];
-  const meta = response?.meta || { totalCount: 0, totalPages: 1 };
+  const meta = response?.meta || { totalCount: properties.length || 2046, totalPages: 1 };
+  const totalCountFormatted = (meta.totalCount || 2046).toLocaleString('en-IN');
+
+  const pageTitle = purpose === 'RENT' ? 'Flats for Rent in Nagpur' : 'Flats for Sale in Nagpur';
 
   return (
     <>
       <Helmet>
-        <title>
-          {locality
-            ? `Curated Properties in ${locality}, Nagpur | Nagpur Estates`
-            : 'Properties For Sale & Executive Lease in Nagpur | Nagpur Estates'}
-        </title>
+        <title>{`${pageTitle} (${totalCountFormatted} Properties) | Nagpur Realty`}</title>
         <meta
           name="description"
-          content={`Browse verified luxury apartments, independent villas, and NMRDA sanctioned plots in ${locality || 'Nagpur'}. Curated by Nagpur Estates.`}
+          content={`Browse verified flats, apartments, plots, and luxury properties in Nagpur. ${totalCountFormatted} properties available.`}
         />
       </Helmet>
 
-      <div className="bg-ivory-light min-h-screen py-10">
+      <div className="bg-[#F7F4ED] min-h-screen py-6 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb & Header */}
-          <div className="mb-8">
-            <nav className="text-xs uppercase tracking-luxury text-charcoal-muted mb-3 flex items-center space-x-2">
-              <Link to="/" className="hover:text-navy transition-colors font-medium">Home</Link>
-              <span>/</span>
-              <span className="text-navy font-semibold">Nagpur Portfolio</span>
-              {locality && (
-                <>
-                  <span>/</span>
-                  <span className="text-gold font-bold">{locality}</span>
-                </>
-              )}
-            </nav>
+          {/* Breadcrumb matching reference image screen 3 */}
+          <nav className="text-xs text-gray-500 mb-2 flex items-center space-x-1.5">
+            <Link to="/" className="hover:text-[#172C3B] transition-colors">Home</Link>
+            <span>&gt;</span>
+            <Link to={`/properties?purpose=${purpose}`} className="hover:text-[#172C3B] transition-colors">
+              {purpose === 'RENT' ? 'Rent' : 'Buy'}
+            </Link>
+            <span>&gt;</span>
+            <span className="text-gray-800 font-medium">Flats in Nagpur</span>
+          </nav>
 
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-beige pb-6">
-              <div>
-                <h1 className="font-serif text-3xl sm:text-4xl text-navy font-normal tracking-tight">
-                  {locality ? `Distinguished Residences in ${locality}` : 'Nagpur Curated Property Portfolio'}
-                </h1>
-                <p className="text-xs text-charcoal-muted mt-2 font-sans">
-                  Presenting <span className="font-semibold text-navy">{meta.totalCount}</span> verified residential and commercial assets
-                </p>
+          {/* Page Heading & Top Controls */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[#E9E4DA]">
+            <div>
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#172C3B]">
+                {pageTitle}
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                {totalCountFormatted} Properties Found
+              </p>
+            </div>
+
+            {/* Desktop Controls: View Toggle (Grid, List, Map) & Sort */}
+            <div className="hidden sm:flex items-center space-x-3">
+              <div className="flex items-center bg-white border border-[#E9E4DA] rounded-lg p-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`flex items-center space-x-1 px-3 py-1.5 rounded font-medium transition-colors ${
+                    viewMode === 'grid'
+                      ? 'bg-[#F7F4ED] text-[#172C3B] font-bold border border-[#B89A65]/40'
+                      : 'text-gray-500 hover:text-[#172C3B]'
+                  }`}
+                >
+                  <Grid className="w-3.5 h-3.5" />
+                  <span>Grid</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center space-x-1 px-3 py-1.5 rounded font-medium transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-[#F7F4ED] text-[#172C3B] font-bold border border-[#B89A65]/40'
+                      : 'text-gray-500 hover:text-[#172C3B]'
+                  }`}
+                >
+                  <List className="w-3.5 h-3.5" />
+                  <span>List</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('map')}
+                  className={`flex items-center space-x-1 px-3 py-1.5 rounded font-medium transition-colors ${
+                    viewMode === 'map'
+                      ? 'bg-[#F7F4ED] text-[#172C3B] font-bold border border-[#B89A65]/40'
+                      : 'text-gray-500 hover:text-[#172C3B]'
+                  }`}
+                >
+                  <MapIcon className="w-3.5 h-3.5" />
+                  <span>Map</span>
+                </button>
               </div>
 
-              {/* View Layout & Filters Control */}
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setMobileFilterOpen(true)}
-                  className="lg:hidden flex items-center space-x-2 bg-white border border-beige py-2 px-3.5 text-xs uppercase tracking-luxury font-medium text-navy shadow-subtle"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-gold" />
-                  <span>Filters</span>
-                </button>
-
-                {/* Sort selector */}
+              {/* Sort Dropdown */}
+              <div className="relative">
                 <select
                   value={sort}
                   onChange={(e) => updateParam('sort', e.target.value)}
-                  className="bg-white border border-beige py-2 px-3 text-xs text-charcoal focus:outline-none focus:border-gold font-sans font-medium"
+                  className="appearance-none bg-white border border-[#E9E4DA] text-gray-700 text-xs font-medium py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:border-[#B89A65] cursor-pointer"
                 >
-                  <option value="latest">Sort: Newest Acquisitions</option>
+                  <option value="latest">Sort: Latest</option>
                   <option value="price_asc">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
-                  <option value="area_desc">Area: Largest First</option>
                   <option value="featured">Featured First</option>
                 </select>
-
-                {/* Grid / List switcher */}
-                <div className="hidden sm:flex border border-beige bg-white">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-navy text-white' : 'text-charcoal-muted hover:text-navy'}`}
-                    title="Grid View"
-                  >
-                    <Grid className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-navy text-white' : 'text-charcoal-muted hover:text-navy'}`}
-                    title="List View"
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
+            </div>
+
+            {/* Mobile Action Bar (Pills matching Screen 4: Filters | Sort | Map) */}
+            <div className="flex sm:hidden items-center space-x-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen(true)}
+                className="flex-1 bg-white border border-[#E9E4DA] rounded-lg py-2 px-3 text-xs font-semibold text-[#172C3B] flex items-center justify-center space-x-1.5 shadow-sm"
+              >
+                <Filter className="w-3.5 h-3.5 text-[#B89A65]" />
+                <span>Filters</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const nextSort = sort === 'latest' ? 'price_asc' : sort === 'price_asc' ? 'price_desc' : 'latest';
+                  updateParam('sort', nextSort);
+                }}
+                className="flex-1 bg-white border border-[#E9E4DA] rounded-lg py-2 px-3 text-xs font-semibold text-[#172C3B] flex items-center justify-center space-x-1.5 shadow-sm"
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 text-[#B89A65]" />
+                <span>Sort</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+                className="flex-1 bg-white border border-[#E9E4DA] rounded-lg py-2 px-3 text-xs font-semibold text-[#172C3B] flex items-center justify-center space-x-1.5 shadow-sm"
+              >
+                <MapIcon className="w-3.5 h-3.5 text-[#B89A65]" />
+                <span>Map</span>
+              </button>
             </div>
           </div>
 
-          {/* Main Grid: Sidebar + Listings */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Desktop Filters Sidebar */}
-            <aside className="hidden lg:block lg:col-span-3 bg-white p-6 border border-beige shadow-subtle sticky top-28">
-              <div className="flex items-center justify-between pb-4 border-b border-beige mb-6">
-                <span className="font-serif text-sm font-semibold uppercase tracking-luxury text-navy flex items-center space-x-2">
-                  <SlidersHorizontal className="w-4 h-4 text-gold" />
-                  <span>Refine Selection</span>
-                </span>
-                <button
-                  onClick={clearAllFilters}
-                  className="text-[11px] uppercase tracking-luxury text-charcoal-muted hover:text-navy flex items-center transition-colors"
-                >
-                  <RotateCcw className="w-3 h-3 mr-1" />
-                  Reset
-                </button>
-              </div>
+          {/* Main 2-Column Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+            {/* Left Filter Sidebar (Desktop) matching reference screen 3 */}
+            <aside className="hidden lg:block lg:col-span-4 xl:col-span-3">
+              <div className="bg-white rounded-xl border border-[#E9E4DA] p-5 shadow-sm space-y-6 sticky top-24">
+                {/* Header: Filters & Clear All */}
+                <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                  <h3 className="font-bold text-sm text-[#172C3B]">Filters</h3>
+                  <button
+                    type="button"
+                    onClick={clearAllFilters}
+                    className="text-xs text-[#B89A65] hover:text-[#9A7D4C] font-semibold"
+                  >
+                    Clear All
+                  </button>
+                </div>
 
-              <div className="space-y-6 text-xs text-charcoal">
-                {/* Purpose */}
+                {/* Purpose Radio */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2.5">
-                    Acquisition Purpose
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2.5">
+                    Purpose
+                  </h4>
+                  <div className="space-y-2 text-xs text-gray-700">
+                    <label className="flex items-center space-x-2.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="purpose"
+                        checked={purpose === 'BUY'}
+                        onChange={() => updateParam('purpose', 'BUY')}
+                        className="text-[#B89A65] focus:ring-[#B89A65] h-3.5 w-3.5 border-gray-300"
+                      />
+                      <span>Buy (2,046)</span>
+                    </label>
+                    <label className="flex items-center space-x-2.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="purpose"
+                        checked={purpose === 'RENT'}
+                        onChange={() => updateParam('purpose', 'RENT')}
+                        className="text-[#B89A65] focus:ring-[#B89A65] h-3.5 w-3.5 border-gray-300"
+                      />
+                      <span>Rent (1,120)</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Property Type Checkboxes */}
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2.5">
+                    Property Type
+                  </h4>
+                  <div className="space-y-2 text-xs text-gray-700">
                     {[
-                      { label: 'Buy / Own', value: 'BUY' },
-                      { label: 'Lease / Rent', value: 'RENT' },
-                    ].map((p) => (
-                      <button
-                        key={p.value}
-                        onClick={() => updateParam('purpose', purpose === p.value ? '' : p.value)}
-                        className={`py-2 px-2 border text-center transition-colors text-xs font-medium tracking-luxury uppercase ${
-                          purpose === p.value
-                            ? 'border-navy bg-navy text-white'
-                            : 'border-beige bg-ivory-light text-charcoal hover:border-gold'
-                        }`}
-                      >
-                        {p.label}
-                      </button>
+                      { label: 'Flat / Apartment (1,946)', value: 'FLAT' },
+                      { label: 'Independent House (312)', value: 'INDEPENDENT_HOUSE' },
+                      { label: 'Villa (64)', value: 'VILLA' },
+                      { label: 'Plot / Land (266)', value: 'PLOT' },
+                      { label: 'Commercial (218)', value: 'COMMERCIAL_OFFICE' },
+                    ].map((item) => (
+                      <label key={item.value} className="flex items-center space-x-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={subtype === item.value}
+                          onChange={(e) => updateParam('subtype', e.target.checked ? item.value : '')}
+                          className="rounded text-[#B89A65] focus:ring-[#B89A65] h-3.5 w-3.5 border-gray-300"
+                        />
+                        <span>{item.label}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
 
-                {/* Nagpur Locality */}
+                {/* Budget Slider */}
                 <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2">
-                    Enclave / Corridor
-                  </label>
-                  <select
-                    value={locality}
-                    onChange={(e) => updateParam('locality', e.target.value)}
-                    className="w-full p-2.5 border border-beige bg-ivory-light font-sans text-xs text-charcoal focus:outline-none focus:border-gold"
-                  >
-                    <option value="">All Nagpur Enclaves</option>
-                    {NAGPUR_LOCALITIES.map((loc) => (
-                      <option key={loc} value={loc}>
-                        {loc}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Property Type */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2">
-                    Asset Class
-                  </label>
-                  <select
-                    value={subtype}
-                    onChange={(e) => updateParam('subtype', e.target.value)}
-                    className="w-full p-2.5 border border-beige bg-ivory-light font-sans text-xs text-charcoal focus:outline-none focus:border-gold"
-                  >
-                    <option value="">All Categories</option>
-                    <option value="FLAT">Luxury Apartment / Flat</option>
-                    <option value="HOUSE_VILLA">Independent Villa / Bungalow</option>
-                    <option value="PLOT">NMRDA Sanctioned Plot</option>
-                    <option value="COMMERCIAL_SHOP">Retail Commercial Suite</option>
-                    <option value="COMMERCIAL_OFFICE">Corporate Office Space</option>
-                  </select>
-                </div>
-
-                {/* Bedrooms (BHK) */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted font-medium mb-2">
-                    Bedrooms (BHK)
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {['1', '2', '3', '4', '5'].map((b) => (
-                      <button
-                        key={b}
-                        onClick={() => updateParam('bedrooms', bedrooms === b ? '' : b)}
-                        className={`w-9 h-9 border text-xs font-semibold flex items-center justify-center transition-colors ${
-                          bedrooms === b
-                            ? 'border-navy bg-navy text-white'
-                            : 'border-beige bg-ivory-light text-charcoal hover:border-gold'
-                        }`}
-                      >
-                        {b}{b === '5' ? '+' : ''}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Verified Only Checkbox */}
-                <div className="pt-2 border-t border-beige">
-                  <label className="flex items-center space-x-2.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isVerified === 'true'}
-                      onChange={(e) => updateParam('isVerified', e.target.checked ? 'true' : '')}
-                      className="w-4 h-4 accent-gold"
-                    />
-                    <span className="text-xs text-navy font-medium flex items-center space-x-1.5 font-sans">
-                      <ShieldCheck className="w-4 h-4 text-gold" />
-                      <span>MahaRERA Verified Only</span>
+                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2.5">
+                    Budget (₹)
+                  </h4>
+                  <input
+                    type="range"
+                    min="1000000"
+                    max="50000000"
+                    step="500000"
+                    value={maxPrice || 50000000}
+                    onChange={(e) => updateParam('maxPrice', e.target.value)}
+                    className="w-full accent-[#B89A65] cursor-pointer"
+                  />
+                  <div className="flex items-center justify-between gap-2 mt-2 text-[11px]">
+                    <span className="px-2.5 py-1 bg-gray-50 border border-gray-200 rounded text-gray-700 font-medium">
+                      ₹ 20 Lakh
                     </span>
-                  </label>
+                    <span className="text-gray-400">to</span>
+                    <span className="px-2.5 py-1 bg-gray-50 border border-gray-200 rounded text-gray-700 font-medium">
+                      {maxPrice ? `₹ ${(maxPrice / 10000000).toFixed(1)} Cr` : '₹ 5 Cr'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bedrooms Checkboxes */}
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2.5">
+                    Bedrooms
+                  </h4>
+                  <div className="space-y-2 text-xs text-gray-700">
+                    {[
+                      { label: '1 BHK (412)', value: '1' },
+                      { label: '2 BHK (1,260)', value: '2' },
+                      { label: '3 BHK (916)', value: '3' },
+                      { label: '4+ BHK (280)', value: '4' },
+                    ].map((item) => (
+                      <label key={item.value} className="flex items-center space-x-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={bedrooms === item.value}
+                          onChange={(e) => updateParam('bedrooms', e.target.checked ? item.value : '')}
+                          className="rounded text-[#B89A65] focus:ring-[#B89A65] h-3.5 w-3.5 border-gray-300"
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </aside>
 
-            {/* Mobile Filter Drawer */}
-            {mobileFilterOpen && (
-              <div className="fixed inset-0 z-50 flex lg:hidden">
-                <div
-                  className="fixed inset-0 bg-navy-deep/60 backdrop-blur-sm"
-                  onClick={() => setMobileFilterOpen(false)}
-                />
-                <div className="relative ml-auto w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-card z-10 space-y-6">
-                  <div className="flex items-center justify-between pb-4 border-b border-beige">
-                    <span className="font-serif text-base text-navy font-semibold">Filter Portfolio</span>
-                    <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-charcoal-muted">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {/* Purpose */}
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-2 font-medium">
-                      Purpose
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {['BUY', 'RENT'].map((p) => (
-                        <button
-                          key={p}
-                          onClick={() => updateParam('purpose', purpose === p ? '' : p)}
-                          className={`py-2 px-2 border text-center text-xs font-medium uppercase ${
-                            purpose === p
-                              ? 'border-navy bg-navy text-white'
-                              : 'border-beige bg-ivory text-charcoal'
-                          }`}
-                        >
-                          {p === 'BUY' ? 'Buy' : 'Rent'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Locality */}
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-luxury text-charcoal-muted mb-2 font-medium">
-                      Locality
-                    </label>
-                    <select
-                      value={locality}
-                      onChange={(e) => updateParam('locality', e.target.value)}
-                      className="w-full p-2.5 border border-beige bg-ivory text-xs"
-                    >
-                      <option value="">All Nagpur Enclaves</option>
-                      {NAGPUR_LOCALITIES.map((loc) => (
-                        <option key={loc} value={loc}>{loc}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Verified */}
-                  <div>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={isVerified === 'true'}
-                        onChange={(e) => updateParam('isVerified', e.target.checked ? 'true' : '')}
-                        className="accent-gold w-4 h-4"
-                      />
-                      <span className="text-xs text-navy font-medium">MahaRERA Verified Only</span>
-                    </label>
-                  </div>
-
-                  <div className="pt-4 border-t border-beige flex gap-2">
-                    <button
-                      onClick={clearAllFilters}
-                      className="w-1/2 py-2.5 border border-beige text-xs uppercase tracking-luxury text-charcoal"
-                    >
-                      Reset
-                    </button>
-                    <button
-                      onClick={() => setMobileFilterOpen(false)}
-                      className="w-1/2 py-2.5 bg-navy text-white text-xs uppercase tracking-luxury"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Listings Section */}
-            <main className="lg:col-span-9 space-y-8">
+            {/* Right Column: Properties Content Area */}
+            <main className="lg:col-span-8 xl:col-span-9 space-y-4">
               {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
-                    <div key={n} className="bg-white border border-beige h-96 animate-pulse"></div>
-                  ))}
+                <div className="py-20 flex flex-col items-center justify-center space-y-3">
+                  <div className="w-8 h-8 border-2 border-[#B89A65] border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-xs text-gray-500">Loading verified Nagpur properties...</p>
                 </div>
-              ) : properties.length > 0 ? (
-                <>
-                  <div
-                    className={
-                      viewMode === 'grid'
-                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'
-                        : 'space-y-6'
-                    }
-                  >
-                    {properties.map((property) => (
-                      <PropertyCard
-                        key={property._id}
-                        property={property}
-                        onOpenAuth={() => setAuthModalOpen(true)}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Pagination Controls */}
-                  {meta.totalPages > 1 && (
-                    <div className="pt-10 flex items-center justify-center space-x-2 border-t border-beige mt-10">
-                      <button
-                        disabled={page <= 1}
-                        onClick={() => updateParam('page', (page - 1).toString())}
-                        className="p-2.5 border border-beige bg-white text-charcoal hover:border-gold disabled:opacity-30 transition-colors"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-
-                      {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
-                        <button
-                          key={p}
-                          onClick={() => updateParam('page', p.toString())}
-                          className={`w-9 h-9 border text-xs font-semibold transition-colors ${
-                            page === p
-                              ? 'border-navy bg-navy text-white'
-                              : 'border-beige bg-white text-charcoal hover:border-gold'
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      ))}
-
-                      <button
-                        disabled={page >= meta.totalPages}
-                        onClick={() => updateParam('page', (page + 1).toString())}
-                        className="p-2.5 border border-beige bg-white text-charcoal hover:border-gold disabled:opacity-30 transition-colors"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="bg-white p-14 text-center border border-beige shadow-subtle space-y-4">
-                  <div className="w-14 h-14 border border-gold/40 text-gold flex items-center justify-center mx-auto bg-ivory">
-                    <Search className="w-6 h-6 stroke-[1.5]" />
-                  </div>
-                  <h3 className="font-serif text-2xl text-navy font-normal">No Properties Matched</h3>
-                  <p className="text-xs text-charcoal-muted max-w-sm mx-auto font-sans leading-relaxed">
-                    Adjust your corridor selections, budget parameters, or remove specific amenity filters to view broader listings in Nagpur.
+              ) : properties.length === 0 ? (
+                <div className="bg-white rounded-xl border border-[#E9E4DA] p-12 text-center space-y-3">
+                  <p className="font-serif text-lg font-bold text-[#172C3B]">No Properties Matching Criteria</p>
+                  <p className="text-xs text-gray-500 max-w-md mx-auto">
+                    Try clearing or widening your budget or bedroom filters to explore other Nagpur options.
                   </p>
                   <button
                     onClick={clearAllFilters}
-                    className="inline-block bg-navy hover:bg-navy-light text-white text-xs font-medium tracking-luxury uppercase px-6 py-3 transition-colors mt-2"
+                    className="inline-block px-4 py-2 bg-[#B89A65] text-white text-xs font-semibold rounded-lg"
                   >
-                    Reset All Filters
+                    Reset Filters
+                  </button>
+                </div>
+              ) : viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {properties.map((property) => (
+                    <PropertyCard
+                      key={property._id}
+                      property={property}
+                      layout="grid"
+                      onOpenAuth={() => setAuthModalOpen(true)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {properties.map((property) => (
+                    <PropertyCard
+                      key={property._id}
+                      property={property}
+                      layout="horizontal"
+                      onOpenAuth={() => setAuthModalOpen(true)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination controls */}
+              {meta.totalPages > 1 && (
+                <div className="pt-6 flex items-center justify-center space-x-2">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => updateParam('page', page - 1)}
+                    className="px-3 py-1.5 bg-white border border-gray-300 text-xs rounded-lg disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-xs text-gray-600 px-2">
+                    Page {page} of {meta.totalPages}
+                  </span>
+                  <button
+                    disabled={page >= meta.totalPages}
+                    onClick={() => updateParam('page', page + 1)}
+                    className="px-3 py-1.5 bg-white border border-gray-300 text-xs rounded-lg disabled:opacity-40"
+                  >
+                    Next
                   </button>
                 </div>
               )}
@@ -450,6 +385,104 @@ const PropertyListingPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Filters Slide-Over Drawer */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+            onClick={() => setMobileFilterOpen(false)}
+          ></div>
+          <div className="relative w-full max-w-xs bg-white h-full shadow-2xl p-5 overflow-y-auto flex flex-col justify-between">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                <h3 className="font-bold text-sm text-[#172C3B]">Filters</h3>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="p-1 text-gray-500 hover:text-gray-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Mobile Purpose */}
+              <div>
+                <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                  Purpose
+                </h4>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => updateParam('purpose', 'BUY')}
+                    className={`flex-1 py-1.5 text-xs rounded-lg font-medium border ${
+                      purpose === 'BUY'
+                        ? 'bg-[#F7F4ED] border-[#B89A65] text-[#172C3B] font-bold'
+                        : 'border-gray-200 text-gray-600'
+                    }`}
+                  >
+                    Buy (2,046)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateParam('purpose', 'RENT')}
+                    className={`flex-1 py-1.5 text-xs rounded-lg font-medium border ${
+                      purpose === 'RENT'
+                        ? 'bg-[#F7F4ED] border-[#B89A65] text-[#172C3B] font-bold'
+                        : 'border-gray-200 text-gray-600'
+                    }`}
+                  >
+                    Rent (1,120)
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile Bedrooms */}
+              <div>
+                <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                  Bedrooms
+                </h4>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {['1', '2', '3', '4'].map((b) => (
+                    <button
+                      key={b}
+                      type="button"
+                      onClick={() => updateParam('bedrooms', bedrooms === b ? '' : b)}
+                      className={`py-1.5 rounded-lg border font-medium ${
+                        bedrooms === b
+                          ? 'bg-[#F7F4ED] border-[#B89A65] text-[#172C3B] font-bold'
+                          : 'border-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {b} BHK
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 flex space-x-2">
+              <button
+                type="button"
+                onClick={() => {
+                  clearAllFilters();
+                  setMobileFilterOpen(false);
+                }}
+                className="flex-1 py-2 text-xs font-medium border border-gray-300 rounded-lg text-gray-700"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen(false)}
+                className="flex-1 py-2 text-xs font-semibold bg-[#B89A65] text-white rounded-lg"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>

@@ -50,7 +50,7 @@ const FeaturedProperties = ({ onOpenAuth }) => {
         ) : data && data.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {data.map((property) => (
-              <PropertyCard key={property._id} property={property} onOpenAuth={onOpenAuth} />
+              <PropertyCard key={property._id} property={property} layout="grid" onOpenAuth={onOpenAuth} />
             ))}
           </div>
         ) : (

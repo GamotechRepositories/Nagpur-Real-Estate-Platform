@@ -16,6 +16,7 @@ import PostPropertyPage from './pages/PostProperty/Index';
 import MyPropertiesPage from './pages/Account/MyProperties';
 import SavedPropertiesPage from './pages/Account/SavedProperties';
 import ContentDetailsPage from './pages/Content/ContentDetails';
+import BlogPage from './pages/Blog/Index';
 
 // Admin Views
 import AdminLayout from './admin/layouts/AdminLayout';
@@ -67,6 +68,7 @@ function App() {
         <Route path="localities" element={<LocalitiesPage />} />
         <Route path="localities/:slug" element={<LocalityDetailsPage />} />
         <Route path="content/:slug" element={<ContentDetailsPage />} />
+        <Route path="blog" element={<BlogPage />} />
 
         {/* SEO-friendly vanity URL routes (Section 36) */}
         <Route path="nagpur/:locality/flats-for-sale" element={<SeoLocalitySaleRedirect />} />
