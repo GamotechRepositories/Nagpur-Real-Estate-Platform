@@ -90,7 +90,7 @@ const HeroSearch = () => {
   return (
     <>
       {/* Hero Section with exact background image and gradient overlay matching Image 1 */}
-      <section className="relative bg-[#0F1E28] text-white pt-10 sm:pt-16 pb-14 sm:pb-20 overflow-hidden w-full max-w-full min-h-[540px] sm:min-h-[580px] lg:min-h-[640px] flex items-center">
+      <section className="relative bg-[#0F1E28] text-white pt-12 sm:pt-20 pb-8 sm:pb-12 overflow-hidden w-full max-w-full min-h-[580px] sm:min-h-[640px] lg:min-h-[680px] flex flex-col justify-between">
         {/* Desktop Background Image (Image 2) */}
         <img
           src="/images/hero-desktop.jpg"
@@ -112,7 +112,7 @@ const HeroSearch = () => {
         {/* Mobile Gradient Overlay */}
         <div className="block md:hidden absolute inset-0 bg-gradient-to-b from-[#0F1E28]/80 via-[#0F1E28]/50 via-35% to-[#0F1E28]/85 pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-8 sm:space-y-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full flex-1 flex flex-col justify-between pt-2 sm:pt-6">
           {/* Headline & Subhead on Left matching Image 1 */}
           <div className="max-w-xl space-y-3">
             <h1 className="font-serif text-3xl sm:text-5xl lg:text-[54px] font-bold tracking-tight text-white leading-[1.12] drop-shadow-sm">
@@ -123,8 +123,8 @@ const HeroSearch = () => {
             </p>
           </div>
 
-          {/* Prominent Floating Search Card matching Image 1 */}
-          <div className="bg-white rounded-2xl p-4 sm:p-6 text-[#252525] shadow-lg border border-gray-100/90 w-full max-w-6xl min-w-0">
+          {/* Prominent Floating Search Card shifted lower down as requested */}
+          <div className="mt-10 sm:mt-16 lg:mt-24 mb-2 bg-white rounded-2xl p-4 sm:p-6 text-[#252525] shadow-lg border border-gray-100/90 w-full max-w-6xl min-w-0">
             {/* Category Tabs: Buy | Rent | Plots | Commercial */}
             <div className="flex items-center space-x-1.5 sm:space-x-2 pb-3 sm:pb-4 mb-4 border-b border-gray-100 overflow-x-auto scrollbar-none">
               {['Buy', 'Rent', 'Plots', 'Commercial'].map((tab) => (
