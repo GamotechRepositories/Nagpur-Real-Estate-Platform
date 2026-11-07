@@ -16,6 +16,7 @@ const LeadManagementPage = lazy(() => import('./pages/CRM/LeadManagementPage'));
 const SiteVisitsManagementPage = lazy(() => import('./pages/CRM/SiteVisitsManagementPage'));
 const UsersManagementPage = lazy(() => import('./pages/Administration/UsersManagementPage'));
 const AgentsManagementPage = lazy(() => import('./pages/Administration/AgentsManagementPage'));
+const ProfilePage = lazy(() => import('./pages/Administration/ProfilePage'));
 const SettingsManagementPage = lazy(() => import('./pages/System/SettingsManagementPage'));
 const AuditLogsPage = lazy(() => import('./pages/System/AuditLogsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -63,6 +64,7 @@ function App() {
             <Route path="/site-visits" element={<SiteVisitsManagementPage />} />
             <Route path="/users" element={<UsersManagementPage />} />
             <Route path="/agents" element={<AgentsManagementPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsManagementPage />} />
             <Route path="/audit-logs" element={<AuditLogsPage />} />
             <Route path="*" element={<NotFoundPage />} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard,
@@ -15,19 +15,13 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
-  ExternalLink,
-  LogOut,
   X,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
-import { formatRole } from '../../utils/formatters';
 import apiClient from '../../api/client';
 
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
-  const navigate = useNavigate();
   const {
-    user,
-    logout,
     sidebarCollapsed,
     toggleSidebarCollapsed,
     sidebarMobileOpen: storeMobileOpen,
@@ -54,11 +48,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
   const pendingCount = stats?.properties?.PENDING_REVIEW || 0;
   const pendingVisitsCount = stats?.crm?.pendingSiteVisits || 0;
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const navGroups = [
     {
@@ -151,13 +140,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     },
   ];
 
-  const publicUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:5173';
-
-  // Secondary line under user name: show email or role (avoiding duplicate text if role matches name)
-  const userSubtitle =
-    user?.email ||
-    (user?.role && formatRole(user.role) !== user?.name ? formatRole(user.role) : 'Administrator');
-
   return (
     <>
       {/* Mobile Backdrop */}
@@ -214,72 +196,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           </div>
         </div>
 
-        {/* User Account Section (Placed at top - NEVER sinks to the bottom on tall screens) */}
-        <div className="p-2.5 border-b border-slate-800/80 bg-slate-950/30 flex-shrink-0">
-          {!sidebarCollapsed ? (
-            <div className="p-2.5 rounded-lg bg-slate-800/40 border border-slate-800">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-teal-600/20 border border-teal-500/40 text-teal-300 font-bold text-xs flex items-center justify-center flex-shrink-0">
-                  {user?.name?.[0]?.toUpperCase() || 'A'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-200 truncate">{user?.name || 'Administrator'}</p>
-                  <p className="text-[10px] text-slate-400 truncate">{userSubtitle}</p>
-                </div>
-              </div>
-
-              {/* Inline Quick Action Links */}
-              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-700/40 text-[11px]">
-                <a
-                  href={publicUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1 text-slate-400 hover:text-teal-300 transition-colors"
-                  title="Open Public Website in new tab"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  <span>Public Site</span>
-                </a>
-
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center space-x-1 text-slate-400 hover:text-red-400 transition-colors"
-                  title="Sign out of Admin Console"
-                >
-                  <LogOut className="w-3 h-3" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-2 py-1">
-              <div
-                className="w-8 h-8 rounded-lg bg-teal-600/20 border border-teal-500/40 text-teal-300 font-bold text-xs flex items-center justify-center cursor-default"
-                title={`${user?.name || 'Administrator'} (${userSubtitle})`}
-              >
-                {user?.name?.[0]?.toUpperCase() || 'A'}
-              </div>
-              <a
-                href={publicUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 text-slate-400 hover:text-teal-300 rounded hover:bg-slate-800 transition-colors"
-                title="Public Site"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-              <button
-                onClick={handleLogout}
-                className="p-1.5 text-slate-400 hover:text-red-400 rounded hover:bg-slate-800 transition-colors"
-                title="Sign Out"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation Links (Scrollable area) */}
+        {/* Navigation Links */}
         <div className="flex-1 p-2 space-y-3.5 overflow-y-auto">
           {navGroups.map((group, groupIdx) => (
             <div key={groupIdx} className="space-y-0.5">
