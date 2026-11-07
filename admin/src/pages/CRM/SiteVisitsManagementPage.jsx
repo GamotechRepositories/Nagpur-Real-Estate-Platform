@@ -3,16 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CalendarDays,
   Clock,
-  CheckCircle,
-  XCircle,
-  Phone,
   MapPin,
-  User,
-  Calendar,
-  MessageSquare,
-  Building,
   Check,
   X,
+  Phone,
+  User,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -65,25 +60,25 @@ export const SiteVisitsManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
-        title="Physical Site Visits Schedule"
-        subtitle="Coordinate on-ground property inspections with buyers, owners, and assigned field agents"
+        title="Site Visits"
+        subtitle="Manage scheduled property inspections"
         icon={CalendarDays}
         breadcrumbs={[{ label: 'Site Visits' }]}
         actions={
-          <div className="flex bg-white border border-slate-200 rounded-xl p-1 text-xs font-bold shadow-xs">
+          <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 text-xs font-medium">
             {['', 'REQUESTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`py-1.5 px-3 rounded-lg transition-all ${
+                className={`py-1 px-2.5 rounded-md transition-colors ${
                   statusFilter === st
-                    ? 'bg-brand-navy text-white shadow-xs'
-                    : 'text-slate-600 hover:text-brand-orange'
+                    ? 'bg-slate-900 text-white font-semibold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                {st === '' ? 'All Visits' : st}
+                {st === '' ? 'All' : st.charAt(0) + st.slice(1).toLowerCase()}
               </button>
             ))}
           </div>
@@ -92,31 +87,31 @@ export const SiteVisitsManagementPage = () => {
 
       {/* Grid of Visits */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-56 bg-white rounded-3xl border border-slate-200 animate-pulse" />
+            <div key={n} className="h-44 bg-white rounded-xl border border-slate-200 animate-pulse" />
           ))}
         </div>
       ) : visits && visits.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {visits.map((visit) => (
             <div
               key={visit._id}
-              className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between space-y-3"
             >
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {/* Status + Date */}
                 <div className="flex items-center justify-between">
                   <Badge status={visit.status} />
-                  <span className="text-[11px] text-slate-400 font-medium">
-                    Requested {formatDate(visit.createdAt)}
+                  <span className="text-[11px] text-slate-400">
+                    {formatDate(visit.createdAt)}
                   </span>
                 </div>
 
                 {/* Property Title */}
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 line-clamp-1">
-                    {visit.property?.title || 'Nagpur Property'}
+                  <h3 className="text-sm font-bold text-slate-900 line-clamp-1">
+                    {visit.property?.title || 'Property'}
                   </h3>
                   <div className="flex items-center space-x-1 text-xs text-slate-500 mt-0.5">
                     <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
@@ -125,91 +120,85 @@ export const SiteVisitsManagementPage = () => {
                 </div>
 
                 {/* Visit Preferred Slot Card */}
-                <div className="p-3 bg-teal-50/70 border border-teal-100 rounded-2xl flex items-center space-x-3 text-xs">
-                  <div className="w-9 h-9 rounded-xl bg-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-                    <Clock className="w-4 h-4" />
-                  </div>
+                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center space-x-2.5 text-xs">
+                  <Clock className="w-4 h-4 text-teal-700 flex-shrink-0" />
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-teal-800 tracking-wider block">
-                      Preferred Schedule
-                    </span>
-                    <strong className="text-brand-navy font-black">
+                    <span className="font-semibold text-slate-900 block">
                       {formatDate(visit.preferredDate)} &bull; {visit.preferredTimeSlot}
-                    </strong>
+                    </span>
                   </div>
                 </div>
 
-                {/* Customer Details */}
-                <div className="space-y-1.5 text-xs text-slate-600 pt-1 border-t border-slate-100">
+                {/* Contacts */}
+                <div className="space-y-1 text-xs text-slate-600 pt-1 border-t border-slate-100">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Visitor:</span>
-                    <strong className="text-slate-800">{visit.customerName}</strong>
+                    <span className="text-slate-400">Buyer:</span>
+                    <span className="font-medium text-slate-800">
+                      {visit.buyer?.name || 'Buyer'} {visit.buyer?.phone ? `(${visit.buyer.phone})` : ''}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Phone:</span>
-                    <span className="font-mono font-semibold text-brand-orange">+91 {visit.phoneNumber}</span>
-                  </div>
+
+                  {visit.assignedAgent && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Agent:</span>
+                      <span className="font-medium text-slate-800">
+                        {visit.assignedAgent.name}
+                      </span>
+                    </div>
+                  )}
+
                   {visit.feedbackNotes && (
-                    <div className="pt-1 text-[11px] text-slate-500 italic bg-slate-50 p-2 rounded-xl">
-                      "{visit.feedbackNotes}"
+                    <div className="pt-1 text-[11px] text-slate-500 italic">
+                      Notes: {visit.feedbackNotes}
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <div className="flex items-center space-x-2">
-                  <a
-                    href={`tel:+91${visit.phoneNumber}`}
-                    className="flex-1 py-2 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold text-center flex items-center justify-center space-x-1"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-brand-teal" />
-                    <span>Call</span>
-                  </a>
-
-                  <a
-                    href={`https://wa.me/91${visit.phoneNumber}?text=Hello%20${encodeURIComponent(visit.customerName)},%20confirming%20your%20site%20visit%20scheduled%20for%20${visit.preferredTimeSlot}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 text-xs font-bold text-center flex items-center justify-center space-x-1"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </a>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  {visit.status === 'REQUESTED' && (
+              <div className="flex items-center space-x-1.5 pt-2 border-t border-slate-100">
+                {visit.status === 'REQUESTED' && (
+                  <>
                     <button
                       onClick={() => handleOpenUpdate(visit, 'CONFIRMED')}
-                      className="w-full py-2 px-3 rounded-xl bg-brand-teal hover:bg-brand-teal-dark text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center space-x-1"
+                      className="flex-1 py-1 px-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
                     >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Confirm Visit</span>
+                      Confirm
                     </button>
-                  )}
-
-                  {visit.status === 'CONFIRMED' && (
-                    <button
-                      onClick={() => handleOpenUpdate(visit, 'COMPLETED')}
-                      className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center space-x-1"
-                    >
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      <span>Mark Completed</span>
-                    </button>
-                  )}
-
-                  {visit.status !== 'CANCELLED' && visit.status !== 'COMPLETED' && (
                     <button
                       onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
-                      className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 border border-rose-200 transition-colors"
-                      title="Cancel Visit"
+                      className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      Cancel
                     </button>
-                  )}
-                </div>
+                  </>
+                )}
+
+                {visit.status === 'CONFIRMED' && (
+                  <>
+                    <button
+                      onClick={() => handleOpenUpdate(visit, 'COMPLETED')}
+                      className="flex-1 py-1 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                    >
+                      Mark Completed
+                    </button>
+                    <button
+                      onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
+                      className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+
+                {(visit.status === 'COMPLETED' || visit.status === 'CANCELLED') && (
+                  <button
+                    onClick={() => handleOpenUpdate(visit, visit.status)}
+                    className="w-full py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
+                  >
+                    Edit Feedback
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -220,8 +209,8 @@ export const SiteVisitsManagementPage = () => {
           title="No site visits found"
           description={
             statusFilter
-              ? `There are currently no visits marked as ${statusFilter}.`
-              : 'No prospective buyer visits have been requested yet.'
+              ? `No site visits found in ${statusFilter.toLowerCase()} status.`
+              : 'No scheduled property site visits yet.'
           }
         />
       )}
@@ -231,21 +220,37 @@ export const SiteVisitsManagementPage = () => {
         <Modal
           isOpen={Boolean(updateModalVisit)}
           onClose={() => setUpdateModalVisit(null)}
-          title={`Update Visit Status: ${newStatus}`}
-          subtitle={`Customer: ${updateModalVisit.customerName} · Property: ${updateModalVisit.property?.title || 'Nagpur'}`}
+          title="Update Visit Status"
+          subtitle={`Property: ${updateModalVisit.property?.title || 'Inspection'}`}
           maxWidth="max-w-md"
         >
           <form onSubmit={handleUpdateSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Feedback Notes & Inspection Remarks
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Status
+              </label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium bg-white"
+              >
+                <option value="REQUESTED">Requested</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Inspection Feedback / Notes
               </label>
               <textarea
                 rows={3}
                 value={feedbackNotes}
                 onChange={(e) => setFeedbackNotes(e.target.value)}
-                placeholder="Buyer feedback, agent attendance, property key handover details..."
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-brand-teal"
+                placeholder="Enter feedback or outcome of visit..."
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
 
@@ -253,16 +258,16 @@ export const SiteVisitsManagementPage = () => {
               <button
                 type="button"
                 onClick={() => setUpdateModalVisit(null)}
-                className="py-2 px-4 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50"
+                className="py-1.5 px-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={mutation.isPending}
-                className="py-2 px-5 rounded-xl bg-brand-navy hover:bg-slate-800 text-white text-xs font-bold shadow-md"
+                className="py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50"
               >
-                {mutation.isPending ? 'Updating...' : `Save as ${newStatus}`}
+                {mutation.isPending ? 'Updating...' : 'Save Status'}
               </button>
             </div>
           </form>

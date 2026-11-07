@@ -3,17 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Users,
   Search,
-  Shield,
-  UserCheck,
-  UserX,
-  Edit2,
-  Mail,
-  Phone,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  CheckCircle,
-  AlertTriangle,
+  Edit2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -31,8 +23,6 @@ const ALL_ROLES = [
   'OWNER',
   'USER',
 ];
-
-const ALL_STATUSES = ['ACTIVE', 'SUSPENDED', 'PENDING'];
 
 export const UsersManagementPage = () => {
   const queryClient = useQueryClient();
@@ -90,27 +80,27 @@ export const UsersManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
-        title="User & Staff Administration"
-        subtitle="Manage platform users, assign staff roles (Super Admin, Moderator, CRM), and control account status"
+        title="Users & Roles"
+        subtitle="Manage user accounts and staff permissions"
         icon={Users}
-        breadcrumbs={[{ label: 'Users & Roles' }]}
+        breadcrumbs={[{ label: 'Users' }]}
       />
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex-1 relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search by name, email, or Indian phone number..."
+            placeholder="Search by name, email, or phone..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:bg-white transition-colors"
           />
         </div>
 
@@ -122,7 +112,7 @@ export const UsersManagementPage = () => {
               setRoleFilter(e.target.value);
               setPage(1);
             }}
-            className="py-2.5 px-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-none"
+            className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-slate-50 focus:bg-white outline-none"
           >
             <option value="">All Roles</option>
             {ALL_ROLES.map((r) => (
@@ -139,82 +129,68 @@ export const UsersManagementPage = () => {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="py-2.5 px-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-none"
+            className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-slate-50 focus:bg-white outline-none"
           >
             <option value="">All Statuses</option>
-            {ALL_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            <option value="ACTIVE">Active</option>
+            <option value="SUSPENDED">Suspended</option>
+            <option value="PENDING">Pending</option>
           </select>
         </div>
       </div>
 
-      {/* Users Table Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      {/* Users Table */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
-            <thead className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
+            <thead className="bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200">
               <tr>
-                <th className="py-4 px-4">User</th>
-                <th className="py-4 px-4">Role</th>
-                <th className="py-4 px-4">Account Status</th>
-                <th className="py-4 px-4">Contact Phone</th>
-                <th className="py-4 px-4">Email</th>
-                <th className="py-4 px-4">Joined Date</th>
-                <th className="py-4 px-4 text-right">Actions</th>
+                <th className="py-3 px-3 sm:px-4">User</th>
+                <th className="py-3 px-3">Email</th>
+                <th className="py-3 px-3">Phone</th>
+                <th className="py-3 px-3">Role</th>
+                <th className="py-3 px-3">Status</th>
+                <th className="py-3 px-3">Joined</th>
+                <th className="py-3 px-3 sm:px-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-slate-400">
-                    Loading users list...
+                  <td colSpan={7} className="text-center py-10 text-slate-400">
+                    Loading users...
                   </td>
                 </tr>
               ) : users.length > 0 ? (
                 users.map((u) => (
-                  <tr key={u._id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-teal to-cyan-700 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">
-                          {u.name?.[0] || 'U'}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900">{u.name || 'Unnamed'}</p>
-                          <span className="text-[10px] text-slate-400 block font-mono">ID: {u._id}</span>
-                        </div>
-                      </div>
+                  <tr key={u._id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="py-2.5 px-3 sm:px-4 font-semibold text-slate-900">
+                      {u.name || 'Unnamed'}
                     </td>
-
-                    <td className="py-3 px-4">
-                      <Badge status={u.role} />
+                    <td className="py-2.5 px-3 text-slate-600 font-mono text-[11px]">
+                      {u.email}
                     </td>
-
-                    <td className="py-3 px-4">
-                      <Badge status={u.status || 'ACTIVE'} />
+                    <td className="py-2.5 px-3 text-slate-600 font-mono text-[11px]">
+                      {u.phone ? `+91 ${u.phone}` : '—'}
                     </td>
-
-                    <td className="py-3 px-4 font-mono font-medium text-slate-800">
-                      +91 {u.phone}
+                    <td className="py-2.5 px-3">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
+                        {u.role?.replace('_', ' ')}
+                      </span>
                     </td>
-
-                    <td className="py-3 px-4 text-slate-500">
-                      {u.email || '—'}
+                    <td className="py-2.5 px-3">
+                      <Badge status={u.status || 'ACTIVE'} size="xs" />
                     </td>
-
-                    <td className="py-3 px-4 text-[11px] text-slate-400">
+                    <td className="py-2.5 px-3 text-slate-500 whitespace-nowrap">
                       {formatDate(u.createdAt)}
                     </td>
-
-                    <td className="py-3 px-4 text-right">
+                    <td className="py-2.5 px-3 sm:px-4 text-right">
                       <button
                         onClick={() => handleOpenEdit(u)}
-                        className="inline-flex items-center space-x-1 py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold transition-colors"
+                        className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        title="Edit Role & Status"
                       >
-                        <Edit2 className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Edit Role</span>
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
@@ -222,11 +198,7 @@ export const UsersManagementPage = () => {
               ) : (
                 <tr>
                   <td colSpan={7}>
-                    <EmptyState
-                      icon={Users}
-                      title="No users found"
-                      description="Try clearing your search query or role filter."
-                    />
+                    <EmptyState icon={Users} title="No users found" description="No users match your criteria." />
                   </td>
                 </tr>
               )}
@@ -234,19 +206,19 @@ export const UsersManagementPage = () => {
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* Pagination */}
         {meta.totalPages > 1 && (
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="p-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>
-              Showing page <strong className="text-slate-800">{meta.page}</strong> of{' '}
-              <strong className="text-slate-800">{meta.totalPages}</strong> ({meta.totalCount} total users)
+              Page <strong className="text-slate-800">{meta.page}</strong> of{' '}
+              <strong className="text-slate-800">{meta.totalPages}</strong> ({meta.totalCount} total)
             </span>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5">
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-bold flex items-center space-x-1"
+                className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-medium flex items-center space-x-1"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Prev</span>
@@ -255,7 +227,7 @@ export const UsersManagementPage = () => {
               <button
                 disabled={page >= meta.totalPages}
                 onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                className="py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-bold flex items-center space-x-1"
+                className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-medium flex items-center space-x-1"
               >
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -265,64 +237,62 @@ export const UsersManagementPage = () => {
         )}
       </div>
 
-      {/* Edit User Role & Status Modal */}
+      {/* Edit Role & Status Modal */}
       {editingUser && (
         <Modal
           isOpen={Boolean(editingUser)}
           onClose={() => setEditingUser(null)}
-          title={`Edit Permissions: ${editingUser.name}`}
-          subtitle={`Phone: +91 ${editingUser.phone} · Current Role: ${editingUser.role}`}
+          title={`Edit User: ${editingUser.name}`}
+          subtitle={editingUser.email}
           maxWidth="max-w-md"
         >
           <form onSubmit={handleUpdateSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Assign System Role
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Role
               </label>
               <select
                 value={newRole}
                 onChange={(e) => setNewRole(e.target.value)}
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium bg-white"
               >
-                {ALL_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {role.replace('_', ' ')}
+                {ALL_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r.replace('_', ' ')}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Account Status
               </label>
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium bg-white"
               >
-                {ALL_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
+                <option value="ACTIVE">Active</option>
+                <option value="SUSPENDED">Suspended</option>
+                <option value="PENDING">Pending</option>
               </select>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setEditingUser(null)}
-                className="py-2 px-4 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50"
+                className="py-1.5 px-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={updateRoleMutation.isPending}
-                className="py-2 px-5 rounded-xl bg-brand-orange hover:bg-orange-600 text-white text-xs font-bold shadow-md"
+                className="py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50"
               >
-                {updateRoleMutation.isPending ? 'Updating...' : 'Save Permissions'}
+                {updateRoleMutation.isPending ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </form>

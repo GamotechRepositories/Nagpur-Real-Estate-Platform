@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Settings,
-  Save,
+  Sliders,
   CheckCircle,
   AlertCircle,
-  Clock,
-  Shuffle,
-  Shield,
-  PhoneCall,
-  MapPin,
-  Mail,
-  Sliders,
+  Save,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -92,53 +85,52 @@ export const SettingsManagementPage = () => {
   };
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="max-w-4xl space-y-5">
       <PageHeader
-        title="Platform & Lead Engine Configuration"
-        subtitle="Manage CRM lead distribution algorithm, automated SLA triggers, listing validity cycles, and Nagpur support lines"
+        title="Settings"
+        subtitle="Manage lead distribution, listing cycles, and contacts"
         icon={Sliders}
-        breadcrumbs={[{ label: 'System Settings' }]}
+        breadcrumbs={[{ label: 'Settings' }]}
       />
 
       {success && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2">
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2">
           <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>Platform configuration updated and applied in real-time!</span>
+          <span>Settings saved successfully.</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
           <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Section 1: Lead Routing Engine */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
-            <Shuffle className="w-4 h-4 text-brand-orange" />
-            <span>CRM Lead Routing & SLA Engine</span>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Lead Routing */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            Lead Routing
           </h2>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                Distribution Strategy
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Routing Mode
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {[
-                  { id: 'ROUND_ROBIN', label: 'Round Robin', desc: 'Evenly cycles new leads among verified agents' },
-                  { id: 'LOCALITY_BASED', label: 'Locality Match', desc: 'Matches buyer inquiry to agent localized in that area' },
-                  { id: 'MANUAL', label: 'Manual Assignment', desc: 'CRM manager manually assigns each incoming lead' },
+                  { id: 'ROUND_ROBIN', label: 'Round Robin' },
+                  { id: 'LOCALITY_BASED', label: 'Locality Based' },
+                  { id: 'MANUAL', label: 'Manual' },
                 ].map((mode) => (
                   <label
                     key={mode.id}
-                    className={`p-3.5 rounded-2xl border text-xs cursor-pointer transition-all ${
+                    className={`p-3 rounded-lg border text-xs cursor-pointer transition-colors ${
                       formData.leadRouting.routingMode === mode.id
-                        ? 'border-brand-orange bg-orange-50/50 shadow-xs ring-1 ring-brand-orange'
-                        : 'border-slate-200 hover:bg-slate-50'
+                        ? 'border-teal-600 bg-teal-50/40 text-teal-900 font-semibold'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     <input
@@ -153,17 +145,16 @@ export const SettingsManagementPage = () => {
                       }
                       className="sr-only"
                     />
-                    <strong className="block font-bold text-slate-900 mb-0.5">{mode.label}</strong>
-                    <span className="text-[11px] text-slate-500 leading-tight block">{mode.desc}</span>
+                    <span>{mode.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                  Default Agent Response SLA (Hours)
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Response SLA (Hours)
                 </label>
                 <input
                   type="number"
@@ -179,12 +170,12 @@ export const SettingsManagementPage = () => {
                       },
                     })
                   }
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
                 />
               </div>
 
-              <div className="flex items-center pt-6">
-                <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <div className="flex items-center pt-5 sm:pt-6">
+                <label className="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.leadRouting.autoEscalateAfterSla}
@@ -197,26 +188,25 @@ export const SettingsManagementPage = () => {
                         },
                       })
                     }
-                    className="rounded text-brand-orange focus:ring-brand-orange"
+                    className="rounded text-teal-600 focus:ring-teal-500"
                   />
-                  <span>Auto-escalate lead if uncontacted after SLA</span>
+                  <span>Auto-escalate uncontacted leads</span>
                 </label>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Section 2: Listing Lifecycle & Expiration */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-brand-teal" />
-            <span>Listing Expiration & Photo Limits</span>
+        {/* Listing Configuration */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            Listing Rules
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                Active Listing Duration (Days)
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Listing Validity (Days)
               </label>
               <input
                 type="number"
@@ -232,16 +222,13 @@ export const SettingsManagementPage = () => {
                     },
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
-              <span className="text-[10px] text-slate-400 mt-1 block">
-                Standard duration approved listings remain LIVE on marketplace.
-              </span>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                Max Free Photos Allowed per Listing
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Max Photos Allowed
               </label>
               <input
                 type="number"
@@ -257,23 +244,22 @@ export const SettingsManagementPage = () => {
                     },
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold outline-none"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
           </div>
         </div>
 
-        {/* Section 3: Contact & Support Information */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
-            <PhoneCall className="w-4 h-4 text-emerald-600" />
-            <span>Nagpur Public Helpdesk & Office</span>
+        {/* Contact Information */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            Support Contacts
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                Nagpur Helpline Phone
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Helpline Phone
               </label>
               <input
                 type="text"
@@ -284,13 +270,13 @@ export const SettingsManagementPage = () => {
                     contacts: { ...formData.contacts, helplinePhone: e.target.value },
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                Official Support Email
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Support Email
               </label>
               <input
                 type="email"
@@ -301,13 +287,13 @@ export const SettingsManagementPage = () => {
                     contacts: { ...formData.contacts, supportEmail: e.target.value },
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                WhatsApp Business Number
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                WhatsApp Number
               </label>
               <input
                 type="text"
@@ -318,13 +304,13 @@ export const SettingsManagementPage = () => {
                     contacts: { ...formData.contacts, whatsappNumber: e.target.value },
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                Registered Office Address
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Office Address
               </label>
               <input
                 type="text"
@@ -335,21 +321,21 @@ export const SettingsManagementPage = () => {
                     contacts: { ...formData.contacts, officeAddress: e.target.value },
                   })
                 }
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs"
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
           </div>
         </div>
 
-        {/* Save button */}
-        <div className="flex justify-end pt-2">
+        {/* Submit */}
+        <div className="flex items-center justify-end pt-1">
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="py-3 px-8 rounded-2xl bg-brand-orange hover:bg-orange-600 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-orange-600/30 transition-all flex items-center space-x-2 disabled:opacity-50"
+            className="inline-flex items-center space-x-1.5 py-2 px-4 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            <span>{mutation.isPending ? 'Saving Settings...' : 'Save Platform Settings'}</span>
+            <span>{mutation.isPending ? 'Saving...' : 'Save Settings'}</span>
           </button>
         </div>
       </form>

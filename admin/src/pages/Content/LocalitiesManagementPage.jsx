@@ -4,11 +4,7 @@ import {
   MapPin,
   Plus,
   Search,
-  Building2,
-  TrendingUp,
-  Sparkles,
   Edit2,
-  CheckCircle,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -95,16 +91,16 @@ export const LocalitiesManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
-        title="Nagpur Localities & Neighborhoods"
-        subtitle="Manage localized growth corridors, average price per square foot, and active property counts"
+        title="Localities"
+        subtitle="Manage areas and average price benchmarks"
         icon={MapPin}
         breadcrumbs={[{ label: 'Localities' }]}
         actions={
           <button
             onClick={handleOpenAdd}
-            className="inline-flex items-center space-x-1.5 py-2 px-4 rounded-xl bg-brand-teal hover:bg-brand-teal-dark text-white text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center space-x-1.5 py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Add Locality</span>
@@ -113,83 +109,61 @@ export const LocalitiesManagementPage = () => {
       />
 
       {/* Search Bar */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/90 shadow-sm flex items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+      <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-xs flex items-center">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search by locality name or pincode..."
+            placeholder="Search by locality or pincode..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:bg-white transition-colors"
           />
         </div>
       </div>
 
       {/* Localities Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-52 bg-white rounded-3xl border border-slate-200 animate-pulse" />
+            <div key={n} className="h-40 bg-white rounded-xl border border-slate-200 animate-pulse" />
           ))}
         </div>
       ) : localities.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {localities.map((loc) => (
             <div
               key={loc._id}
-              className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between space-y-3"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 text-brand-teal font-extrabold text-sm">
-                    <MapPin className="w-4 h-4" />
-                    <span>{loc.name}</span>
+              <div>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">{loc.name}</h3>
+                    <span className="text-xs text-slate-400 font-mono">Pincode: {loc.pincode || '440010'}</span>
                   </div>
-
                   {loc.isFeatured && (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black uppercase">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                       Featured
                     </span>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs">
-                  <div>
-                    <span className="text-slate-400 text-[10px] uppercase font-bold block">Live Listings</span>
-                    <strong className="text-brand-navy font-black text-sm">
-                      {loc.propertyCount || 0}
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-400 text-[10px] uppercase font-bold block">Avg Rate</span>
-                    <strong className="text-brand-orange font-black text-sm">
-                      ₹{loc.avgPriceSqFt || '—'}/Sq.Ft
-                    </strong>
-                  </div>
-                </div>
-
-                <div className="text-xs text-slate-500 space-y-1">
-                  <div>
-                    <span className="text-slate-400">Pincode: </span>
-                    <span className="font-mono font-bold text-slate-700">{loc.pincode || '4400xx'}</span>
-                  </div>
-                  {loc.description && (
-                    <p className="line-clamp-2 leading-relaxed text-slate-600">
-                      {loc.description}
-                    </p>
-                  )}
+                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Avg. Price / Sq.Ft:</span>
+                  <span className="font-bold text-slate-900">
+                    ₹{loc.avgPriceSqFt?.toLocaleString('en-IN') || '5,500'}
+                  </span>
                 </div>
               </div>
 
               <div className="pt-2 border-t border-slate-100 flex items-center justify-end">
                 <button
                   onClick={() => handleOpenEdit(loc)}
-                  className="py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors inline-flex items-center space-x-1"
+                  className="inline-flex items-center space-x-1 py-1 px-2.5 rounded border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium"
                 >
-                  <Edit2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Edit Rate & Details</span>
+                  <Edit2 className="w-3.5 h-3.5" />
+                  <span>Edit</span>
                 </button>
               </div>
             </div>
@@ -199,7 +173,7 @@ export const LocalitiesManagementPage = () => {
         <EmptyState
           icon={MapPin}
           title="No localities found"
-          description="Click 'Add Locality' to configure Nagpur neighborhoods."
+          description="Add a new locality using the button above."
         />
       )}
 
@@ -209,27 +183,33 @@ export const LocalitiesManagementPage = () => {
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           title={editingLocality ? `Edit Locality: ${editingLocality.name}` : 'Add New Locality'}
-          subtitle="Configure neighborhood boundaries, benchmark rate per sq.ft, and pincode"
           maxWidth="max-w-md"
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Locality Name *
               </label>
               <input
                 type="text"
                 required
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData({
+                    ...formData,
+                    name: val,
+                    slug: val.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                  });
+                }}
                 placeholder="e.g. Ramdaspeth"
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-semibold outline-none focus:ring-2 focus:ring-brand-teal"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Pincode *
                 </label>
                 <input
@@ -239,46 +219,47 @@ export const LocalitiesManagementPage = () => {
                   value={formData.pincode}
                   onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
                   placeholder="440010"
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                  className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-mono font-medium outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Avg Rate (₹/Sq.Ft)
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Avg. Rate / Sq.Ft (₹) *
                 </label>
                 <input
                   type="number"
+                  required
                   value={formData.avgPriceSqFt}
                   onChange={(e) => setFormData({ ...formData, avgPriceSqFt: e.target.value })}
-                  placeholder="6500"
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold text-brand-orange"
+                  placeholder="5500"
+                  className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                Neighborhood Overview
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Short Description
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Key connectivity, lifestyle, hospital, commercial corridors..."
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none"
+                placeholder="Overview of this area..."
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium outline-none"
               />
             </div>
 
-            <div className="pt-2">
-              <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+            <div className="pt-1">
+              <label className="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.isFeatured}
                   onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                  className="rounded text-brand-orange focus:ring-brand-orange"
+                  className="rounded text-teal-600 focus:ring-teal-500"
                 />
-                <span>Highlight as Prime Nagpur Corridor</span>
+                <span>Feature on Homepage Localities</span>
               </label>
             </div>
 
@@ -286,14 +267,14 @@ export const LocalitiesManagementPage = () => {
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="py-2 px-4 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50"
+                className="py-1.5 px-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={mutation.isPending}
-                className="py-2 px-5 rounded-xl bg-brand-teal hover:bg-brand-teal-dark text-white text-xs font-bold shadow-md disabled:opacity-50"
+                className="py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50"
               >
                 {mutation.isPending ? 'Saving...' : 'Save Locality'}
               </button>
