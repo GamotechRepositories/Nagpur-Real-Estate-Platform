@@ -10,11 +10,25 @@ router.get('/', contentController.getContentPages);
 router.get('/:slug', contentController.getContentBySlug);
 
 // Admin CMS
+router.get(
+  '/admin/all',
+  authenticate,
+  authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR),
+  contentController.getAdminContentPages
+);
+
 router.post(
   '/',
   authenticate,
   authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR),
   contentController.upsertContent
+);
+
+router.delete(
+  '/:id',
+  authenticate,
+  authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR),
+  contentController.deleteContent
 );
 
 module.exports = router;

@@ -5,6 +5,7 @@ const SiteVisit = require('../models/SiteVisit');
 const Verification = require('../models/Verification');
 const AuditLog = require('../models/AuditLog');
 const AppSettings = require('../models/AppSettings');
+const LoanRequest = require('../models/LoanRequest');
 const { sendNotification } = require('../services/notificationService');
 const { logAudit } = require('../services/auditService');
 const { sendSuccess, sendError } = require('../utils/response');
@@ -24,6 +25,7 @@ const getDashboardStats = async (req, res, next) => {
       totalAgents,
       todayEnquiries,
       pendingVisits,
+      pendingLoans,
       leadStats,
       topLocalities,
     ] = await Promise.all([
@@ -48,6 +50,9 @@ const getDashboardStats = async (req, res, next) => {
 
       // Pending site visits
       SiteVisit.countDocuments({ status: 'REQUESTED' }),
+
+      // Pending loan requests
+      LoanRequest.countDocuments({ status: 'NEW' }),
 
       // Lead conversion metrics
       Enquiry.aggregate([
@@ -111,6 +116,7 @@ const getDashboardStats = async (req, res, next) => {
       crm: {
         todayEnquiries,
         pendingSiteVisits: pendingVisits,
+        pendingLoanRequests: pendingLoans,
         totalLeads,
         closedWonLeads,
         conversionRate: `${conversionRate}%`,

@@ -62,9 +62,82 @@ const markAllAsRead = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin: Broadcast In-App Notification to User Segments
+ */
+const broadcastNotification = async (req, res, next) => {
+  try {
+    const { title, message, targetRole = 'ALL', channel = 'IN_APP', link } = req.body;
+    const User = require('../models/User');
+
+    if (!title || !message) {
+      return sendError(res, 'Title and message are required', 'VALIDATION_ERROR', {}, 400);
+    }
+
+    const filter = { status: 'ACTIVE' };
+    if (targetRole && targetRole !== 'ALL') {
+      filter.role = targetRole;
+    }
+
+    const recipients = await User.find(filter).select('_id').lean();
+
+    if (!recipients.length) {
+      return sendError(res, 'No active users found for selected audience', 'NO_RECIPIENTS', {}, 400);
+    }
+
+    const notificationsToCreate = recipients.map((u) => ({
+      recipient: u._id,
+      type: 'SYSTEM_ANNOUNCEMENT',
+      title,
+      message,
+      channel,
+      data: { link: link || '' },
+      isRead: false,
+    }));
+
+    // Batch insert notifications
+    await Notification.insertMany(notificationsToCreate);
+
+    return sendSuccess(res, `Broadcast sent successfully to ${recipients.length} users`, {
+      recipientCount: recipients.length,
+      targetRole,
+      title,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Admin: Get Recent Broadcast History
+ */
+const getBroadcastHistory = async (req, res, next) => {
+  try {
+    const broadcasts = await Notification.aggregate([
+      { $match: { type: 'SYSTEM_ANNOUNCEMENT' } },
+      {
+        $group: {
+          _id: { title: '$title', message: '$message' },
+          totalSent: { $sum: 1 },
+          lastSentAt: { $max: '$createdAt' },
+          channel: { $first: '$channel' },
+        },
+      },
+      { $sort: { lastSentAt: -1 } },
+      { $limit: 20 },
+    ]);
+
+    return sendSuccess(res, 'Broadcast history retrieved', broadcasts);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getMyNotifications,
   markAsRead,
   markAllAsRead,
+  broadcastNotification,
+  getBroadcastHistory,
 };
 

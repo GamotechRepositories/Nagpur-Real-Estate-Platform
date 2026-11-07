@@ -9,8 +9,11 @@ import {
   Compass,
   Kanban,
   Calendar,
+  Banknote,
   Users2,
+  FileText,
   UserCheck,
+  Bell,
   Sliders,
   Shield,
   ChevronLeft,
@@ -48,6 +51,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
   const pendingCount = stats?.properties?.PENDING_REVIEW || 0;
   const pendingVisitsCount = stats?.crm?.pendingSiteVisits || 0;
+  const pendingLoansCount = stats?.crm?.pendingLoanRequests || 0;
 
   const navGroups = [
     {
@@ -108,9 +112,27 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-500/30',
         },
         {
+          name: 'Loan Requests',
+          href: '/loan-requests',
+          icon: Banknote,
+          badge: pendingLoansCount > 0 ? pendingLoansCount : null,
+          badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+        },
+        {
           name: 'Agents',
           href: '/agents',
           icon: Users2,
+          badge: null,
+        },
+      ],
+    },
+    {
+      group: 'Content & CMS',
+      items: [
+        {
+          name: 'Articles & FAQs',
+          href: '/content',
+          icon: FileText,
           badge: null,
         },
       ],
@@ -122,6 +144,12 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           name: 'Users',
           href: '/users',
           icon: UserCheck,
+          badge: null,
+        },
+        {
+          name: 'Broadcasts',
+          href: '/notifications',
+          icon: Bell,
           badge: null,
         },
         {

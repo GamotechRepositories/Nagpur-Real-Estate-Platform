@@ -135,9 +135,74 @@ const submitLoanRequest = async (req, res, next) => {
   }
 };
 
+/**
+ * Get Loan Requests for Admin Panel
+ */
+const getAdminLoanRequests = async (req, res, next) => {
+  try {
+    const { status, search } = req.query;
+    const filter = {};
+
+    if (status && status !== 'ALL') {
+      filter.status = status;
+    }
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      filter.$or = [
+        { applicantName: { $regex: q, $options: 'i' } },
+        { phoneNumber: { $regex: q, $options: 'i' } },
+        { email: { $regex: q, $options: 'i' } },
+      ];
+    }
+
+    const requests = await LoanRequest.find(filter)
+      .populate('selectedProperty', 'title slug price localityName')
+      .populate('assignedOfficer', 'name email phone')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return sendSuccess(res, 'Loan requests fetched successfully', requests);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Update Loan Request Status and Officer / Notes
+ */
+const updateLoanRequestStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status, notes, assignedOfficer } = req.body;
+
+    const updated = await LoanRequest.findByIdAndUpdate(
+      id,
+      {
+        ...(status && { status }),
+        ...(notes !== undefined && { notes }),
+        ...(assignedOfficer !== undefined && { assignedOfficer: assignedOfficer || null }),
+      },
+      { new: true }
+    )
+      .populate('selectedProperty', 'title slug price localityName')
+      .populate('assignedOfficer', 'name email phone');
+
+    if (!updated) {
+      return sendError(res, 'Loan request not found', 'NOT_FOUND', {}, 404);
+    }
+
+    return sendSuccess(res, 'Loan request updated successfully', updated);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   calculateEmi,
   convertArea,
   submitLoanRequest,
+  getAdminLoanRequests,
+  updateLoanRequestStatus,
 };
 

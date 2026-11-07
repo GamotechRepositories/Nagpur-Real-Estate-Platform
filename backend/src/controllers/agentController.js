@@ -98,9 +98,105 @@ const updateMyAgentProfile = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin: Create / Onboard New Certified Agent
+ */
+const createAgentByAdmin = async (req, res, next) => {
+  try {
+    const {
+      name,
+      phone,
+      email,
+      agencyName,
+      reraNumber,
+      experienceYears = 3,
+      areasServed = ['Besa', 'Wardha Road'],
+      propertyTypes = ['FLAT', 'PLOT', 'HOUSE_VILLA'],
+    } = req.body;
+
+    if (!name || !phone) {
+      return sendError(res, 'Agent name and phone number are required', 'VALIDATION_ERROR', {}, 400);
+    }
+
+    // Find or create User with role AGENT
+    let user = await User.findOne({ phone: phone.trim() });
+    if (!user) {
+      user = await User.create({
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email ? email.trim() : undefined,
+        role: 'AGENT',
+        status: 'ACTIVE',
+        isPhoneVerified: true,
+      });
+    } else {
+      user.role = 'AGENT';
+      if (email && !user.email) user.email = email.trim();
+      await user.save();
+    }
+
+    // Find or create AgentProfile
+    let profile = await AgentProfile.findOne({ user: user._id });
+    if (!profile) {
+      profile = new AgentProfile({
+        user: user._id,
+        agencyName: agencyName ? agencyName.trim() : `${name.trim()} Real Estate`,
+        reraNumber: reraNumber ? reraNumber.trim() : '',
+        experienceYears: Number(experienceYears) || 3,
+        areasServed: Array.isArray(areasServed) ? areasServed : [areasServed],
+        propertyTypes: Array.isArray(propertyTypes) ? propertyTypes : [propertyTypes],
+        verificationStatus: 'VERIFIED',
+        isAvailable: true,
+        contactPhone: phone.trim(),
+      });
+    } else {
+      if (agencyName) profile.agencyName = agencyName.trim();
+      if (reraNumber) profile.reraNumber = reraNumber.trim();
+      if (experienceYears) profile.experienceYears = Number(experienceYears) || 3;
+      if (areasServed) profile.areasServed = Array.isArray(areasServed) ? areasServed : [areasServed];
+      profile.verificationStatus = 'VERIFIED';
+    }
+
+    await profile.save();
+
+    const populated = await AgentProfile.findById(profile._id).populate('user', 'name phone email avatar status');
+    return sendSuccess(res, 'Agent registered and verified successfully', populated, null, 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Admin: Update Agent Verification or Availability
+ */
+const updateAgentStatusByAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { verificationStatus, isAvailable, reraNumber } = req.body;
+
+    const profile = await AgentProfile.findById(id);
+    if (!profile) {
+      return sendError(res, 'Agent profile not found', 'NOT_FOUND', {}, 404);
+    }
+
+    if (verificationStatus !== undefined) profile.verificationStatus = verificationStatus;
+    if (isAvailable !== undefined) profile.isAvailable = isAvailable;
+    if (reraNumber !== undefined) profile.reraNumber = reraNumber.trim();
+
+    await profile.save();
+
+    const populated = await AgentProfile.findById(profile._id).populate('user', 'name phone email avatar status');
+    return sendSuccess(res, 'Agent status updated successfully', populated);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAgents,
   getAgentById,
   updateMyAgentProfile,
+  createAgentByAdmin,
+  updateAgentStatusByAdmin,
 };
 

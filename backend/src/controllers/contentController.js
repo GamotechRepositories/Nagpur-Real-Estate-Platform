@@ -66,9 +66,58 @@ const upsertContent = async (req, res, next) => {
   }
 };
 
+/**
+ * Get All Content for Admin (including drafts/unpublished)
+ */
+const getAdminContentPages = async (req, res, next) => {
+  try {
+    const { category, language, search } = req.query;
+    const filter = {};
+
+    if (category && category !== 'ALL') filter.category = category.toUpperCase();
+    if (language && language !== 'ALL') filter.language = language;
+    if (search && search.trim()) {
+      filter.$or = [
+        { title: { $regex: search.trim(), $options: 'i' } },
+        { slug: { $regex: search.trim(), $options: 'i' } },
+        { excerpt: { $regex: search.trim(), $options: 'i' } },
+      ];
+    }
+
+    const pages = await ContentPage.find(filter)
+      .populate('author', 'name email avatar')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return sendSuccess(res, 'Admin content pages retrieved', pages);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Delete Content Page
+ */
+const deleteContent = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const page = await ContentPage.findByIdAndDelete(id);
+
+    if (!page) {
+      return sendError(res, 'Content page not found', 'NOT_FOUND', {}, 404);
+    }
+
+    return sendSuccess(res, 'Content deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getContentPages,
   getContentBySlug,
   upsertContent,
+  getAdminContentPages,
+  deleteContent,
 };
 

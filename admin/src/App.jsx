@@ -14,8 +14,11 @@ const ProjectsManagementPage = lazy(() => import('./pages/Content/ProjectsManage
 const LocalitiesManagementPage = lazy(() => import('./pages/Content/LocalitiesManagementPage'));
 const LeadManagementPage = lazy(() => import('./pages/CRM/LeadManagementPage'));
 const SiteVisitsManagementPage = lazy(() => import('./pages/CRM/SiteVisitsManagementPage'));
+const LoanRequestsPage = lazy(() => import('./pages/CRM/LoanRequestsPage'));
+const ContentManagementPage = lazy(() => import('./pages/Content/ContentManagementPage'));
 const UsersManagementPage = lazy(() => import('./pages/Administration/UsersManagementPage'));
 const AgentsManagementPage = lazy(() => import('./pages/Administration/AgentsManagementPage'));
+const NotificationsBroadcastPage = lazy(() => import('./pages/Administration/NotificationsBroadcastPage'));
 const ProfilePage = lazy(() => import('./pages/Administration/ProfilePage'));
 const SettingsManagementPage = lazy(() => import('./pages/System/SettingsManagementPage'));
 const AuditLogsPage = lazy(() => import('./pages/System/AuditLogsPage'));
@@ -62,8 +65,11 @@ function App() {
             <Route path="/localities" element={<LocalitiesManagementPage />} />
             <Route path="/leads" element={<LeadManagementPage />} />
             <Route path="/site-visits" element={<SiteVisitsManagementPage />} />
-            <Route path="/users" element={<UsersManagementPage />} />
+            <Route path="/loan-requests" element={<LoanRequestsPage />} />
             <Route path="/agents" element={<AgentsManagementPage />} />
+            <Route path="/content" element={<ContentManagementPage />} />
+            <Route path="/users" element={<UsersManagementPage />} />
+            <Route path="/notifications" element={<NotificationsBroadcastPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsManagementPage />} />
             <Route path="/audit-logs" element={<AuditLogsPage />} />
