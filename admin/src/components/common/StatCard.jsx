@@ -7,7 +7,7 @@ export const StatCard = ({
   value,
   subtitle,
   icon: Icon,
-  iconColor = 'text-brand-teal',
+  iconColor = 'text-teal-700',
   iconBg = 'bg-teal-50',
   linkTo,
   linkText,
@@ -17,43 +17,45 @@ export const StatCard = ({
 }) => {
   const CardContent = (
     <div
-      className={`relative p-5 rounded-3xl bg-white border transition-all ${
+      className={`p-4 sm:p-5 rounded-xl bg-white border transition-colors ${
         highlight
-          ? 'border-brand-orange shadow-md ring-2 ring-brand-orange/20'
-          : 'border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300'
+          ? 'border-amber-400 bg-amber-50/20 shadow-xs'
+          : 'border-slate-200 hover:border-slate-300 shadow-xs'
       }`}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="space-y-1 min-w-0">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block">
             {title}
           </span>
-          <div className="text-2xl font-black text-brand-navy tracking-tight">
+          <div className="text-2xl font-bold text-slate-900 tracking-tight">
             {value ?? '—'}
           </div>
           {subtitle && (
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 truncate">
               {subtitle}
             </p>
           )}
         </div>
 
-        <div className={`w-12 h-12 rounded-2xl ${iconBg} ${iconColor} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-          {Icon && <Icon className="w-6 h-6" />}
-        </div>
+        {Icon && (
+          <div className={`w-10 h-10 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center flex-shrink-0 border border-slate-100`}>
+            <Icon className="w-5 h-5" />
+          </div>
+        )}
       </div>
 
       {(trend || linkTo) && (
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
           {trend && (
-            <div className={`flex items-center space-x-1 font-bold ${trendPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+            <div className={`flex items-center space-x-1 font-semibold ${trendPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
               {trendPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
               <span>{trend}</span>
             </div>
           )}
           {linkTo && (
-            <span className="text-brand-orange hover:text-brand-orange-hover font-bold ml-auto inline-flex items-center space-x-1">
-              <span>{linkText || 'View details'}</span>
+            <span className="text-teal-700 hover:text-teal-800 font-semibold ml-auto inline-flex items-center space-x-1">
+              <span>{linkText || 'View'}</span>
               <span>→</span>
             </span>
           )}

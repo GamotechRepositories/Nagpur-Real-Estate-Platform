@@ -10,18 +10,18 @@ export const PageHeader = ({
   actions,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
-      <div className="space-y-1">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+      <div className="space-y-0.5">
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="flex items-center space-x-1 text-xs text-slate-400 font-medium">
-            <Link to="/dashboard" className="hover:text-brand-navy">
+          <nav className="flex items-center space-x-1 text-xs text-slate-400 font-medium mb-1">
+            <Link to="/dashboard" className="hover:text-slate-700">
               Admin
             </Link>
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
                 <ChevronRight className="w-3 h-3 text-slate-400" />
                 {crumb.href ? (
-                  <Link to={crumb.href} className="hover:text-brand-navy">
+                  <Link to={crumb.href} className="hover:text-slate-700">
                     {crumb.label}
                   </Link>
                 ) : (
@@ -32,21 +32,21 @@ export const PageHeader = ({
           </nav>
         )}
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
           {Icon && (
-            <div className="w-9 h-9 rounded-xl bg-brand-teal/10 text-brand-teal flex items-center justify-center flex-shrink-0">
-              <Icon className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center flex-shrink-0 border border-teal-100">
+              <Icon className="w-4 h-4" />
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-black text-brand-navy tracking-tight">{title}</h1>
-            {subtitle && <p className="text-xs text-slate-500 font-medium mt-0.5">{subtitle}</p>}
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">{title}</h1>
+            {subtitle && <p className="text-xs text-slate-500 font-normal mt-0.5">{subtitle}</p>}
           </div>
         </div>
       </div>
 
       {actions && (
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 pt-1 sm:pt-0">
           {actions}
         </div>
       )}

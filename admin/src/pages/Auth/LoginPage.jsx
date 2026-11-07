@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Building2, Lock, Mail, ShieldAlert, KeyRound, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Building2, Lock, Mail, ShieldAlert, KeyRound, Eye, EyeOff } from 'lucide-react';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -35,7 +35,7 @@ export const LoginPage = () => {
       // Ensure user has administrative privileges
       const allowedRoles = ['SUPER_ADMIN', 'MODERATOR', 'CRM_MANAGER', 'CONTENT_EDITOR'];
       if (!allowedRoles.includes(user.role)) {
-        setError(`Access restricted. Your account role (${user.role}) is not authorized for Admin Console.`);
+        setError(`Access restricted. Your account role (${user.role}) is not authorized for the admin console.`);
         setLoading(false);
         return;
       }
@@ -45,7 +45,7 @@ export const LoginPage = () => {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        'Authentication failed. Please verify your staff credentials and try again.'
+        'Authentication failed. Please verify credentials.'
       );
     } finally {
       setLoading(false);
@@ -58,70 +58,66 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
-      {/* Background glowing ambient elements */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-brand-orange/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-brand-teal/20 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-md w-full relative z-10 space-y-6">
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-4">
+      <div className="max-w-sm w-full space-y-5">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-3xl bg-gradient-to-tr from-brand-orange to-amber-500 text-white flex items-center justify-center mx-auto shadow-xl shadow-orange-500/25">
-            <Building2 className="w-7 h-7" />
+        <div className="text-center space-y-1.5">
+          <div className="w-10 h-10 rounded-lg bg-teal-600 text-white flex items-center justify-center mx-auto shadow-xs">
+            <Building2 className="w-5 h-5" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
-            Nagpur Real Estate <span className="text-brand-orange">Admin</span>
+          <h1 className="text-xl font-bold text-white tracking-tight">
+            Nagpur Real Estate
           </h1>
-          <p className="text-xs text-slate-400 font-medium">
-            Administrative Operations & Staff Verification Portal
+          <p className="text-xs text-slate-400">
+            Admin Console
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-5">
+        <div className="bg-slate-800 border border-slate-700/80 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
           {error && (
-            <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start space-x-2.5">
+            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start space-x-2">
               <ShieldAlert className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                Staff Email Address
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@nagpurestate.com"
-                  className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-700/70 border border-slate-600 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-teal-500 transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                  className="w-full pl-9 pr-9 py-2 rounded-lg bg-slate-700/70 border border-slate-600 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-teal-500 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-200 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -129,18 +125,18 @@ export const LoginPage = () => {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                Two-Factor Code <span className="text-slate-500 lowercase">(optional for dev)</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                2FA Code <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <div className="relative">
-                <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   maxLength={6}
                   value={twoFactorCode}
                   onChange={(e) => setTwoFactorCode(e.target.value)}
-                  placeholder="6-digit code if 2FA enabled"
-                  className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                  placeholder="6-digit code"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-700/70 border border-slate-600 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-teal-500 transition-colors"
                 />
               </div>
             </div>
@@ -148,36 +144,29 @@ export const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full mt-1 py-2 px-4 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
             >
-              {loading ? (
-                <span>Authenticating Staff...</span>
-              ) : (
-                <>
-                  <span>Sign In to Console</span>
-                  <CheckCircle2 className="w-4 h-4" />
-                </>
-              )}
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          {/* Quick Demo Credentials Assistant */}
-          <div className="pt-4 border-t border-slate-800/90 text-center space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              Quick Fill Seed Credentials
+          {/* Quick Demo Credentials */}
+          <div className="pt-3 border-t border-slate-700 text-center space-y-1.5">
+            <span className="text-[11px] text-slate-400 block font-medium">
+              Demo Accounts:
             </span>
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex justify-center gap-2">
               <button
                 type="button"
                 onClick={() => handleDemoFill('admin@nagpurestate.com', 'Nagpur@Admin2026!')}
-                className="py-1 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-700 transition-colors"
+                className="py-1 px-2.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-medium border border-slate-600 transition-colors"
               >
                 Super Admin
               </button>
               <button
                 type="button"
                 onClick={() => handleDemoFill('moderator@nagpurestate.com', 'Nagpur@Mod2026!')}
-                className="py-1 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-700 transition-colors"
+                className="py-1 px-2.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-medium border border-slate-600 transition-colors"
               >
                 Moderator
               </button>
@@ -185,9 +174,8 @@ export const LoginPage = () => {
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-[11px] text-slate-600">
-          Nagpur Real Estate Platform &middot; Maharashtra RERA Compliance Portal
+        <p className="text-center text-[11px] text-slate-500">
+          Nagpur Real Estate &middot; Internal Staff Access Only
         </p>
       </div>
     </div>

@@ -3,21 +3,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   Building2,
-  Sparkles,
+  Star,
   ShieldCheck,
-  RefreshCw,
   Search,
-  Filter,
   Plus,
   Eye,
-  CheckCircle,
-  XCircle,
-  MoreVertical,
-  ExternalLink,
+  RefreshCw,
+  MapPin,
   ChevronLeft,
   ChevronRight,
-  MapPin,
-  Tag,
+  ExternalLink,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -66,7 +61,7 @@ export const ListingsManagementPage = () => {
   const renewMutation = useMutation({
     mutationFn: async (id) => apiClient.post(`/admin/listings/${id}/renew`),
     onSuccess: () => {
-      alert('Listing successfully renewed for 90 days validity.');
+      alert('Listing renewed for 90 days.');
       queryClient.invalidateQueries(['admin-listings']);
     },
   });
@@ -80,37 +75,39 @@ export const ListingsManagementPage = () => {
     },
   });
 
+  const publicUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:5173';
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
-        title="Nagpur Property Listings"
-        subtitle="Manage inventory, toggle verified & featured badges, renew expirations, and audit specifications"
+        title="Listings"
+        subtitle="Manage inventory, verification badges, and status"
         icon={Building2}
         breadcrumbs={[{ label: 'Listings' }]}
         actions={
           <Link
             to="/listings/new"
-            className="inline-flex items-center space-x-1.5 py-2 px-4 rounded-xl bg-brand-teal hover:bg-brand-teal-dark text-white text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center space-x-1.5 py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Add New Property</span>
+            <span>Add Property</span>
           </Link>
         }
       />
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex-1 relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search by title, locality name, or RERA number..."
+            placeholder="Search by title, locality, or RERA..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:bg-white transition-all"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:bg-white transition-colors"
           />
         </div>
 
@@ -122,16 +119,16 @@ export const ListingsManagementPage = () => {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="py-2.5 px-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-none"
+            className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-slate-50 focus:bg-white outline-none"
           >
             <option value="">All Statuses</option>
-            <option value="LIVE">LIVE</option>
-            <option value="PENDING_REVIEW">PENDING_REVIEW</option>
-            <option value="REJECTED">REJECTED</option>
-            <option value="EXPIRED">EXPIRED</option>
-            <option value="SOLD">SOLD</option>
-            <option value="RENTED">RENTED</option>
-            <option value="DRAFT">DRAFT</option>
+            <option value="LIVE">Live</option>
+            <option value="PENDING_REVIEW">Pending Review</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="EXPIRED">Expired</option>
+            <option value="SOLD">Sold</option>
+            <option value="RENTED">Rented</option>
+            <option value="DRAFT">Draft</option>
           </select>
 
           {/* Purpose Filter */}
@@ -141,45 +138,44 @@ export const ListingsManagementPage = () => {
               setPurposeFilter(e.target.value);
               setPage(1);
             }}
-            className="py-2.5 px-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:bg-white outline-none"
+            className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-slate-50 focus:bg-white outline-none"
           >
             <option value="">Buy & Rent</option>
-            <option value="BUY">BUY Only</option>
-            <option value="RENT">RENT Only</option>
+            <option value="BUY">Buy</option>
+            <option value="RENT">Rent</option>
           </select>
         </div>
       </div>
 
-      {/* Table Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      {/* Table Container */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
-            <thead className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
+            <thead className="bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200">
               <tr>
-                <th className="py-4 px-4">Property</th>
-                <th className="py-4 px-4">Locality</th>
-                <th className="py-4 px-4">Price</th>
-                <th className="py-4 px-4">Status</th>
-                <th className="py-4 px-4 text-center">Badges</th>
-                <th className="py-4 px-4">Owner / Agent</th>
-                <th className="py-4 px-4">Expires</th>
-                <th className="py-4 px-4 text-right">Actions</th>
+                <th className="py-3 px-3 sm:px-4">Property</th>
+                <th className="py-3 px-3">Locality</th>
+                <th className="py-3 px-3">Price</th>
+                <th className="py-3 px-3">Status</th>
+                <th className="py-3 px-3 text-center">Badges</th>
+                <th className="py-3 px-3">Expires</th>
+                <th className="py-3 px-3 sm:px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-12 text-slate-400">
-                    Loading property listings...
+                  <td colSpan={7} className="text-center py-10 text-slate-400">
+                    Loading properties...
                   </td>
                 </tr>
               ) : listings.length > 0 ? (
                 listings.map((prop) => (
-                  <tr key={prop._id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={prop._id} className="hover:bg-slate-50/70 transition-colors">
                     {/* Property Thumbnail & Title */}
-                    <td className="py-3 px-4">
+                    <td className="py-2.5 px-3 sm:px-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
+                        <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
                           {prop.coverImage || prop.images?.[0]?.url ? (
                             <img
                               src={prop.coverImage || prop.images[0].url}
@@ -193,9 +189,9 @@ export const ListingsManagementPage = () => {
                           )}
                         </div>
                         <div className="min-w-0 max-w-xs">
-                          <p className="font-bold text-slate-900 truncate">{prop.title}</p>
-                          <div className="flex items-center space-x-1.5 text-[11px] text-slate-400 mt-0.5">
-                            <span className="font-semibold">{prop.purpose}</span>
+                          <p className="font-semibold text-slate-900 truncate">{prop.title}</p>
+                          <div className="flex items-center space-x-1 text-[11px] text-slate-500">
+                            <span>{prop.purpose}</span>
                             <span>&bull;</span>
                             <span>{prop.subtype}</span>
                             {prop.bedrooms > 0 && <span>&bull; {prop.bedrooms} BHK</span>}
@@ -205,26 +201,26 @@ export const ListingsManagementPage = () => {
                     </td>
 
                     {/* Locality */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center space-x-1 text-slate-700 font-semibold">
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center space-x-1 text-slate-700">
                         <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                         <span className="truncate">{prop.localityName || 'Nagpur'}</span>
                       </div>
                     </td>
 
                     {/* Price */}
-                    <td className="py-3 px-4 font-black text-brand-orange whitespace-nowrap">
+                    <td className="py-2.5 px-3 font-semibold text-slate-900 whitespace-nowrap">
                       {formatIndianPrice(prop.price)}
                     </td>
 
                     {/* Status */}
-                    <td className="py-3 px-4">
+                    <td className="py-2.5 px-3">
                       <Badge status={prop.status} />
                     </td>
 
                     {/* Badges Toggles */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-center space-x-2">
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center justify-center space-x-1.5">
                         {/* Verified Badge */}
                         <button
                           onClick={() =>
@@ -233,14 +229,14 @@ export const ListingsManagementPage = () => {
                               isVerified: !prop.isVerified,
                             })
                           }
-                          title={prop.isVerified ? 'Remove Verified Badge' : 'Grant Verified Badge'}
-                          className={`p-1.5 rounded-xl border transition-all ${
+                          title={prop.isVerified ? 'Remove Verified' : 'Mark Verified'}
+                          className={`p-1 rounded-md border transition-colors ${
                             prop.isVerified
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 shadow-xs'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                               : 'bg-slate-50 text-slate-300 border-slate-200 hover:text-slate-500'
                           }`}
                         >
-                          <ShieldCheck className="w-4 h-4" />
+                          <ShieldCheck className="w-3.5 h-3.5" />
                         </button>
 
                         {/* Featured Badge */}
@@ -251,76 +247,64 @@ export const ListingsManagementPage = () => {
                               isFeatured: !prop.isFeatured,
                             })
                           }
-                          title={prop.isFeatured ? 'Remove Featured Status' : 'Feature for 30 Days'}
-                          className={`p-1.5 rounded-xl border transition-all ${
+                          title={prop.isFeatured ? 'Remove Featured' : 'Mark Featured'}
+                          className={`p-1 rounded-md border transition-colors ${
                             prop.isFeatured
-                              ? 'bg-amber-50 text-amber-600 border-amber-300 shadow-xs'
+                              ? 'bg-amber-50 text-amber-600 border-amber-300'
                               : 'bg-slate-50 text-slate-300 border-slate-200 hover:text-slate-500'
                           }`}
                         >
-                          <Sparkles className="w-4 h-4" />
+                          <Star className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
 
-                    {/* Owner / Agent */}
-                    <td className="py-3 px-4 text-xs">
-                      <span className="font-bold text-slate-800 block truncate">
-                        {prop.owner?.name || 'Owner'}
-                      </span>
-                      <span className="text-[10px] text-slate-400 block font-mono">
-                        {prop.owner?.phone ? `+91 ${prop.owner.phone}` : '—'}
-                      </span>
+                    {/* Expires */}
+                    <td className="py-2.5 px-3 text-slate-500 whitespace-nowrap">
+                      {formatDate(prop.expiresAt)}
                     </td>
 
-                    {/* Expiration date */}
-                    <td className="py-3 px-4 text-[11px] text-slate-500 whitespace-nowrap">
-                      {prop.expiresAt ? formatDate(prop.expiresAt) : '—'}
-                    </td>
-
-                    {/* Action buttons */}
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end space-x-1.5">
+                    {/* Actions */}
+                    <td className="py-2.5 px-3 sm:px-4 text-right">
+                      <div className="flex items-center justify-end space-x-1">
                         <button
                           onClick={() => setInspectProperty(prop)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-brand-teal hover:bg-teal-50 transition-colors"
-                          title="View Specs"
+                          className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900"
+                          title="View Details"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3.5 h-3.5" />
                         </button>
 
-                        <button
-                          onClick={() => renewMutation.mutate(prop._id)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-brand-orange hover:bg-orange-50 transition-colors"
-                          title="Renew 90 Days"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                        </button>
-
-                        {prop.status === 'LIVE' && (
+                        {prop.status === 'EXPIRED' && (
                           <button
-                            onClick={() => {
-                              if (window.confirm('Mark this listing as SOLD?')) {
-                                statusMutation.mutate({ id: prop._id, status: 'SOLD' });
-                              }
-                            }}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                            title="Mark Sold"
+                            onClick={() => renewMutation.mutate(prop._id)}
+                            className="p-1 rounded hover:bg-slate-100 text-teal-600 hover:text-teal-800"
+                            title="Renew 90 Days"
                           >
-                            <Tag className="w-4 h-4" />
+                            <RefreshCw className="w-3.5 h-3.5" />
                           </button>
                         )}
+
+                        <a
+                          href={`${publicUrl}/property/${prop.slug || prop._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700"
+                          title="View on site"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={7}>
                     <EmptyState
                       icon={Building2}
-                      title="No listings matched"
-                      description="Try clearing your search query or changing status filters."
+                      title="No listings found"
+                      description="No properties match your current filter settings."
                     />
                   </td>
                 </tr>
@@ -329,19 +313,19 @@ export const ListingsManagementPage = () => {
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* Pagination */}
         {meta.totalPages > 1 && (
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="p-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>
-              Showing page <strong className="text-slate-800">{meta.page}</strong> of{' '}
-              <strong className="text-slate-800">{meta.totalPages}</strong> ({meta.totalCount} total listings)
+              Page <strong className="text-slate-800">{meta.page}</strong> of{' '}
+              <strong className="text-slate-800">{meta.totalPages}</strong> ({meta.totalCount} total)
             </span>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5">
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-bold flex items-center space-x-1"
+                className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-medium flex items-center space-x-1"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Prev</span>
@@ -350,7 +334,7 @@ export const ListingsManagementPage = () => {
               <button
                 disabled={page >= meta.totalPages}
                 onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                className="py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-bold flex items-center space-x-1"
+                className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 font-medium flex items-center space-x-1"
               >
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -360,75 +344,86 @@ export const ListingsManagementPage = () => {
         )}
       </div>
 
-      {/* Inspect Property Specs Modal */}
+      {/* Inspect Property Details Modal */}
       {inspectProperty && (
         <Modal
           isOpen={Boolean(inspectProperty)}
           onClose={() => setInspectProperty(null)}
           title={inspectProperty.title}
-          subtitle={`Property ID: ${inspectProperty._id} · Locality: ${inspectProperty.localityName}`}
-          maxWidth="max-w-3xl"
+          subtitle={`${inspectProperty.localityName || 'Nagpur'} · ID: ${inspectProperty._id}`}
+          maxWidth="max-w-2xl"
         >
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Price</span>
-                <span className="text-sm font-black text-brand-orange">
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Price</span>
+                <span className="font-bold text-slate-900">
                   {formatIndianPrice(inspectProperty.price)}
                 </span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Area</span>
-                <span className="font-bold text-slate-800">{inspectProperty.areaSqFt} Sq.Ft</span>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Area</span>
+                <span className="font-semibold text-slate-800">
+                  {inspectProperty.areaSqFt} Sq.Ft
+                </span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Bedrooms</span>
-                <span className="font-bold text-slate-800">{inspectProperty.bedrooms || 0} BHK</span>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Type</span>
+                <span className="font-semibold text-slate-800">
+                  {inspectProperty.subtype}
+                </span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Furnishing</span>
-                <span className="font-bold text-slate-800">{inspectProperty.furnishing}</span>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Status</span>
+                <span className="font-semibold text-slate-800">
+                  {inspectProperty.status}
+                </span>
               </div>
             </div>
 
             <div className="space-y-2 text-xs">
-              <p>
-                <strong className="text-slate-700">Full Address: </strong>
-                <span className="text-slate-600">{inspectProperty.address}, Nagpur - {inspectProperty.pincode}</span>
-              </p>
-              <p>
-                <strong className="text-slate-700">MahaRERA: </strong>
-                <span className="font-mono text-brand-teal font-bold">{inspectProperty.reraNumber || 'None'}</span>
-              </p>
-              <p>
-                <strong className="text-slate-700">Status: </strong>
-                <Badge status={inspectProperty.status} />
-              </p>
               <div>
-                <strong className="text-slate-700">Description: </strong>
-                <p className="mt-1 p-3 bg-slate-50 rounded-xl border border-slate-100 text-slate-600 leading-relaxed">
-                  {inspectProperty.description}
-                </p>
+                <span className="font-semibold text-slate-700">Address: </span>
+                <span className="text-slate-600">{inspectProperty.address}, Nagpur - {inspectProperty.pincode}</span>
               </div>
+              {inspectProperty.reraNumber && (
+                <div>
+                  <span className="font-semibold text-slate-700">RERA: </span>
+                  <span className="font-mono text-teal-700 font-semibold">{inspectProperty.reraNumber}</span>
+                </div>
+              )}
+              {inspectProperty.description && (
+                <div>
+                  <span className="font-semibold text-slate-700">Description: </span>
+                  <p className="text-slate-600 mt-1 p-2.5 bg-slate-50 rounded-lg border border-slate-200 leading-relaxed">
+                    {inspectProperty.description}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {inspectProperty.images?.length > 0 && (
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block mb-2">
-                  Photos ({inspectProperty.images.length})
-                </span>
-                <div className="grid grid-cols-4 gap-2">
-                  {inspectProperty.images.map((img, i) => (
-                    <img
-                      key={i}
-                      src={img.url}
-                      alt={`img-${i}`}
-                      className="w-full h-20 object-cover rounded-xl border border-slate-200"
-                    />
-                  ))}
-                </div>
+            {/* Quick Status Change */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-700">Change Status:</span>
+              <div className="flex items-center space-x-1.5">
+                {['LIVE', 'EXPIRED', 'SOLD', 'DRAFT'].map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => {
+                      statusMutation.mutate({ id: inspectProperty._id, status: st });
+                      setInspectProperty(null);
+                    }}
+                    className={`py-1 px-2.5 rounded text-[11px] font-semibold border transition-colors ${
+                      inspectProperty.status === st
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </Modal>
       )}

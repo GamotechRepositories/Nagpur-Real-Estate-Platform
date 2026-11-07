@@ -3,14 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
-  PlusCircle,
-  MapPin,
-  IndianRupee,
-  ShieldCheck,
-  CheckCircle2,
   AlertCircle,
-  Home,
-  FileText,
+  CheckCircle2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -131,39 +125,38 @@ export const AddPropertyPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-5">
       <PageHeader
-        title="Create Verified Listing"
-        subtitle="Staff property onboarding with instant Nagpur RERA verification and coordinate tagging"
-        icon={PlusCircle}
-        breadcrumbs={[{ label: 'Listings', href: '/listings' }, { label: 'New Listing' }]}
+        title="Add Property"
+        subtitle="Create a new property listing"
+        icon={Building2}
+        breadcrumbs={[{ label: 'Listings', href: '/listings' }, { label: 'New' }]}
       />
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2.5">
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
           <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2.5">
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>Property created successfully! Redirecting to listings...</span>
+          <span>Property created successfully. Redirecting to listings...</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Section 1: Property Identity */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
-            <Home className="w-4 h-4 text-brand-teal" />
-            <span>Basic Property Information</span>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Basic Information */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            Basic Information
           </h2>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Property Title *
               </label>
               <input
@@ -172,53 +165,53 @@ export const AddPropertyPage = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="e.g. Luxurious 3 BHK Apartment with Lake View in Dharampeth"
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-brand-teal outline-none"
+                placeholder="e.g. 3 BHK Apartment in Dharampeth"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-slate-400 outline-none"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Purpose *
                 </label>
                 <select
                   name="purpose"
                   value={formData.purpose}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 bg-white"
                 >
-                  <option value="BUY">BUY / SALE</option>
-                  <option value="RENT">RENT / LEASE</option>
+                  <option value="BUY">Buy / Sale</option>
+                  <option value="RENT">Rent / Lease</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Category *
                 </label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 bg-white"
                 >
-                  <option value="RESIDENTIAL">RESIDENTIAL</option>
-                  <option value="COMMERCIAL">COMMERCIAL</option>
-                  <option value="PLOT">PLOT / LAND</option>
-                  <option value="AGRICULTURAL">AGRICULTURAL</option>
+                  <option value="RESIDENTIAL">Residential</option>
+                  <option value="COMMERCIAL">Commercial</option>
+                  <option value="PLOT">Plot / Land</option>
+                  <option value="AGRICULTURAL">Agricultural</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Subtype *
                 </label>
                 <select
                   name="subtype"
                   value={formData.subtype}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 bg-white"
                 >
                   <option value="FLAT">Flat / Apartment</option>
                   <option value="HOUSE_VILLA">Independent House / Villa</option>
@@ -231,32 +224,31 @@ export const AddPropertyPage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Detailed Description * (min 20 characters)
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Description *
               </label>
               <textarea
                 required
-                rows={4}
+                rows={3}
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe key highlights, floor layout, ventilation, parking, nearby schools, metro station, etc..."
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-brand-teal outline-none"
+                placeholder="Describe key highlights, floor layout, amenities, nearby points..."
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-slate-400 outline-none"
               />
             </div>
           </div>
         </div>
 
-        {/* Section 2: Pricing & Dimensions */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
-            <IndianRupee className="w-4 h-4 text-brand-orange" />
-            <span>Pricing & Area Specifications</span>
+        {/* Pricing & Dimensions */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            Pricing & Specs
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Total Price (INR ₹) *
               </label>
               <input
@@ -266,85 +258,85 @@ export const AddPropertyPage = () => {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                placeholder="e.g. 7500000 (75 Lac)"
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold text-brand-orange focus:ring-2 focus:ring-brand-teal outline-none"
+                placeholder="e.g. 7500000"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-slate-400 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Area in Square Feet (Sq.Ft) *
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Super Built-up Area (Sq.Ft) *
               </label>
               <input
                 type="number"
                 required
-                min={10}
+                min={50}
                 name="areaSqFt"
                 value={formData.areaSqFt}
                 onChange={handleChange}
                 placeholder="e.g. 1450"
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-brand-teal outline-none"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-slate-400 outline-none"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Bedrooms</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Bedrooms</label>
                 <input
                   type="number"
                   min={0}
                   name="bedrooms"
                   value={formData.bedrooms}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Bathrooms</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Bathrooms</label>
                 <input
                   type="number"
                   min={0}
                   name="bathrooms"
                   value={formData.bathrooms}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Balconies</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Balconies</label>
                 <input
                   type="number"
                   min={0}
                   name="balconies"
                   value={formData.balconies}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Furnishing</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Furnishing</label>
                 <select
                   name="furnishing"
                   value={formData.furnishing}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs bg-white"
                 >
                   <option value="UNFURNISHED">Unfurnished</option>
-                  <option value="SEMI_FURNISHED">Semi-Furnished</option>
-                  <option value="FULLY_FURNISHED">Fully-Furnished</option>
+                  <option value="SEMI_FURNISHED">Semi Furnished</option>
+                  <option value="FURNISHED">Furnished</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Possession</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Possession</label>
                 <select
                   name="possessionStatus"
                   value={formData.possessionStatus}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold"
+                  className="w-full p-2 rounded-lg border border-slate-200 text-xs bg-white"
                 >
                   <option value="READY_TO_MOVE">Ready to Move</option>
                   <option value="UNDER_CONSTRUCTION">Under Construction</option>
@@ -354,23 +346,22 @@ export const AddPropertyPage = () => {
           </div>
         </div>
 
-        {/* Section 3: Nagpur Locality & Address */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
-            <MapPin className="w-4 h-4 text-brand-teal" />
-            <span>Nagpur Location & MahaRERA</span>
+        {/* Location & Details */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            Location & Verification
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Nagpur Locality *
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Locality *
               </label>
               <select
                 name="localityName"
                 value={formData.localityName}
                 onChange={handleChange}
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 bg-white"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 bg-white"
               >
                 {NAGPUR_LOCALITIES.map((loc) => (
                   <option key={loc} value={loc}>
@@ -381,8 +372,8 @@ export const AddPropertyPage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Nagpur Pincode *
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Pincode *
               </label>
               <input
                 type="text"
@@ -392,13 +383,13 @@ export const AddPropertyPage = () => {
                 value={formData.pincode}
                 onChange={handleChange}
                 placeholder="440010"
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-mono font-medium"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Exact Street Address / Landmark *
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Address / Landmark *
               </label>
               <input
                 type="text"
@@ -406,14 +397,14 @@ export const AddPropertyPage = () => {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                placeholder="Flat 402, Royal Palms, West High Court Road"
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-medium"
+                placeholder="e.g. Flat 402, Royal Palms, West High Court Road"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                MahaRERA Registration Number (Optional)
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                MahaRERA Number (Optional)
               </label>
               <input
                 type="text"
@@ -421,13 +412,13 @@ export const AddPropertyPage = () => {
                 value={formData.reraNumber}
                 onChange={handleChange}
                 placeholder="P50500012345"
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs font-mono text-brand-teal font-bold"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-mono font-medium"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Cover Photo Image URL
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Cover Photo URL
               </label>
               <input
                 type="url"
@@ -435,27 +426,27 @@ export const AddPropertyPage = () => {
                 value={formData.coverImageUrl}
                 onChange={handleChange}
                 placeholder="https://..."
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium"
               />
             </div>
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex items-center justify-end space-x-3 pt-2">
+        {/* Submit Actions */}
+        <div className="flex items-center justify-end space-x-2 pt-1">
           <button
             type="button"
             onClick={() => navigate('/listings')}
-            className="py-3 px-5 rounded-2xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold"
+            className="py-2 px-4 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="py-3 px-8 rounded-2xl bg-brand-orange hover:bg-orange-600 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-orange-600/30 transition-all disabled:opacity-50 flex items-center space-x-2"
+            className="py-2 px-5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
           >
-            {mutation.isPending ? <span>Creating Listing...</span> : <span>Publish Listing</span>}
+            {mutation.isPending ? 'Saving...' : 'Save Property'}
           </button>
         </div>
       </form>

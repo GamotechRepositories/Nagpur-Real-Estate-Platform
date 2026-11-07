@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard,
-  ShieldAlert,
+  ShieldCheck,
   Building2,
   PlusCircle,
   MapPin,
@@ -20,7 +20,6 @@ import {
   ExternalLink,
   LogOut,
   X,
-  Sparkles,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { formatRole } from '../../utils/formatters';
@@ -43,7 +42,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     if (setStoreMobileOpen) setStoreMobileOpen(false);
   };
 
-  // Query live dashboard stats to show pending moderation counter badge in sidebar
   const { data: stats } = useQuery({
     queryKey: ['sidebar-stats'],
     queryFn: async () => {
@@ -54,7 +52,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         return null;
       }
     },
-    refetchInterval: 30000, // Poll every 30 seconds for live updates
+    refetchInterval: 30000,
   });
 
   const pendingCount = stats?.properties?.PENDING_REVIEW || 0;
@@ -83,9 +81,9 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         {
           name: 'Moderation Queue',
           href: '/moderation',
-          icon: ShieldAlert,
+          icon: ShieldCheck,
           badge: pendingCount > 0 ? pendingCount : null,
-          badgeColor: 'bg-amber-500 text-white animate-pulse',
+          badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
         },
         {
           name: 'All Listings',
@@ -100,13 +98,13 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           badge: null,
         },
         {
-          name: 'Localities Guide',
+          name: 'Localities',
           href: '/localities',
           icon: MapPin,
           badge: null,
         },
         {
-          name: 'New Projects',
+          name: 'Projects',
           href: '/projects',
           icon: Compass,
           badge: null,
@@ -117,7 +115,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       group: 'CRM & Operations',
       items: [
         {
-          name: 'Leads & Enquiries',
+          name: 'Leads Pipeline',
           href: '/leads',
           icon: Kanban,
           badge: null,
@@ -127,10 +125,10 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           href: '/site-visits',
           icon: Calendar,
           badge: pendingVisitsCount > 0 ? pendingVisitsCount : null,
-          badgeColor: 'bg-blue-500 text-white',
+          badgeColor: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
         },
         {
-          name: 'Agents Directory',
+          name: 'Agents',
           href: '/agents',
           icon: Users2,
           badge: null,
@@ -141,25 +139,19 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       group: 'Administration',
       items: [
         {
-          name: 'User Management',
+          name: 'Users',
           href: '/users',
           icon: UserCheck,
           badge: null,
         },
         {
-          name: 'CMS & Guides',
-          href: '/content',
-          icon: FileText,
-          badge: null,
-        },
-        {
-          name: 'Platform Settings',
+          name: 'Settings',
           href: '/settings',
           icon: Sliders,
           badge: null,
         },
         {
-          name: 'Audit Trail',
+          name: 'Audit Logs',
           href: '/audit-logs',
           icon: Shield,
           badge: null,
@@ -175,64 +167,54 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs lg:hidden"
           onClick={closeMobile}
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between bg-brand-navy text-slate-300 transition-all duration-300 ease-in-out border-r border-slate-800 shadow-2xl h-screen ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-200 h-screen ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } ${sidebarCollapsed ? 'w-20' : 'w-64'}`}
+        } ${sidebarCollapsed ? 'w-16' : 'w-60'}`}
       >
-        {/* Top Brand Header */}
         <div>
-          <div className="flex items-center justify-between p-4 border-b border-slate-800/80">
+          {/* Top Brand Header */}
+          <div className="flex items-center justify-between h-14 px-4 border-b border-slate-800">
             <Link
               to="/dashboard"
-              className="flex items-center space-x-3 overflow-hidden group"
+              className="flex items-center space-x-2.5 overflow-hidden"
               onClick={closeMobile}
             >
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-teal to-brand-orange flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand-teal/20 group-hover:scale-105 transition-transform">
-                <Building2 className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center flex-shrink-0 text-white font-bold">
+                <Building2 className="w-4 h-4" />
               </div>
               {!sidebarCollapsed && (
                 <div className="truncate">
-                  <span className="text-base font-black text-white tracking-tight flex items-center">
-                    Nagpur<span className="text-brand-orange ml-1">Admin</span>
-                    <Sparkles className="w-3 h-3 text-amber-400 ml-1.5" />
-                  </span>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block -mt-0.5">
-                    Operations Portal
-                  </span>
+                  <span className="text-sm font-bold text-white tracking-tight">Nagpur Estate</span>
+                  <span className="text-[10px] text-slate-400 block -mt-1 font-medium">Admin Panel</span>
                 </div>
               )}
             </Link>
 
-            {/* Mobile Close Button */}
             <button
               onClick={closeMobile}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg lg:hidden"
+              className="p-1 text-slate-400 hover:text-white rounded lg:hidden"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Navigation Links */}
-          <div
-            className={`p-3 space-y-5 overflow-y-auto ${
-              sidebarCollapsed ? 'max-h-[calc(100vh-170px)]' : 'max-h-[calc(100vh-180px)]'
-            }`}
-          >
+          <div className="p-2 space-y-4 overflow-y-auto max-h-[calc(100vh-120px)]">
             {navGroups.map((group, groupIdx) => (
-              <div key={groupIdx} className="space-y-1">
+              <div key={groupIdx} className="space-y-0.5">
                 {!sidebarCollapsed && (
-                  <h4 className="px-3 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     {group.group}
-                  </h4>
+                  </div>
                 )}
-                {sidebarCollapsed && <div className="h-2" />}
+                {sidebarCollapsed && <div className="h-1" />}
 
                 {group.items.map((item) => (
                   <NavLink
@@ -240,33 +222,26 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
                     to={item.href}
                     onClick={closeMobile}
                     className={({ isActive }) =>
-                      `relative flex items-center px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+                      `relative flex items-center px-2.5 py-2 rounded-lg text-xs font-medium transition-colors ${
                         isActive
-                          ? 'bg-gradient-to-r from-brand-orange to-orange-600 text-white shadow-md shadow-orange-950/20'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                      } ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`
+                          ? 'bg-slate-800 text-white font-semibold'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                      } ${sidebarCollapsed ? 'justify-center' : 'space-x-2.5'}`
                     }
                     title={sidebarCollapsed ? item.name : undefined}
                   >
                     <item.icon className="w-4 h-4 flex-shrink-0" />
 
-                    {!sidebarCollapsed && (
-                      <span className="flex-1 truncate">{item.name}</span>
-                    )}
+                    {!sidebarCollapsed && <span className="flex-1 truncate">{item.name}</span>}
 
                     {!sidebarCollapsed && item.badge !== null && (
-                      <span
-                        className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full ${
-                          item.badgeColor || 'bg-slate-700 text-slate-300'
-                        }`}
-                      >
+                      <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded ${item.badgeColor}`}>
                         {item.badge}
                       </span>
                     )}
 
-                    {/* Small badge dot in collapsed mode */}
                     {sidebarCollapsed && item.badge !== null && (
-                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-brand-orange ring-2 ring-brand-navy" />
+                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-slate-900" />
                     )}
                   </NavLink>
                 ))}
@@ -276,59 +251,45 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         </div>
 
         {/* Footer: User Details, Collapse Toggle & Sign Out */}
-        <div className="p-3 border-t border-slate-800/80 bg-slate-950/50 space-y-2">
-          {/* User profile capsule */}
-          <div
-            className={`flex items-center rounded-xl p-2 bg-slate-900/80 border border-slate-800/80 ${
-              sidebarCollapsed ? 'justify-center' : 'space-x-3'
-            }`}
-          >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-teal to-teal-700 text-white font-black text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
+        <div className="p-2 border-t border-slate-800 bg-slate-950/40">
+          <div className={`flex items-center p-2 rounded-lg ${sidebarCollapsed ? 'justify-center' : 'space-x-2.5'}`}>
+            <div className="w-7 h-7 rounded-full bg-teal-700 text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'A'}
             </div>
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-white truncate">{user?.name || 'Staff User'}</p>
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wide block truncate">
-                  {formatRole(user?.role)}
-                </span>
+                <p className="text-xs font-semibold text-slate-200 truncate">{user?.name || 'Staff'}</p>
+                <span className="text-[10px] text-slate-400 block truncate">{formatRole(user?.role)}</span>
               </div>
             )}
           </div>
 
-          {/* Action Row */}
-          <div className={`flex items-center ${sidebarCollapsed ? 'flex-col space-y-1' : 'justify-between'}`}>
-            {/* External link to public portal */}
+          <div className={`flex items-center pt-1 ${sidebarCollapsed ? 'flex-col space-y-1' : 'justify-between'}`}>
             <a
               href={publicUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
-              title="Open Public Marketplace Website"
+              className="p-1.5 text-slate-400 hover:text-slate-200 rounded hover:bg-slate-800 text-xs flex items-center space-x-1"
+              title="Open Public Website"
             >
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3.5 h-3.5" />
+              {!sidebarCollapsed && <span className="text-[11px]">Public Site</span>}
             </a>
 
-            {/* Desktop Collapse / Expand toggle button */}
             <button
               onClick={toggleSidebarCollapsed}
-              className="hidden lg:flex p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
-              title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              className="hidden lg:flex p-1.5 text-slate-400 hover:text-slate-200 rounded hover:bg-slate-800"
+              title={sidebarCollapsed ? 'Expand' : 'Collapse'}
             >
-              {sidebarCollapsed ? (
-                <ChevronRight className="w-4 h-4" />
-              ) : (
-                <ChevronLeft className="w-4 h-4" />
-              )}
+              {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-950/40 transition-colors"
+              className="p-1.5 text-red-400 hover:text-red-300 rounded hover:bg-red-950/30 text-xs flex items-center space-x-1"
               title="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
