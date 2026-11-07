@@ -48,25 +48,25 @@ export const SkylineIcon = ({ className = "w-8 h-8" }) => (
 
 const BrandLogo = ({ light = true, showSubtitle = true, iconSize = "w-9 h-7", to = "/" }) => {
   return (
-    <Link to={to} className="flex items-center space-x-2.5 group">
+    <Link to={to} className="flex items-center space-x-2.5 group shrink-0">
       <div className="flex-shrink-0 transition-transform group-hover:scale-105">
         <SkylineIcon className={iconSize} />
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col min-w-0">
         <span
-          className={`font-serif text-[19px] sm:text-[21px] font-bold tracking-tight leading-none ${
-            light ? 'text-white' : 'text-[#172C3B]'
+          className={`font-serif text-[18px] sm:text-[20px] font-bold tracking-tight leading-none whitespace-nowrap ${
+            light ? 'text-white' : 'text-[#0F1E28]'
           }`}
         >
           Nagpur Realty
         </span>
         {showSubtitle && (
           <span
-            className={`text-[9px] uppercase tracking-wider font-sans mt-0.5 ${
+            className={`text-[8.5px] uppercase tracking-wider font-sans mt-0.5 whitespace-nowrap ${
               light ? 'text-[#CBB285]' : 'text-[#8C7348]'
             }`}
           >
-            Real Estate. Nagpur.
+            REAL ESTATE. NAGPUR.
           </span>
         )}
       </div>
@@ -75,4 +75,3 @@ const BrandLogo = ({ light = true, showSubtitle = true, iconSize = "w-9 h-7", to
 };
 
 export default BrandLogo;
-

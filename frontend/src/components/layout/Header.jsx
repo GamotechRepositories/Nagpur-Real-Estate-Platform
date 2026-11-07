@@ -65,15 +65,15 @@ const Header = () => {
   return (
     <>
       {/* Primary Luxury Header */}
-      <header className="sticky top-0 z-40 bg-[#172C3B] text-white border-b border-[#223D52] shadow-md w-full max-w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[70px] flex items-center justify-between w-full">
+      <header className="sticky top-0 z-40 bg-[#0F1E28] text-white border-b border-white/10 shadow-md w-full max-w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[72px] flex items-center justify-between w-full">
           {/* Brand Logo matching reference */}
           <div className="flex-shrink-0">
             <BrandLogo light={true} showSubtitle={true} iconSize="w-9 h-7" />
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden xl:flex items-center space-x-7 text-[13px] font-medium text-white/90 font-sans">
+          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-7 text-[13px] font-medium text-white/90 font-sans">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
@@ -92,7 +92,7 @@ const Header = () => {
               <button
                 type="button"
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="flex items-center space-x-1.5 bg-[#223D52]/70 hover:bg-[#223D52] border border-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
+                className="flex items-center space-x-1.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
               >
                 <span>{getLanguageCode()}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-white/70" />
@@ -234,14 +234,14 @@ const Header = () => {
 
         {/* Mobile Slide-down Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#172C3B] border-t border-[#223D52] px-4 pt-3 pb-6 space-y-4 animate-in fade-in duration-200">
+          <div className="lg:hidden bg-[#0F1E28] border-t border-white/10 px-4 pt-3 pb-6 space-y-4 animate-in fade-in duration-200">
             <div className="grid grid-cols-2 gap-2 text-xs font-medium text-white/90">
               {navLinks.map((item) => (
                 <Link
                   key={item.label}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded bg-[#223D52]/50 hover:bg-[#223D52] transition-colors"
+                  className="px-3 py-2 rounded bg-white/10 hover:bg-white/15 transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -249,21 +249,21 @@ const Header = () => {
               <Link
                 to="/tools/emi-calculator"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded bg-[#223D52]/50 hover:bg-[#223D52] transition-colors"
+                className="px-3 py-2 rounded bg-white/10 hover:bg-white/15 transition-colors"
               >
                 EMI Calculator
               </Link>
               <Link
                 to="/tools/area-converter"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded bg-[#223D52]/50 hover:bg-[#223D52] transition-colors"
+                className="px-3 py-2 rounded bg-white/10 hover:bg-white/15 transition-colors"
               >
                 Area Converter
               </Link>
             </div>
 
             {/* Language & Actions in Mobile */}
-            <div className="pt-2 border-t border-[#223D52] flex items-center justify-between">
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
               <div className="flex items-center space-x-2 text-xs text-white/80">
                 <Globe className="w-3.5 h-3.5 text-[#B89A65]" />
                 <button
@@ -326,7 +326,7 @@ const Header = () => {
       </header>
 
       {/* Mobile Bottom Navigation Bar (as seen on screens 2, 4, 6) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#172C3B] text-white/70 border-t border-[#223D52] shadow-2xl py-1.5 px-2 flex justify-around items-center w-full max-w-full">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F1E28] text-white/70 border-t border-white/10 shadow-2xl py-1.5 px-2 flex justify-around items-center w-full max-w-full">
         <Link
           to="/properties?verified=true"
           className="flex flex-col items-center text-[10px] hover:text-[#B89A65] py-1"
