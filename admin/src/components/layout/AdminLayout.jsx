@@ -13,12 +13,12 @@ export const AdminLayout = () => {
 
   // Periodically sync pending reviews count for sidebar badge
   const { data: dashboardData } = useQuery({
-    queryKey: ['admin-stats-badge-sync'],
+    queryKey: ['admin-dashboard-stats'],
     queryFn: async () => {
       const res = await apiClient.get('/admin/dashboard');
       return res.data?.data;
     },
-    refetchInterval: 30000, // every 30 seconds
+    refetchInterval: 60000,
   });
 
   useEffect(() => {
@@ -34,8 +34,8 @@ export const AdminLayout = () => {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
-          sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-200 ${
+          sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'
         }`}
       >
         <Topbar onOpenMobileSidebar={() => setMobileOpen(true)} />

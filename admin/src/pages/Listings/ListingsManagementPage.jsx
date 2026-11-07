@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -23,13 +23,23 @@ import { formatIndianPrice, formatDate } from '../../utils/formatters';
 
 export const ListingsManagementPage = () => {
   const queryClient = useQueryClient();
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [purposeFilter, setPurposeFilter] = useState('');
   const [page, setPage] = useState(1);
   const [inspectProperty, setInspectProperty] = useState(null);
 
-  const { data: response, isLoading } = useQuery({
+  // 300ms Debounce search to prevent excessive API calls
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  const { data: response, isLoading, isFetching } = useQuery({
     queryKey: ['admin-listings', search, statusFilter, purposeFilter, page],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -42,6 +52,7 @@ export const ListingsManagementPage = () => {
       const res = await apiClient.get(`/admin/listings?${params.toString()}`);
       return res.data;
     },
+    placeholderData: (previousData) => previousData,
   });
 
   const listings = response?.data || [];
@@ -102,11 +113,8 @@ export const ListingsManagementPage = () => {
           <input
             type="text"
             placeholder="Search by title, locality, or RERA..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:bg-white transition-colors"
           />
         </div>
@@ -163,12 +171,26 @@ export const ListingsManagementPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-10 text-slate-400">
-                    Loading properties...
-                  </td>
-                </tr>
+              {isLoading && !listings.length ? (
+                [...Array(6)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="py-2.5 px-3 sm:px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-lg bg-slate-200 flex-shrink-0" />
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                          <div className="h-3.5 bg-slate-200 rounded w-44" />
+                          <div className="h-2.5 bg-slate-100 rounded w-24" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-20" /></td>
+                    <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-16" /></td>
+                    <td className="py-2.5 px-3"><div className="h-4 bg-slate-200 rounded-md w-14" /></td>
+                    <td className="py-2.5 px-3"><div className="h-4 bg-slate-200 rounded w-12 mx-auto" /></td>
+                    <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-16" /></td>
+                    <td className="py-2.5 px-3 sm:px-4 text-right"><div className="h-4 bg-slate-200 rounded w-12 ml-auto" /></td>
+                  </tr>
+                ))
               ) : listings.length > 0 ? (
                 listings.map((prop) => (
                   <tr key={prop._id} className="hover:bg-slate-50/70 transition-colors">
@@ -180,6 +202,7 @@ export const ListingsManagementPage = () => {
                             <img
                               src={prop.coverImage || prop.images[0].url}
                               alt={prop.title}
+                              loading="lazy"
                               className="w-full h-full object-cover"
                             />
                           ) : (

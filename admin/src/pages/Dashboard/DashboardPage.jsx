@@ -112,52 +112,69 @@ export const DashboardPage = () => {
       )}
 
       {/* Primary KPI Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Properties"
-          value={properties.TOTAL || 0}
-          subtitle={`${properties.LIVE || 0} Live`}
-          icon={Building2}
-          iconColor="text-teal-700"
-          iconBg="bg-teal-50"
-          linkTo="/listings"
-          linkText="View all"
-        />
+      {isLoading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="h-28 bg-white rounded-xl border border-slate-200 p-4 flex flex-col justify-between animate-pulse">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <div className="h-3 w-20 bg-slate-200 rounded" />
+                  <div className="h-6 w-12 bg-slate-200 rounded" />
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-slate-100" />
+              </div>
+              <div className="h-2.5 w-16 bg-slate-100 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Properties"
+            value={properties.TOTAL || 0}
+            subtitle={`${properties.LIVE || 0} Live`}
+            icon={Building2}
+            iconColor="text-teal-700"
+            iconBg="bg-teal-50"
+            linkTo="/listings"
+            linkText="View all"
+          />
 
-        <StatCard
-          title="Moderation Queue"
-          value={properties.PENDING_REVIEW || 0}
-          subtitle={`${properties.REJECTED || 0} Rejected`}
-          icon={Clock}
-          iconColor="text-amber-700"
-          iconBg="bg-amber-50"
-          linkTo="/moderation"
-          linkText="Review"
-          highlight={properties.PENDING_REVIEW > 0}
-        />
+          <StatCard
+            title="Moderation Queue"
+            value={properties.PENDING_REVIEW || 0}
+            subtitle={`${properties.REJECTED || 0} Rejected`}
+            icon={Clock}
+            iconColor="text-amber-700"
+            iconBg="bg-amber-50"
+            linkTo="/moderation"
+            linkText="Review"
+            highlight={properties.PENDING_REVIEW > 0}
+          />
 
-        <StatCard
-          title="Today's Leads"
-          value={crm.todayEnquiries || 0}
-          subtitle={`Conversion: ${crm.conversionRate || '0%'}`}
-          icon={MessageSquare}
-          iconColor="text-blue-700"
-          iconBg="bg-blue-50"
-          linkTo="/leads"
-          linkText="Pipeline"
-        />
+          <StatCard
+            title="Today's Leads"
+            value={crm.todayEnquiries || 0}
+            subtitle={`Conversion: ${crm.conversionRate || '0%'}`}
+            icon={MessageSquare}
+            iconColor="text-blue-700"
+            iconBg="bg-blue-50"
+            linkTo="/leads"
+            linkText="Pipeline"
+          />
 
-        <StatCard
-          title="Site Visits"
-          value={crm.pendingSiteVisits || 0}
-          subtitle="Pending visits"
-          icon={Calendar}
-          iconColor="text-purple-700"
-          iconBg="bg-purple-50"
-          linkTo="/site-visits"
-          linkText="Schedule"
-        />
-      </div>
+          <StatCard
+            title="Site Visits"
+            value={crm.pendingSiteVisits || 0}
+            subtitle="Pending visits"
+            icon={Calendar}
+            iconColor="text-purple-700"
+            iconBg="bg-purple-50"
+            linkTo="/site-visits"
+            linkText="Schedule"
+          />
+        </div>
+      )}
 
       {/* Analytics Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
