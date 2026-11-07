@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   ShieldCheck,
   Building2,
-  PlusCircle,
   MapPin,
   Compass,
   Kanban,
@@ -89,12 +88,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           name: 'All Listings',
           href: '/listings',
           icon: Building2,
-          badge: null,
-        },
-        {
-          name: 'Add Property',
-          href: '/listings/new',
-          icon: PlusCircle,
           badge: null,
         },
         {
