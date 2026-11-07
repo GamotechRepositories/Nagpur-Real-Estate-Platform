@@ -98,33 +98,33 @@ const HeroSearch = () => {
           className="hidden md:block absolute inset-0 w-full h-full object-cover object-right lg:object-[85%_center] filter brightness-[0.98]"
         />
 
-        {/* Desktop Gradient Overlay - Dark Navy on left fading out to reveal the building on right */}
-        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#0F1E28] via-[#0F1E28]/90 via-48% to-transparent pointer-events-none"></div>
-        <div className="hidden md:block absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0F1E28]/70 to-transparent pointer-events-none"></div>
+        {/* Desktop Gradient Overlay - Soft, reduced shadow that keeps the text readable while revealing more of the building and trees */}
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-[#0F1E28]/90 via-[#0F1E28]/50 via-32% to-transparent pointer-events-none"></div>
+        <div className="hidden md:block absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0F1E28]/40 to-transparent pointer-events-none"></div>
 
         {/* Mobile Background Image (Image 3) */}
         <img
           src="/images/hero-mobile.jpg"
           alt="Nagpur Luxury Residences"
-          className="block md:hidden absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.95]"
+          className="block md:hidden absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.98]"
         />
 
         {/* Mobile Gradient Overlay */}
-        <div className="block md:hidden absolute inset-0 bg-gradient-to-b from-[#0F1E28]/92 via-[#0F1E28]/80 via-45% to-[#0F1E28]/95 pointer-events-none"></div>
+        <div className="block md:hidden absolute inset-0 bg-gradient-to-b from-[#0F1E28]/80 via-[#0F1E28]/50 via-35% to-[#0F1E28]/85 pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-8 sm:space-y-12">
           {/* Headline & Subhead on Left matching Image 1 */}
           <div className="max-w-xl space-y-3">
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-[54px] font-bold tracking-tight text-white leading-[1.12]">
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-[54px] font-bold tracking-tight text-white leading-[1.12] drop-shadow-sm">
               Find Your Place<br className="hidden sm:inline" /> in Nagpur.
             </h1>
-            <p className="text-sm sm:text-base text-white/85 font-normal max-w-lg leading-relaxed pt-1">
+            <p className="text-sm sm:text-base text-white/90 font-normal max-w-lg leading-relaxed pt-1 drop-shadow-xs">
               Discover exceptional properties, trusted agents, and the perfect place call a home.
             </p>
           </div>
 
           {/* Prominent Floating Search Card matching Image 1 */}
-          <div className="bg-white rounded-2xl p-4 sm:p-6 text-[#252525] shadow-2xl border border-gray-100/90 w-full max-w-6xl min-w-0">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 text-[#252525] shadow-lg border border-gray-100/90 w-full max-w-6xl min-w-0">
             {/* Category Tabs: Buy | Rent | Plots | Commercial */}
             <div className="flex items-center space-x-1.5 sm:space-x-2 pb-3 sm:pb-4 mb-4 border-b border-gray-100 overflow-x-auto scrollbar-none">
               {['Buy', 'Rent', 'Plots', 'Commercial'].map((tab) => (
