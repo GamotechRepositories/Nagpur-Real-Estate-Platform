@@ -107,6 +107,7 @@ const createAgentByAdmin = async (req, res, next) => {
       name,
       phone,
       email,
+      avatar,
       agencyName,
       reraNumber,
       experienceYears = 3,
@@ -125,6 +126,7 @@ const createAgentByAdmin = async (req, res, next) => {
         name: name.trim(),
         phone: phone.trim(),
         email: email ? email.trim() : undefined,
+        avatar: avatar ? avatar.trim() : '',
         role: 'AGENT',
         status: 'ACTIVE',
         isPhoneVerified: true,
@@ -132,6 +134,7 @@ const createAgentByAdmin = async (req, res, next) => {
     } else {
       user.role = 'AGENT';
       if (email && !user.email) user.email = email.trim();
+      if (avatar) user.avatar = avatar.trim();
       await user.save();
     }
 

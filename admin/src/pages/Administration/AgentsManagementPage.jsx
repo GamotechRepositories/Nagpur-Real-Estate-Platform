@@ -19,6 +19,7 @@ import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
+import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
 
 export const AgentsManagementPage = () => {
   const queryClient = useQueryClient();
@@ -28,6 +29,7 @@ export const AgentsManagementPage = () => {
     name: '',
     phone: '',
     email: '',
+    avatar: '',
     agencyName: '',
     reraNumber: '',
     experienceYears: 5,
@@ -57,6 +59,7 @@ export const AgentsManagementPage = () => {
         name: '',
         phone: '',
         email: '',
+        avatar: '',
         agencyName: '',
         reraNumber: '',
         experienceYears: 5,
@@ -144,9 +147,17 @@ export const AgentsManagementPage = () => {
                 {/* Header Profile */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center space-x-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-2xs">
-                      {agent.user?.name?.[0]?.toUpperCase() || 'A'}
-                    </div>
+                    {agent.user?.avatar ? (
+                      <img
+                        src={getFullImageUrl(agent.user.avatar)}
+                        alt={agent.user.name || 'Agent'}
+                        className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-2xs">
+                        {agent.user?.name?.[0]?.toUpperCase() || 'A'}
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-bold text-slate-900 truncate">
                         {agent.user?.name || 'Agent'}
@@ -284,6 +295,18 @@ export const AgentsManagementPage = () => {
         >
           <form onSubmit={handleCreateSubmit} className="space-y-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                <PhotoUploader
+                  multiple={false}
+                  folder="agents"
+                  value={formData.avatar}
+                  onChange={(url) => setFormData((prev) => ({ ...prev, avatar: url }))}
+                  label="Agent Profile Photo"
+                  helperText="Upload official headshot or passport photo"
+                  aspect="avatar"
+                />
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">
                   Agent Full Name *

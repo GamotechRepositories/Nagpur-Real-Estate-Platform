@@ -10,6 +10,7 @@ import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
+import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
 import { formatIndianPrice } from '../../utils/formatters';
 
 export const LocalitiesManagementPage = () => {
@@ -24,6 +25,7 @@ export const LocalitiesManagementPage = () => {
     pincode: '440010',
     avgPriceSqFt: 5500,
     description: '',
+    heroImage: '',
     isFeatured: true,
   });
 
@@ -64,6 +66,7 @@ export const LocalitiesManagementPage = () => {
       pincode: '440010',
       avgPriceSqFt: 5500,
       description: '',
+      heroImage: '',
       isFeatured: true,
     });
     setModalOpen(true);
@@ -77,6 +80,7 @@ export const LocalitiesManagementPage = () => {
       pincode: loc.pincode || '',
       avgPriceSqFt: loc.avgPriceSqFt || 5000,
       description: loc.description || '',
+      heroImage: loc.heroImage || '',
       isFeatured: loc.isFeatured ?? true,
     });
     setModalOpen(true);
@@ -134,15 +138,31 @@ export const LocalitiesManagementPage = () => {
           {localities.map((loc) => (
             <div
               key={loc._id}
-              className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between space-y-3"
+              className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
             >
-              <div>
+              {loc.heroImage && (
+                <div className="h-32 w-full overflow-hidden bg-slate-100 relative">
+                  <img
+                    src={getFullImageUrl(loc.heroImage)}
+                    alt={loc.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {loc.isFeatured && (
+                    <span className="absolute top-2 right-2 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500 text-white shadow-xs">
+                      Featured
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="p-4 sm:p-5 flex-1">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-base font-bold text-slate-900">{loc.name}</h3>
                     <span className="text-xs text-slate-400 font-mono">Pincode: {loc.pincode || '440010'}</span>
                   </div>
-                  {loc.isFeatured && (
+                  {!loc.heroImage && loc.isFeatured && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                       Featured
                     </span>
@@ -157,10 +177,10 @@ export const LocalitiesManagementPage = () => {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end">
+              <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
                 <button
                   onClick={() => handleOpenEdit(loc)}
-                  className="inline-flex items-center space-x-1 py-1 px-2.5 rounded border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium"
+                  className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-white text-xs font-semibold transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Edit</span>
@@ -183,9 +203,9 @@ export const LocalitiesManagementPage = () => {
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           title={editingLocality ? `Edit Locality: ${editingLocality.name}` : 'Add New Locality'}
-          maxWidth="max-w-md"
+          maxWidth="max-w-lg"
         >
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Locality Name *
@@ -248,6 +268,19 @@ export const LocalitiesManagementPage = () => {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Overview of this area..."
                 className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium outline-none"
+              />
+            </div>
+
+            {/* Locality Landmark Cover Photo */}
+            <div className="pt-2 border-t border-slate-100">
+              <PhotoUploader
+                multiple={false}
+                folder="localities"
+                value={formData.heroImage}
+                onChange={(url) => setFormData((prev) => ({ ...prev, heroImage: url }))}
+                label="Locality Landmark / Cover Photo"
+                helperText="Upload a high-quality landmark, street view, or junction photo of this locality"
+                aspect="video"
               />
             </div>
 

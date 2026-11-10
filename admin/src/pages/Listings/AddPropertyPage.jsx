@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
+import PhotoUploader from '../../components/common/PhotoUploader';
 
 const NAGPUR_LOCALITIES = [
   'Dharampeth',
@@ -56,7 +57,8 @@ export const AddPropertyPage = () => {
     pincode: '440010',
     latitude: 21.1458,
     longitude: 79.0882,
-    coverImageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+    photos: [],
+    floorPlanUrl: '',
     amenities: ['Power Backup', 'Lift', 'Security Personnel', 'Car Parking'],
   });
 
@@ -116,9 +118,13 @@ export const AddPropertyPage = () => {
       pincode: formData.pincode.trim(),
       latitude: Number(formData.latitude) || 21.1458,
       longitude: Number(formData.longitude) || 79.0882,
-      images: formData.coverImageUrl
-        ? [{ url: formData.coverImageUrl.trim(), isCover: true, caption: 'Main Facade' }]
-        : [],
+      coverImage: formData.photos[0] || '',
+      images: formData.photos.map((url, idx) => ({
+        url,
+        isCover: idx === 0,
+        caption: idx === 0 ? 'Cover Photo' : `Property Photo ${idx + 1}`,
+      })),
+      floorPlanUrl: formData.floorPlanUrl || '',
     };
 
     mutation.mutate(payload);
@@ -402,9 +408,9 @@ export const AddPropertyPage = () => {
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                MahaRERA Number (Optional)
+                MahaRERA Registration Number (Optional)
               </label>
               <input
                 type="text"
@@ -415,20 +421,39 @@ export const AddPropertyPage = () => {
                 className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-mono font-medium"
               />
             </div>
+          </div>
+        </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Cover Photo URL
-              </label>
-              <input
-                type="url"
-                name="coverImageUrl"
-                value={formData.coverImageUrl}
-                onChange={handleChange}
-                placeholder="https://..."
-                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium"
-              />
-            </div>
+        {/* Property Photos & Media (AWS S3 + CloudFront Ready) */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <div className="border-b border-slate-100 pb-2">
+            <h2 className="text-sm font-bold text-slate-900">Property Photos & Media</h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Upload real property photos (Hall, Bedrooms, Kitchen, Balcony, Elevation). Drag & drop multiple images. The first photo will be used as the primary cover photo.
+            </p>
+          </div>
+
+          <PhotoUploader
+            multiple={true}
+            folder="properties"
+            value={formData.photos}
+            onChange={(nextPhotos) => setFormData((prev) => ({ ...prev, photos: nextPhotos }))}
+            label="Property Gallery Photos"
+            helperText="Upload JPG, PNG, or WEBP up to 10MB each. Click star on any photo to set as Cover Photo."
+            maxFiles={15}
+            aspect="video"
+          />
+
+          <div className="pt-3 border-t border-slate-100">
+            <PhotoUploader
+              multiple={false}
+              folder="floorplans"
+              value={formData.floorPlanUrl}
+              onChange={(url) => setFormData((prev) => ({ ...prev, floorPlanUrl: url }))}
+              label="2D / 3D Floor Plan (Optional)"
+              helperText="Upload approved floor plan or architectural layout image"
+              aspect="video"
+            />
           </div>
         </div>
 

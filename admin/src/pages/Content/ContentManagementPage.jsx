@@ -19,6 +19,7 @@ import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
+import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
 import { formatDate } from '../../utils/formatters';
 
 const CATEGORIES = [
@@ -50,6 +51,7 @@ export const ContentManagementPage = () => {
     language: 'en',
     excerpt: '',
     content: '',
+    coverImage: '',
     seoTitle: '',
     seoDescription: '',
     isPublished: true,
@@ -97,6 +99,7 @@ export const ContentManagementPage = () => {
       language: activeLang !== 'ALL' ? activeLang : 'en',
       excerpt: '',
       content: '',
+      coverImage: '',
       seoTitle: '',
       seoDescription: '',
       isPublished: true,
@@ -113,6 +116,7 @@ export const ContentManagementPage = () => {
       language: item.language || 'en',
       excerpt: item.excerpt || '',
       content: item.content || '',
+      coverImage: item.coverImage || '',
       seoTitle: item.seoTitle || '',
       seoDescription: item.seoDescription || '',
       isPublished: item.isPublished ?? true,
@@ -204,25 +208,48 @@ export const ContentManagementPage = () => {
           {contentList.map((item) => (
             <div
               key={item._id}
-              className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between space-y-3"
+              className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
             >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center space-x-1 py-0.5 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
-                    {item.category?.replace(/_/g, ' ') || 'Blog'}
-                  </span>
-
-                  <div className="flex items-center space-x-1.5">
-                    <span className="py-0.5 px-1.5 rounded bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-mono font-bold uppercase">
+              {item.coverImage && (
+                <div className="h-32 w-full overflow-hidden bg-slate-100 relative">
+                  <img
+                    src={getFullImageUrl(item.coverImage)}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2 left-2">
+                    <span className="py-0.5 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white backdrop-blur-xs">
+                      {item.category?.replace(/_/g, ' ') || 'Blog'}
+                    </span>
+                  </div>
+                  <div className="absolute top-2 right-2 flex items-center space-x-1">
+                    <span className="py-0.5 px-1.5 rounded bg-teal-600 text-white text-[10px] font-mono font-bold uppercase shadow-xs">
                       {item.language || 'en'}
                     </span>
-                    {item.isPublished ? (
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" title="Published" />
-                    ) : (
-                      <span className="w-2 h-2 rounded-full bg-slate-300" title="Draft" />
-                    )}
                   </div>
                 </div>
+              )}
+
+              <div className="p-4 space-y-2 flex-1">
+                {!item.coverImage && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center space-x-1 py-0.5 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
+                      {item.category?.replace(/_/g, ' ') || 'Blog'}
+                    </span>
+
+                    <div className="flex items-center space-x-1.5">
+                      <span className="py-0.5 px-1.5 rounded bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-mono font-bold uppercase">
+                        {item.language || 'en'}
+                      </span>
+                      {item.isPublished ? (
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" title="Published" />
+                      ) : (
+                        <span className="w-2 h-2 rounded-full bg-slate-300" title="Draft" />
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <h3 className="font-bold text-sm text-slate-900 line-clamp-2 leading-snug">
                   {item.title}
@@ -235,13 +262,13 @@ export const ContentManagementPage = () => {
                 )}
               </div>
 
-              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+              <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
                 <span>{formatDate(item.createdAt)}</span>
 
                 <div className="flex items-center space-x-1.5">
                   <button
                     onClick={() => handleOpenEdit(item)}
-                    className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                    className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-white transition-colors"
                     title="Edit Content"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -253,7 +280,7 @@ export const ContentManagementPage = () => {
                         deleteMutation.mutate(item._id);
                       }
                     }}
-                    className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-white transition-colors"
                     title="Delete Content"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
