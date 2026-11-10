@@ -1,0 +1,110 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/property_provider.dart';
+import 'locality_details_screen.dart';
+
+class LocalitiesListScreen extends StatelessWidget {
+  const LocalitiesListScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final prov = Provider.of<PropertyProvider>(context);
+    final localities = prov.localities;
+
+    return Scaffold(
+      backgroundColor: AppColors.ivory,
+      appBar: AppBar(
+        title: Text(
+          'Nagpur Localities Directory',
+          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: localities.isEmpty
+          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: localities.length,
+              itemBuilder: (context, index) {
+                final loc = localities[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LocalityDetailsScreen(locality: loc),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.beige),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 16 / 8,
+                          child: CachedNetworkImage(
+                            imageUrl: loc.image,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    loc.name,
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.navy,
+                                    ),
+                                  ),
+                                  Text(
+                                    loc.avgPrice,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.goldDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${loc.propertyCount} Active Properties • Pincode: ${loc.pincode.isNotEmpty ? loc.pincode : '440010'}',
+                                style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                              ),
+                              if (loc.description.isNotEmpty) ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  loc.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoal, height: 1.3),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}

@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Enquiry = require('../models/Enquiry');
 const AgentProfile = require('../models/AgentProfile');
 const AppSettings = require('../models/AppSettings');
 const LeadActivity = require('../models/LeadActivity');
