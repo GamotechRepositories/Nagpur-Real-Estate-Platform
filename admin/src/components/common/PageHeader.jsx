@@ -8,7 +8,10 @@ export const PageHeader = ({
   icon: Icon,
   breadcrumbs = [],
   actions,
+  action,
 }) => {
+  const headerActions = actions || action;
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
       <div className="space-y-0.5">
@@ -45,9 +48,9 @@ export const PageHeader = ({
         </div>
       </div>
 
-      {actions && (
+      {headerActions && (
         <div className="flex flex-wrap items-center gap-2 pt-1 sm:pt-0">
-          {actions}
+          {headerActions}
         </div>
       )}
     </div>

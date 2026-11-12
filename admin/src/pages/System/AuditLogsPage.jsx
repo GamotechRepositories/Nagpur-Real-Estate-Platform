@@ -16,6 +16,9 @@ const AUDIT_ACTIONS = [
   'REJECT_PROPERTY',
   'TOGGLE_BADGES',
   'RENEW_PROPERTY',
+  'CREATE_STAFF_MEMBER',
+  'UPDATE_STAFF_MEMBER',
+  'SUSPEND_STAFF_MEMBER',
   'UPDATE_USER_PERMISSIONS',
   'UPDATE_PLATFORM_SETTINGS',
 ];
@@ -25,14 +28,25 @@ const TARGET_TYPES = ['PROPERTY', 'USER', 'SETTINGS'];
 export const AuditLogsPage = () => {
   const [actionFilter, setActionFilter] = useState('');
   const [targetFilter, setTargetFilter] = useState('');
+  const [performedByFilter, setPerformedByFilter] = useState('');
   const [page, setPage] = useState(1);
 
+  // Fetch staff list for employee dropdown filter
+  const { data: staffMembers = [] } = useQuery({
+    queryKey: ['admin-staff-dropdown'],
+    queryFn: async () => {
+      const res = await apiClient.get('/admin/staff?limit=100');
+      return res.data?.data || [];
+    },
+  });
+
   const { data: response, isLoading } = useQuery({
-    queryKey: ['admin-audit-logs', actionFilter, targetFilter, page],
+    queryKey: ['admin-audit-logs', actionFilter, targetFilter, performedByFilter, page],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (actionFilter) params.append('action', actionFilter);
       if (targetFilter) params.append('targetType', targetFilter);
+      if (performedByFilter) params.append('performedBy', performedByFilter);
       params.append('page', page.toString());
       params.append('limit', '25');
 
@@ -89,6 +103,23 @@ export const AuditLogsPage = () => {
               </option>
             ))}
           </select>
+
+          {/* Filter by Staff Member */}
+          <select
+            value={performedByFilter}
+            onChange={(e) => {
+              setPerformedByFilter(e.target.value);
+              setPage(1);
+            }}
+            className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-slate-50 focus:bg-white outline-none"
+          >
+            <option value="">All Staff Members</option>
+            {staffMembers.map((staff) => (
+              <option key={staff._id} value={staff._id}>
+                {staff.name} ({staff.designation || staff.role})
+              </option>
+            ))}
+          </select>
         </div>
 
         <span className="text-xs text-slate-500">
@@ -131,8 +162,11 @@ export const AuditLogsPage = () => {
                     </td>
 
                     <td className="py-2.5 px-3">
-                      <span className="font-medium text-slate-800 block">
+                      <span className="font-semibold text-slate-800 block">
                         {log.performedBy?.name || 'Staff User'}
+                      </span>
+                      <span className="text-[10px] text-teal-600 font-medium block">
+                        {log.performedBy?.designation || log.performedBy?.role || 'Staff Member'}
                       </span>
                       <span className="text-[10px] text-slate-400 font-mono block">
                         {log.performedBy?.email || '—'}

@@ -105,6 +105,7 @@ const NOTIFICATION_TYPES = {
 };
 
 const SUPPORTED_LANGUAGES = ['en', 'hi', 'mr'];
+const { PERMISSIONS, PERMISSION_MODULES } = require('./permissions');
 
 module.exports = {
   ROLES,
@@ -120,5 +121,7 @@ module.exports = {
   NOTIFICATION_CHANNELS,
   NOTIFICATION_TYPES,
   SUPPORTED_LANGUAGES,
+  PERMISSIONS,
+  PERMISSION_MODULES,
 };
 

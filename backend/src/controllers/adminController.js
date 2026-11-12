@@ -526,7 +526,7 @@ const updateSettings = async (req, res, next) => {
  */
 const getAuditLogs = async (req, res, next) => {
   try {
-    const { page = 1, limit = 25, targetType, action } = req.query;
+    const { page = 1, limit = 25, targetType, action, performedBy } = req.query;
     const pageNumber = Math.max(1, parseInt(page, 10) || 1);
     const pageSize = Math.min(100, Math.max(1, parseInt(limit, 10) || 25));
     const skip = (pageNumber - 1) * pageSize;
@@ -534,10 +534,11 @@ const getAuditLogs = async (req, res, next) => {
     const filter = {};
     if (targetType) filter.targetType = targetType;
     if (action) filter.action = action;
+    if (performedBy) filter.performedBy = performedBy;
 
     const [logs, totalCount] = await Promise.all([
       AuditLog.find(filter)
-        .populate('performedBy', 'name email role')
+        .populate('performedBy', 'name email role designation')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(pageSize)
@@ -556,6 +557,208 @@ const getAuditLogs = async (req, res, next) => {
   }
 };
 
+/**
+ * Get Staff Members List with Activity Counts
+ */
+const getStaffMembers = async (req, res, next) => {
+  try {
+    const { search, status, page = 1, limit = 20 } = req.query;
+    const pageNumber = Math.max(1, parseInt(page, 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+    const skip = (pageNumber - 1) * pageSize;
+
+    const staffRoles = [
+      ROLES.SUPER_ADMIN,
+      ROLES.MODERATOR,
+      ROLES.CRM_MANAGER,
+      ROLES.CONTENT_EDITOR,
+    ];
+
+    const filter = {
+      $or: [{ isStaff: true }, { role: { $in: staffRoles } }],
+    };
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (search && search.trim()) {
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$and = [
+        {
+          $or: [{ name: regex }, { email: regex }, { phone: regex }, { designation: regex }],
+        },
+      ];
+    }
+
+    const [staffList, totalCount] = await Promise.all([
+      User.find(filter)
+        .select('name email phone role designation permissions status isStaff lastLoginAt createdAt')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize)
+        .lean(),
+      User.countDocuments(filter),
+    ]);
+
+    // Attach activity count for each staff member
+    const staffIds = staffList.map((s) => s._id);
+    const activityCounts = await AuditLog.aggregate([
+      { $match: { performedBy: { $in: staffIds } } },
+      { $group: { _id: '$performedBy', count: { $sum: 1 } } },
+    ]);
+
+    const activityMap = activityCounts.reduce((acc, curr) => {
+      acc[curr._id.toString()] = curr.count;
+      return acc;
+    }, {});
+
+    const enrichedStaff = staffList.map((staff) => ({
+      ...staff,
+      actionsCount: activityMap[staff._id.toString()] || 0,
+    }));
+
+    return sendSuccess(res, 'Staff members retrieved successfully', enrichedStaff, {
+      totalCount,
+      page: pageNumber,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Create New Staff Member
+ */
+const createStaffMember = async (req, res, next) => {
+  try {
+    const { name, email, phone, password, role, designation, permissions } = req.body;
+
+    if (!email || !phone || !password || !name) {
+      return sendError(res, 'Name, email, phone number, and password are required', 'VALIDATION_ERROR', {}, 400);
+    }
+
+    // Check existing phone
+    const existingPhone = await User.findOne({ phone: phone.trim() });
+    if (existingPhone) {
+      return sendError(res, 'A user account with this phone number already exists', 'PHONE_EXISTS', {}, 400);
+    }
+
+    // Check existing email
+    const existingEmail = await User.findOne({ email: email.trim().toLowerCase() });
+    if (existingEmail) {
+      return sendError(res, 'A user account with this email already exists', 'EMAIL_EXISTS', {}, 400);
+    }
+
+    const staffMember = new User({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone.trim(),
+      password,
+      role: role && Object.values(ROLES).includes(role) ? role : ROLES.MODERATOR,
+      designation: designation ? designation.trim() : 'Staff Member',
+      permissions: Array.isArray(permissions) ? permissions : [],
+      isStaff: true,
+      status: 'ACTIVE',
+      isPhoneVerified: true,
+      isEmailVerified: true,
+    });
+
+    await staffMember.save();
+
+    await logAudit({
+      req,
+      action: 'CREATE_STAFF_MEMBER',
+      targetType: 'USER',
+      targetId: staffMember._id,
+      notes: `Staff member created: ${staffMember.name} (${staffMember.email}) with designation: ${staffMember.designation}`,
+    });
+
+    const safeResponse = staffMember.toObject();
+    delete safeResponse.password;
+
+    return sendSuccess(res, 'Staff member created successfully', safeResponse, null, 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Update Staff Member Details & Permissions
+ */
+const updateStaffMember = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, role, designation, permissions, status, password } = req.body;
+
+    const staffMember = await User.findById(id);
+    if (!staffMember) {
+      return sendError(res, 'Staff member not found', 'NOT_FOUND', {}, 404);
+    }
+
+    if (name) staffMember.name = name.trim();
+    if (role && Object.values(ROLES).includes(role)) staffMember.role = role;
+    if (designation !== undefined) staffMember.designation = designation.trim();
+    if (Array.isArray(permissions)) staffMember.permissions = permissions;
+    if (status && ['ACTIVE', 'SUSPENDED', 'PENDING'].includes(status)) staffMember.status = status;
+    if (password && password.trim()) staffMember.password = password.trim();
+
+    staffMember.isStaff = true;
+    await staffMember.save();
+
+    await logAudit({
+      req,
+      action: 'UPDATE_STAFF_MEMBER',
+      targetType: 'USER',
+      targetId: staffMember._id,
+      notes: `Staff member updated: ${staffMember.name} (${staffMember.designation})`,
+    });
+
+    const safeResponse = staffMember.toObject();
+    delete safeResponse.password;
+
+    return sendSuccess(res, 'Staff member updated successfully', safeResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Deactivate / Suspend Staff Member
+ */
+const deleteStaffMember = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (req.user._id.toString() === id) {
+      return sendError(res, 'You cannot delete your own administrative account', 'SELF_DELETION_FORBIDDEN', {}, 400);
+    }
+
+    const staffMember = await User.findById(id);
+    if (!staffMember) {
+      return sendError(res, 'Staff member not found', 'NOT_FOUND', {}, 404);
+    }
+
+    staffMember.status = 'SUSPENDED';
+    staffMember.isStaff = false;
+    await staffMember.save();
+
+    await logAudit({
+      req,
+      action: 'SUSPEND_STAFF_MEMBER',
+      targetType: 'USER',
+      targetId: staffMember._id,
+      notes: `Staff member deactivated/suspended: ${staffMember.name} (${staffMember.email})`,
+    });
+
+    return sendSuccess(res, 'Staff member suspended successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getModerationQueue,
@@ -569,5 +772,9 @@ module.exports = {
   getSettings,
   updateSettings,
   getAuditLogs,
+  getStaffMembers,
+  createStaffMember,
+  updateStaffMember,
+  deleteStaffMember,
 };
 

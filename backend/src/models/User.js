@@ -33,6 +33,20 @@ const userSchema = new mongoose.Schema(
       default: ROLES.USER,
       index: true,
     },
+    designation: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    isStaff: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    permissions: {
+      type: [String],
+      default: [],
+    },
     isPhoneVerified: {
       type: Boolean,
       default: false,

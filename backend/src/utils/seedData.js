@@ -292,11 +292,21 @@ const seedDatabase = async () => {
         email: adminEmail,
         password: 'Nagpur@Admin2026!',
         role: ROLES.SUPER_ADMIN,
+        designation: 'Super Administrator',
+        isStaff: true,
+        permissions: ['*'],
         isPhoneVerified: true,
         isEmailVerified: true,
         status: 'ACTIVE',
       });
       console.log(`[Seed]: Super Admin created: ${adminEmail} / Nagpur@Admin2026!`);
+    } else {
+      admin.isStaff = true;
+      admin.designation = 'Super Administrator';
+      if (!admin.permissions || admin.permissions.length === 0) {
+        admin.permissions = ['*'];
+      }
+      await admin.save();
     }
 
     // 5. Seed Multiple Accredited Agents

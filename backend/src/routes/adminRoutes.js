@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 const { authenticate } = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/rbacMiddleware');
-const { ROLES } = require('../constants');
+const { authorize, requirePermission } = require('../middleware/rbacMiddleware');
+const { ROLES, PERMISSIONS, PERMISSION_MODULES } = require('../constants');
+const { sendSuccess } = require('../utils/response');
 
 // All admin routes require staff authentication
 router.use(authenticate);
@@ -11,45 +12,81 @@ router.use(authenticate);
 // Overview Dashboard
 router.get(
   '/dashboard',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR),
   adminController.getDashboardStats
+);
+
+// Get Master List of System Permissions Modules
+router.get(
+  '/staff/permissions-list',
+  authorize(ROLES.SUPER_ADMIN),
+  (req, res) => {
+    return sendSuccess(res, 'Permissions list retrieved', {
+      modules: PERMISSION_MODULES,
+      permissions: PERMISSIONS,
+    });
+  }
+);
+
+// Staff Management (Super Admin or Users with STAFF_MANAGE permission)
+router.get(
+  '/staff',
+  requirePermission(PERMISSIONS.STAFF_MANAGE),
+  adminController.getStaffMembers
+);
+
+router.post(
+  '/staff',
+  requirePermission(PERMISSIONS.STAFF_MANAGE),
+  adminController.createStaffMember
+);
+
+router.patch(
+  '/staff/:id',
+  requirePermission(PERMISSIONS.STAFF_MANAGE),
+  adminController.updateStaffMember
+);
+
+router.delete(
+  '/staff/:id',
+  requirePermission(PERMISSIONS.STAFF_MANAGE),
+  adminController.deleteStaffMember
 );
 
 // Moderation
 router.get(
   '/moderation',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR),
+  requirePermission(PERMISSIONS.MODERATION_VIEW, PERMISSIONS.MODERATION_REVIEW),
   adminController.getModerationQueue
 );
 
 router.post(
   '/moderation/:id/approve',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR),
+  requirePermission(PERMISSIONS.MODERATION_REVIEW),
   adminController.approveProperty
 );
 
 router.post(
   '/moderation/:id/reject',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR),
+  requirePermission(PERMISSIONS.MODERATION_REVIEW),
   adminController.rejectProperty
 );
 
 // Listings management
 router.get(
   '/listings',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CRM_MANAGER),
+  requirePermission(PERMISSIONS.LISTINGS_VIEW),
   adminController.getAllListings
 );
 
 router.patch(
   '/listings/:id/badges',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR),
+  requirePermission(PERMISSIONS.LISTINGS_EDIT),
   adminController.togglePropertyBadges
 );
 
 router.post(
   '/listings/:id/renew',
-  authorize(ROLES.SUPER_ADMIN, ROLES.MODERATOR),
+  requirePermission(PERMISSIONS.LISTINGS_EDIT),
   adminController.renewListing
 );
 
@@ -66,23 +103,23 @@ router.patch(
   adminController.updateUserRoleStatus
 );
 
-// Platform Settings & Routing configuration (Super Admin only)
+// Platform Settings & Routing configuration
 router.get(
   '/settings',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.SETTINGS_MANAGE),
   adminController.getSettings
 );
 
 router.patch(
   '/settings',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.SETTINGS_MANAGE),
   adminController.updateSettings
 );
 
-// Audit Logs (Super Admin only)
+// Audit Logs
 router.get(
   '/audit-logs',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.AUDIT_LOGS_VIEW),
   adminController.getAuditLogs
 );
 

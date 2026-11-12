@@ -119,7 +119,7 @@ const handleAdminLogin = async (req, res, next) => {
       return sendError(res, 'Invalid email or password', 'INVALID_CREDENTIALS', {}, 401);
     }
 
-    // Role check - only staff roles can log in via admin portal
+    // Role check - only staff roles or users marked as staff can log in via admin portal
     const staffRoles = [
       ROLES.SUPER_ADMIN,
       ROLES.MODERATOR,
@@ -127,7 +127,7 @@ const handleAdminLogin = async (req, res, next) => {
       ROLES.CONTENT_EDITOR,
     ];
 
-    if (!staffRoles.includes(user.role)) {
+    if (!user.isStaff && !staffRoles.includes(user.role)) {
       return sendError(res, 'Access restricted to authorized administrative staff', 'FORBIDDEN', {}, 403);
     }
 
@@ -171,6 +171,9 @@ const handleAdminLogin = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        designation: user.designation,
+        isStaff: user.isStaff,
+        permissions: user.permissions || [],
         twoFactorEnabled: user.twoFactorEnabled,
       },
       accessToken,

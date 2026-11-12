@@ -30,17 +30,54 @@ const authorize = (...allowedRoles) => {
 };
 
 /**
- * Staff-only access helper (SUPER_ADMIN, MODERATOR, CRM_MANAGER, CONTENT_EDITOR)
+ * Restrict route by granular permissions
+ * Allows access if:
+ * 1. User is SUPER_ADMIN
+ * 2. User has any of the required permissions in their permissions array
+ */
+const requirePermission = (...requiredPermissions) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return sendError(res, 'Authentication required.', 'UNAUTHORIZED', {}, 401);
+    }
+
+    // Master bypass for SUPER_ADMIN
+    if (req.user.role === ROLES.SUPER_ADMIN) {
+      return next();
+    }
+
+    const userPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : [];
+
+    const hasAccess = requiredPermissions.some((perm) => userPermissions.includes(perm));
+
+    if (!hasAccess) {
+      return sendError(
+        res,
+        'Access denied. You lack the necessary permissions for this action.',
+        'FORBIDDEN',
+        { requiredPermissions, userPermissions },
+        403
+      );
+    }
+
+    next();
+  };
+};
+
+/**
+ * Staff-only access helper (SUPER_ADMIN or any internal staff user)
  */
 const requireStaff = (req, res, next) => {
-  const staffRoles = [
+  const legacyStaffRoles = [
     ROLES.SUPER_ADMIN,
     ROLES.MODERATOR,
     ROLES.CRM_MANAGER,
     ROLES.CONTENT_EDITOR,
   ];
 
-  if (!req.user || !staffRoles.includes(req.user.role)) {
+  const isStaffMember = req.user?.isStaff || legacyStaffRoles.includes(req.user?.role);
+
+  if (!req.user || !isStaffMember) {
     return sendError(res, 'Staff privileges required for this action.', 'FORBIDDEN', {}, 403);
   }
   next();
@@ -48,6 +85,6 @@ const requireStaff = (req, res, next) => {
 
 module.exports = {
   authorize,
+  requirePermission,
   requireStaff,
 };
-

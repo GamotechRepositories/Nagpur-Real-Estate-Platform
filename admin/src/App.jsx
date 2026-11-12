@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import { useAuthStore } from './store/useAuthStore';
+import { PERMISSIONS } from './config/permissions';
 
 // Code-split all pages using React.lazy for instant loading
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'));
@@ -16,6 +17,8 @@ const LeadManagementPage = lazy(() => import('./pages/CRM/LeadManagementPage'));
 const SiteVisitsManagementPage = lazy(() => import('./pages/CRM/SiteVisitsManagementPage'));
 const LoanRequestsPage = lazy(() => import('./pages/CRM/LoanRequestsPage'));
 const ContentManagementPage = lazy(() => import('./pages/Content/ContentManagementPage'));
+const StaffManagementPage = lazy(() => import('./pages/Administration/StaffManagementPage'));
+const StaffFormPage = lazy(() => import('./pages/Administration/StaffFormPage'));
 const UsersManagementPage = lazy(() => import('./pages/Administration/UsersManagementPage'));
 const AgentsManagementPage = lazy(() => import('./pages/Administration/AgentsManagementPage'));
 const NotificationsBroadcastPage = lazy(() => import('./pages/Administration/NotificationsBroadcastPage'));
@@ -58,21 +61,139 @@ function App() {
           <Route element={<AdminLayout />}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/moderation" element={<ModerationQueuePage />} />
-            <Route path="/listings" element={<ListingsManagementPage />} />
-            <Route path="/listings/new" element={<AddPropertyPage />} />
-            <Route path="/projects" element={<ProjectsManagementPage />} />
-            <Route path="/localities" element={<LocalitiesManagementPage />} />
-            <Route path="/leads" element={<LeadManagementPage />} />
-            <Route path="/site-visits" element={<SiteVisitsManagementPage />} />
-            <Route path="/loan-requests" element={<LoanRequestsPage />} />
-            <Route path="/agents" element={<AgentsManagementPage />} />
-            <Route path="/content" element={<ContentManagementPage />} />
-            <Route path="/users" element={<UsersManagementPage />} />
-            <Route path="/notifications" element={<NotificationsBroadcastPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<SettingsManagementPage />} />
-            <Route path="/audit-logs" element={<AuditLogsPage />} />
+
+            {/* Moderation */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.MODERATION_VIEW, PERMISSIONS.MODERATION_REVIEW]}
+                />
+              }
+            >
+              <Route path="/moderation" element={<ModerationQueuePage />} />
+            </Route>
+
+            {/* Listings */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[
+                    PERMISSIONS.LISTINGS_VIEW,
+                    PERMISSIONS.LISTINGS_CREATE,
+                    PERMISSIONS.LISTINGS_EDIT,
+                  ]}
+                />
+              }
+            >
+              <Route path="/listings" element={<ListingsManagementPage />} />
+              <Route path="/listings/new" element={<AddPropertyPage />} />
+            </Route>
+
+            {/* Localities & Projects */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.PROJECTS_MANAGE, PERMISSIONS.LOCALITIES_MANAGE]}
+                />
+              }
+            >
+              <Route path="/projects" element={<ProjectsManagementPage />} />
+              <Route path="/localities" element={<LocalitiesManagementPage />} />
+            </Route>
+
+            {/* CRM & Leads */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.LEADS_VIEW, PERMISSIONS.LEADS_MANAGE]}
+                />
+              }
+            >
+              <Route path="/leads" element={<LeadManagementPage />} />
+              <Route path="/agents" element={<AgentsManagementPage />} />
+            </Route>
+
+            {/* Site Visits */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.SITE_VISITS_VIEW, PERMISSIONS.SITE_VISITS_MANAGE]}
+                />
+              }
+            >
+              <Route path="/site-visits" element={<SiteVisitsManagementPage />} />
+            </Route>
+
+            {/* Loan Requests */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.LOANS_VIEW, PERMISSIONS.LOANS_MANAGE]}
+                />
+              }
+            >
+              <Route path="/loan-requests" element={<LoanRequestsPage />} />
+            </Route>
+
+            {/* Content & CMS */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.CONTENT_VIEW, PERMISSIONS.CONTENT_MANAGE]}
+                />
+              }
+            >
+              <Route path="/content" element={<ContentManagementPage />} />
+            </Route>
+
+            {/* Staff & User Management */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.STAFF_MANAGE]}
+                />
+              }
+            >
+              <Route path="/staff" element={<StaffManagementPage />} />
+              <Route path="/staff/new" element={<StaffFormPage />} />
+              <Route path="/staff/:id/edit" element={<StaffFormPage />} />
+              <Route path="/users" element={<UsersManagementPage />} />
+            </Route>
+
+            {/* Notifications Broadcast */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.NOTIFICATIONS_SEND]}
+                />
+              }
+            >
+              <Route path="/notifications" element={<NotificationsBroadcastPage />} />
+            </Route>
+
+            {/* System Settings */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.SETTINGS_MANAGE]}
+                />
+              }
+            >
+              <Route path="/settings" element={<SettingsManagementPage />} />
+            </Route>
+
+            {/* Audit Logs */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.AUDIT_LOGS_VIEW]}
+                />
+              }
+            >
+              <Route path="/audit-logs" element={<AuditLogsPage />} />
+            </Route>
+
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

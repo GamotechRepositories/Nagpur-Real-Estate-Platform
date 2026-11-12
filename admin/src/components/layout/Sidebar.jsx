@@ -19,12 +19,15 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  UserCog,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import apiClient from '../../api/client';
+import { hasAnyPermission, PERMISSIONS } from '../../config/permissions';
 
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const {
+    user,
     sidebarCollapsed,
     toggleSidebarCollapsed,
     sidebarMobileOpen: storeMobileOpen,
@@ -62,6 +65,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           href: '/dashboard',
           icon: LayoutDashboard,
           badge: null,
+          permissions: [],
         },
       ],
     },
@@ -74,24 +78,28 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           icon: ShieldCheck,
           badge: pendingCount > 0 ? pendingCount : null,
           badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+          permissions: [PERMISSIONS.MODERATION_VIEW, PERMISSIONS.MODERATION_REVIEW],
         },
         {
           name: 'All Listings',
           href: '/listings',
           icon: Building2,
           badge: null,
+          permissions: [PERMISSIONS.LISTINGS_VIEW, PERMISSIONS.LISTINGS_CREATE, PERMISSIONS.LISTINGS_EDIT],
         },
         {
           name: 'Localities',
           href: '/localities',
           icon: MapPin,
           badge: null,
+          permissions: [PERMISSIONS.LOCALITIES_MANAGE],
         },
         {
           name: 'Projects',
           href: '/projects',
           icon: Compass,
           badge: null,
+          permissions: [PERMISSIONS.PROJECTS_MANAGE],
         },
       ],
     },
@@ -103,6 +111,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           href: '/leads',
           icon: Kanban,
           badge: null,
+          permissions: [PERMISSIONS.LEADS_VIEW, PERMISSIONS.LEADS_MANAGE],
         },
         {
           name: 'Site Visits',
@@ -110,6 +119,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           icon: Calendar,
           badge: pendingVisitsCount > 0 ? pendingVisitsCount : null,
           badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-500/30',
+          permissions: [PERMISSIONS.SITE_VISITS_VIEW, PERMISSIONS.SITE_VISITS_MANAGE],
         },
         {
           name: 'Loan Requests',
@@ -117,12 +127,14 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           icon: Banknote,
           badge: pendingLoansCount > 0 ? pendingLoansCount : null,
           badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+          permissions: [PERMISSIONS.LOANS_VIEW, PERMISSIONS.LOANS_MANAGE],
         },
         {
           name: 'Agents',
           href: '/agents',
           icon: Users2,
           badge: null,
+          permissions: [PERMISSIONS.LEADS_VIEW, PERMISSIONS.LEADS_MANAGE],
         },
       ],
     },
@@ -134,6 +146,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           href: '/content',
           icon: FileText,
           badge: null,
+          permissions: [PERMISSIONS.CONTENT_VIEW, PERMISSIONS.CONTENT_MANAGE],
         },
       ],
     },
@@ -141,32 +154,53 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       group: 'Administration',
       items: [
         {
-          name: 'Users',
+          name: 'Staff & Roles',
+          href: '/staff',
+          icon: UserCog,
+          badge: null,
+          permissions: [PERMISSIONS.STAFF_MANAGE],
+        },
+        {
+          name: 'Public Users',
           href: '/users',
           icon: UserCheck,
           badge: null,
+          permissions: [PERMISSIONS.STAFF_MANAGE],
         },
         {
           name: 'Broadcasts',
           href: '/notifications',
           icon: Bell,
           badge: null,
+          permissions: [PERMISSIONS.NOTIFICATIONS_SEND],
         },
         {
           name: 'Settings',
           href: '/settings',
           icon: Sliders,
           badge: null,
+          permissions: [PERMISSIONS.SETTINGS_MANAGE],
         },
         {
           name: 'Audit Logs',
           href: '/audit-logs',
           icon: Shield,
           badge: null,
+          permissions: [PERMISSIONS.AUDIT_LOGS_VIEW],
         },
       ],
     },
   ];
+
+  const visibleNavGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (!item.permissions || item.permissions.length === 0) return true;
+        return hasAnyPermission(user, item.permissions);
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <>
@@ -226,7 +260,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
         {/* Navigation Links */}
         <div className="flex-1 p-2 space-y-3.5 overflow-y-auto">
-          {navGroups.map((group, groupIdx) => (
+          {visibleNavGroups.map((group, groupIdx) => (
             <div key={groupIdx} className="space-y-0.5">
               {!sidebarCollapsed && (
                 <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
