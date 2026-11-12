@@ -65,7 +65,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           href: '/dashboard',
           icon: LayoutDashboard,
           badge: null,
-          permissions: [],
+          permissions: [PERMISSIONS.DASHBOARD_VIEW],
         },
       ],
     },

@@ -12,6 +12,7 @@ router.use(authenticate);
 // Overview Dashboard
 router.get(
   '/dashboard',
+  requirePermission(PERMISSIONS.DASHBOARD_VIEW),
   adminController.getDashboardStats
 );
 

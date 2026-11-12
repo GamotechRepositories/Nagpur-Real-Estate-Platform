@@ -3,6 +3,9 @@
  */
 
 const PERMISSIONS = {
+  // Overview Dashboard
+  DASHBOARD_VIEW: 'dashboard.view',
+
   // Moderation
   MODERATION_VIEW: 'moderation.view',
   MODERATION_REVIEW: 'moderation.review', // approve / reject
@@ -44,6 +47,13 @@ const PERMISSIONS = {
 };
 
 const PERMISSION_MODULES = [
+  {
+    id: 'overview',
+    name: 'Dashboard & Platform Analytics',
+    permissions: [
+      { key: PERMISSIONS.DASHBOARD_VIEW, label: 'View Dashboard & Analytics', description: 'Can view platform statistics, overview charts, and daily metrics' },
+    ],
+  },
   {
     id: 'moderation',
     name: 'Moderation Queue',

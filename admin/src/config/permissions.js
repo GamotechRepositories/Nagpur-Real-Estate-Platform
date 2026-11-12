@@ -4,6 +4,9 @@
  */
 
 export const PERMISSIONS = {
+  // Overview Dashboard
+  DASHBOARD_VIEW: 'dashboard.view',
+
   // Moderation
   MODERATION_VIEW: 'moderation.view',
   MODERATION_REVIEW: 'moderation.review',
@@ -45,6 +48,14 @@ export const PERMISSIONS = {
 };
 
 export const PERMISSION_MODULES = [
+  {
+    id: 'overview',
+    title: 'Dashboard & Platform Analytics',
+    badge: 'Executive',
+    permissions: [
+      { key: PERMISSIONS.DASHBOARD_VIEW, label: 'View Dashboard & Analytics', desc: 'Can view platform statistics, top localities, and daily conversion metrics' },
+    ],
+  },
   {
     id: 'moderation',
     title: 'Listing Moderation Queue',

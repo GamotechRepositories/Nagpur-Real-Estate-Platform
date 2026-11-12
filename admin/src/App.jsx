@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import { useAuthStore } from './store/useAuthStore';
-import { PERMISSIONS } from './config/permissions';
+import { PERMISSIONS, hasPermission } from './config/permissions';
 
 // Code-split all pages using React.lazy for instant loading
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'));
@@ -35,6 +35,31 @@ const PageFallback = () => (
   </div>
 );
 
+// Smart default redirect based on staff permissions
+const DefaultRouteRedirect = () => {
+  const { user } = useAuthStore();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'SUPER_ADMIN' || hasPermission(user, PERMISSIONS.DASHBOARD_VIEW)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.MODERATION_VIEW) || hasPermission(user, PERMISSIONS.MODERATION_REVIEW)) {
+    return <Navigate to="/moderation" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.LISTINGS_VIEW)) {
+    return <Navigate to="/listings" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.LEADS_VIEW) || hasPermission(user, PERMISSIONS.LEADS_MANAGE)) {
+    return <Navigate to="/leads" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.CONTENT_VIEW) || hasPermission(user, PERMISSIONS.CONTENT_MANAGE)) {
+    return <Navigate to="/content" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.STAFF_MANAGE)) {
+    return <Navigate to="/staff" replace />;
+  }
+  return <Navigate to="/profile" replace />;
+};
+
 function App() {
   const { fetchCurrentUser, isAuthenticated } = useAuthStore();
 
@@ -59,9 +84,19 @@ function App() {
           }
         >
           <Route element={<AdminLayout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/" element={<DefaultRouteRedirect />} />
             <Route path="/profile" element={<ProfilePage />} />
+
+            {/* Dashboard Overview */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.DASHBOARD_VIEW]}
+                />
+              }
+            >
+              <Route path="/dashboard" element={<DashboardPage />} />
+            </Route>
 
             {/* Moderation */}
             <Route
