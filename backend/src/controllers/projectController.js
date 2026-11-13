@@ -9,7 +9,7 @@ const getProjects = async (req, res, next) => {
   try {
     const { locality, status, featured, page = 1, limit = 12 } = req.query;
     const pageNumber = Math.max(1, parseInt(page, 10) || 1);
-    const pageSize = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
+    const pageSize = Math.min(100, Math.max(1, parseInt(limit, 10) || 12));
     const skip = (pageNumber - 1) * pageSize;
 
     const filter = { isPublished: true };

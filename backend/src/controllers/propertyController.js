@@ -52,6 +52,11 @@ const getProperties = async (req, res, next) => {
     if (isVerified === 'true') filter.isVerified = true;
     if (isFeatured === 'true') filter.isFeatured = true;
 
+    // Project filter
+    if (req.query.project) {
+      filter.project = req.query.project;
+    }
+
     // Locality filter
     if (locality) {
       filter.localityName = { $regex: new RegExp(locality.trim(), 'i') };
@@ -121,6 +126,7 @@ const getProperties = async (req, res, next) => {
       Property.find(filter)
         .populate('owner', 'name phone avatar')
         .populate('assignedAgent', 'name phone avatar')
+        .populate('project', 'name slug reraNumber projectStatus images priceRange localityName')
         .sort(sortOption)
         .skip(skip)
         .limit(pageSize)
@@ -253,11 +259,13 @@ const createProperty = async (req, res, next) => {
     });
 
     const status = isSaveAsDraft ? PROPERTY_STATUS.DRAFT : PROPERTY_STATUS.PENDING_REVIEW;
+    const projectId = body.project && mongoose.Types.ObjectId.isValid(body.project) ? body.project : undefined;
 
     const property = await Property.create({
       ...body,
       slug,
       locality: localityDoc ? localityDoc._id : undefined,
+      project: projectId,
       owner: req.user._id,
       status,
       location: {
@@ -334,6 +342,11 @@ const updateProperty = async (req, res, next) => {
         type: 'Point',
         coordinates: [req.body.longitude, req.body.latitude],
       };
+    }
+
+    if (req.body.project !== undefined) {
+      property.project = req.body.project && mongoose.Types.ObjectId.isValid(req.body.project) ? req.body.project : null;
+      delete req.body.project;
     }
 
     Object.assign(property, req.body);

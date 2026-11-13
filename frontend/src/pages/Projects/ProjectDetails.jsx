@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import { formatIndianPrice, formatDate } from '../../utils/formatters';
+import PropertyCard from '../../components/common/PropertyCard';
 
 const ProjectDetailsPage = () => {
   const { slug } = useParams();
@@ -26,6 +27,16 @@ const ProjectDetailsPage = () => {
       return res.data?.data;
     },
   });
+
+  const { data: projectPropertiesResponse } = useQuery({
+    queryKey: ['project-properties', project?._id],
+    queryFn: async () => {
+      const res = await apiClient.get(`/properties?project=${project._id}`);
+      return res.data?.data || [];
+    },
+    enabled: Boolean(project?._id),
+  });
+  const projectProperties = projectPropertiesResponse || [];
 
   if (isLoading) {
     return <div className="py-24 text-center text-xs text-slate-400 font-serif">Curating development details...</div>;
@@ -118,6 +129,31 @@ const ProjectDetailsPage = () => {
                           {formatIndianPrice(cfg.price)}
                         </span>
                       </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Linked Properties (Resale / Rentals in this Project) */}
+              {projectProperties && projectProperties.length > 0 && (
+                <div className="bg-[#FFFFFF] border border-[#E9E4DA] p-8 shadow-card space-y-5">
+                  <div className="flex items-center justify-between border-b border-[#E9E4DA] pb-3">
+                    <div>
+                      <h2 className="font-serif text-2xl font-bold text-[#172C3B]">
+                        Active Units in this Project
+                      </h2>
+                      <p className="text-xs text-[#252525]/60 mt-0.5">
+                        Resale, owner, and agent listings located inside {project.name}
+                      </p>
+                    </div>
+                    <span className="text-xs bg-[#B89A65]/10 text-[#B89A65] font-semibold px-2.5 py-1 rounded-full border border-[#B89A65]/30">
+                      {projectProperties.length} Available
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {projectProperties.map((prop) => (
+                      <PropertyCard key={prop._id} property={prop} />
                     ))}
                   </div>
                 </div>

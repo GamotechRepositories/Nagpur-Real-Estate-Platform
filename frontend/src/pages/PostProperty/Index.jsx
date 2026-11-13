@@ -78,6 +78,7 @@ const PostPropertyPage = () => {
     facing: 'EAST',
     floor: 3,
     totalFloors: 8,
+    project: '',
     localityName: 'Dharampeth',
     address: '',
     pincode: '440010',
@@ -93,6 +94,35 @@ const PostPropertyPage = () => {
   });
 
   const [imageUrlInput, setImageUrlInput] = useState('');
+  const [projectsList, setProjectsList] = useState([]);
+
+  React.useEffect(() => {
+    apiClient
+      .get('/projects?limit=100')
+      .then((res) => {
+        if (res.data?.data) {
+          setProjectsList(res.data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleProjectSelect = (projectId) => {
+    if (!projectId) {
+      setFormData((prev) => ({ ...prev, project: '' }));
+      return;
+    }
+    const proj = projectsList.find((p) => p._id === projectId);
+    setFormData((prev) => ({
+      ...prev,
+      project: projectId,
+      localityName: proj?.localityName || prev.localityName,
+      pincode: proj?.pincode || prev.pincode,
+      address: prev.address ? prev.address : (proj ? `${proj.name}, ${proj.localityName}` : ''),
+      latitude: proj?.location?.coordinates?.[1] || prev.latitude,
+      longitude: proj?.location?.coordinates?.[0] || prev.longitude,
+    }));
+  };
 
   const updateField = (field, val) => {
     setFormData((prev) => ({ ...prev, [field]: val }));
@@ -193,6 +223,7 @@ const PostPropertyPage = () => {
     try {
       const payload = {
         ...formData,
+        project: formData.project || undefined,
         price: Number(formData.price),
         areaSqFt: Number(formData.areaSqFt),
         bedrooms: Number(formData.bedrooms) || 0,
@@ -595,6 +626,45 @@ const PostPropertyPage = () => {
                   </h2>
 
                   <div className="space-y-4">
+                    {/* Project / Township Selector */}
+                    <div className="bg-[#F7F4ED] p-4 rounded-xl border border-[#B89A65]/40 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-[#172C3B]">
+                          Builder Project / Township (Optional)
+                        </label>
+                        <span className="text-[10px] uppercase font-semibold text-[#B89A65] tracking-wide">
+                          Project Link
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-500">
+                        Is this flat, house, or plot part of a builder project (e.g., Godrej Forest Grove, Moraj WaterCube)? Select below to link RERA & project details.
+                      </p>
+                      <select
+                        value={formData.project}
+                        onChange={(e) => handleProjectSelect(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#B89A65]"
+                      >
+                        <option value="">None / Standalone Independent Property</option>
+                        {projectsList.map((proj) => (
+                          <option key={proj._id} value={proj._id}>
+                            {proj.name} — {proj.localityName} {proj.reraNumber ? `(RERA: ${proj.reraNumber})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                      {formData.project && (
+                        <div className="flex items-center gap-2 text-[11px] text-[#172C3B] bg-white/80 p-2 rounded border border-[#B89A65]/20 mt-1">
+                          <Building className="w-3.5 h-3.5 text-[#B89A65]" />
+                          <span>
+                            Linked to:{' '}
+                            <strong>
+                              {projectsList.find((p) => p._id === formData.project)?.name}
+                            </strong>{' '}
+                            ({projectsList.find((p) => p._id === formData.project)?.localityName})
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1">
                         Nagpur Locality <span className="text-red-500">*</span>
@@ -777,6 +847,15 @@ const PostPropertyPage = () => {
                       <span>•</span>
                       <span>{formData.possessionStatus?.replace(/_/g, ' ')}</span>
                     </div>
+
+                    {formData.project && (
+                      <div className="pt-2 border-t border-gray-200/60 flex items-center gap-1.5 text-xs text-[#B89A65] font-semibold">
+                        <Building className="w-3.5 h-3.5" />
+                        <span>
+                          Part of Project: {projectsList.find((p) => p._id === formData.project)?.name || 'Linked Project'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}

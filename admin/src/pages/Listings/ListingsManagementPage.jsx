@@ -218,6 +218,11 @@ export const ListingsManagementPage = () => {
                             <span>&bull;</span>
                             <span>{prop.subtype}</span>
                             {prop.bedrooms > 0 && <span>&bull; {prop.bedrooms} BHK</span>}
+                            {prop.project && (
+                              <span className="text-teal-700 font-semibold bg-teal-50 px-1 rounded border border-teal-200">
+                                {prop.project.name || 'Project'}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -405,6 +410,14 @@ export const ListingsManagementPage = () => {
             </div>
 
             <div className="space-y-2 text-xs">
+              {inspectProperty.project && (
+                <div>
+                  <span className="font-semibold text-slate-700">Project / Scheme: </span>
+                  <span className="text-teal-700 font-bold bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                    {inspectProperty.project.name || inspectProperty.project}
+                  </span>
+                </div>
+              )}
               <div>
                 <span className="font-semibold text-slate-700">Address: </span>
                 <span className="text-slate-600">{inspectProperty.address}, Nagpur - {inspectProperty.pincode}</span>

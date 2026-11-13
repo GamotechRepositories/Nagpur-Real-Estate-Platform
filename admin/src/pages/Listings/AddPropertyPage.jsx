@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import {
   Building2,
   AlertCircle,
@@ -35,11 +35,22 @@ export const AddPropertyPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  // Fetch available projects for dropdown
+  const { data: projectsResponse } = useQuery({
+    queryKey: ['admin-projects-dropdown'],
+    queryFn: async () => {
+      const res = await apiClient.get('/projects?limit=100');
+      return res.data?.data || [];
+    },
+  });
+  const projectsList = projectsResponse || [];
+
   const [formData, setFormData] = useState({
     title: '',
     purpose: 'BUY',
     category: 'RESIDENTIAL',
     subtype: 'FLAT',
+    project: '',
     description: '',
     price: '',
     priceNegotiable: false,
@@ -96,6 +107,7 @@ export const AddPropertyPage = () => {
       purpose: formData.purpose,
       category: formData.category,
       subtype: formData.subtype,
+      project: formData.project || undefined,
       description: formData.description.trim(),
       price: Number(formData.price),
       priceUnit: 'Total',
@@ -359,6 +371,41 @@ export const AddPropertyPage = () => {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Belongs to a Builder Project? (Optional)
+              </label>
+              <select
+                name="project"
+                value={formData.project}
+                onChange={(e) => {
+                  const projId = e.target.value;
+                  const selProj = projectsList.find((p) => p._id === projId);
+                  setFormData((prev) => ({
+                    ...prev,
+                    project: projId,
+                    localityName: selProj?.localityName || prev.localityName,
+                    pincode: selProj?.pincode || prev.pincode,
+                    reraNumber: prev.reraNumber || selProj?.reraNumber || '',
+                    address: prev.address || (selProj ? `${selProj.name}, ${selProj.localityName}` : ''),
+                  }));
+                }}
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 bg-white"
+              >
+                <option value="">None / Standalone Independent Property</option>
+                {projectsList.map((proj) => (
+                  <option key={proj._id} value={proj._id}>
+                    {proj.name} — {proj.localityName} {proj.reraNumber ? `(RERA: ${proj.reraNumber})` : ''}
+                  </option>
+                ))}
+              </select>
+              {formData.project && (
+                <div className="text-[11px] text-teal-700 font-medium mt-1">
+                  ✓ Linked to project: {projectsList.find((p) => p._id === formData.project)?.name}
+                </div>
+              )}
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Locality *

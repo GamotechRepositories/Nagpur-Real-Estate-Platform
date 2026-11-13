@@ -274,6 +274,42 @@ const PropertyDetailsPage = () => {
               {/* Tab Content 1: Overview & Property Description */}
               {(activeTab === 'Overview' || activeTab === 'Specifications') && (
                 <div className="bg-white rounded-xl border border-[#E9E4DA] p-6 shadow-sm space-y-6">
+                  {/* Linked Project Card */}
+                  {property.project && (
+                    <div className="bg-[#F7F4ED] border border-[#B89A65]/40 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#172C3B] text-white rounded">
+                            Part of Project
+                          </span>
+                          {property.project.projectStatus && (
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-teal-50 text-teal-700 border border-teal-200 rounded">
+                              {property.project.projectStatus.replace(/_/g, ' ')}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-serif text-lg font-bold text-[#172C3B]">
+                          {property.project.name}
+                        </h4>
+                        <p className="text-xs text-gray-600 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-[#B89A65]" />
+                          <span>{property.project.localityName || property.localityName}, Nagpur</span>
+                          {property.project.reraNumber && (
+                            <span className="ml-2 text-gray-400">• RERA: {property.project.reraNumber}</span>
+                          )}
+                        </p>
+                      </div>
+                      {property.project.slug && (
+                        <Link
+                          to={`/projects/${property.project.slug}`}
+                          className="px-4 py-2 bg-[#B89A65] hover:bg-[#A38753] text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shadow-xs"
+                        >
+                          View Full Project &rarr;
+                        </Link>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <h3 className="font-serif text-xl font-bold text-[#172C3B] mb-3">
                       Property Description
