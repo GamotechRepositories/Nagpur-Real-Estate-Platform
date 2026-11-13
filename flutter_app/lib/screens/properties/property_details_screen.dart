@@ -67,14 +67,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        backgroundColor: AppColors.ivory,
-        body: Center(child: CircularProgressIndicator(color: AppColors.gold)),
+        backgroundColor: AppColors.mainBackground,
+        body: Center(child: CircularProgressIndicator(color: AppColors.primaryGreen)),
       );
     }
 
     if (_property == null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(backgroundColor: AppColors.primaryGreen),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -83,11 +83,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               const SizedBox(height: 12),
               Text(
                 'Property Not Found',
-                style: GoogleFonts.playfairDisplay(fontSize: 20, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen),
                 child: const Text('Back to Listings'),
               ),
             ],
@@ -103,17 +104,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final allImages = prop.images.isNotEmpty ? prop.images.map((i) => i.url).toList() : [prop.coverImage];
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           prop.localityName,
-          style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: [
           IconButton(
             icon: Icon(
               isSaved ? Icons.favorite : Icons.favorite_border,
-              color: isSaved ? Colors.red : Colors.white,
+              color: isSaved ? AppColors.errorRed : Colors.white,
             ),
             onPressed: () {
               if (!auth.isAuthenticated) {
@@ -141,7 +144,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       return CachedNetworkImage(
                         imageUrl: allImages[index],
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(color: AppColors.ivoryDark),
+                        placeholder: (context, url) => Container(color: AppColors.lightGrey),
                       );
                     },
                   ),
@@ -176,19 +179,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       if (prop.isFeatured)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(4)),
-                          child: Text('FEATURED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                          decoration: BoxDecoration(color: AppColors.primaryGreen, borderRadius: BorderRadius.circular(4)),
+                          child: Text('FEATURED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.3)),
                         ),
                       if (prop.isVerified) ...[
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: AppColors.verifiedGreen, borderRadius: BorderRadius.circular(4)),
+                          decoration: BoxDecoration(color: AppColors.lightGreen, borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3))),
                           child: Row(
                             children: [
-                              const Icon(Icons.verified, size: 12, color: Colors.white),
+                              const Icon(Icons.verified, size: 12, color: AppColors.primaryGreen),
                               const SizedBox(width: 4),
-                              Text('MAHARERA VERIFIED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                              Text('MAHARERA VERIFIED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.darkGreen, letterSpacing: 0.3)),
                             ],
                           ),
                         ),
@@ -200,10 +203,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   // Title
                   Text(
                     prop.title,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 22,
+                    style: GoogleFonts.inter(
+                      fontSize: 19,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navy,
+                      color: AppColors.primaryText,
                       height: 1.25,
                     ),
                   ),
@@ -212,25 +215,32 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   // Locality
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 16, color: AppColors.charcoalMuted),
+                      const Icon(Icons.location_on_outlined, size: 16, color: AppColors.primaryGreen),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           '${prop.address.isNotEmpty ? '${prop.address}, ' : ''}${prop.localityName}, Nagpur - ${prop.pincode}',
-                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted),
+                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
 
-                  // Price & EMI Box
+                  // Price & EMI Box (Zameen Style)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.beige),
+                      border: Border.all(color: AppColors.borderGrey),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,12 +250,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           children: [
                             Text(
                               Formatters.formatIndianPrice(prop.price, priceUnit: prop.purpose),
-                              style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy),
+                              style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
                             ),
                             if (prop.purpose != 'RENT')
                               Text(
                                 'Est. EMI: ${Formatters.calculateEstimateEmi(prop.price)}',
-                                style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                                style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                               ),
                           ],
                         ),
@@ -257,10 +267,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 MaterialPageRoute(builder: (_) => const EmiCalculatorScreen()),
                               );
                             },
-                            icon: const Icon(Icons.calculate_outlined, size: 16, color: AppColors.gold),
+                            icon: const Icon(Icons.calculate_outlined, size: 16, color: AppColors.primaryGreen),
                             label: Text(
                               'EMI Calculator',
-                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.goldDark),
+                              style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
                             ),
                           ),
                       ],
@@ -271,7 +281,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   // Key Specifications Grid
                   Text(
                     'Property Specifications',
-                    style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy),
+                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                   ),
                   const SizedBox(height: 10),
                   GridView.count(
@@ -298,7 +308,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   if (prop.description.isNotEmpty) ...[
                     Text(
                       'Overview & Description',
-                      style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy),
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -306,11 +316,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.beige),
+                        border: Border.all(color: AppColors.borderGrey),
                       ),
                       child: Text(
                         prop.description,
-                        style: GoogleFonts.inter(fontSize: 13, color: AppColors.charcoal, height: 1.5),
+                        style: GoogleFonts.inter(fontSize: 13, color: AppColors.primaryText, height: 1.5),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -320,7 +330,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   if (prop.amenities.isNotEmpty) ...[
                     Text(
                       'Amenities & Features',
-                      style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy),
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                     ),
                     const SizedBox(height: 10),
                     Wrap(
@@ -330,16 +340,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.lightGreen,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.beige),
+                            border: Border.all(color: AppColors.primaryGreen.withOpacity(0.25)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.check_circle, size: 14, color: AppColors.gold),
+                              const Icon(Icons.check_circle, size: 14, color: AppColors.primaryGreen),
                               const SizedBox(width: 6),
-                              Text(amenity, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500)),
+                              Text(amenity, style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w500, color: AppColors.primaryText)),
                             ],
                           ),
                         );
@@ -354,7 +364,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.beige),
+                      border: Border.all(color: AppColors.borderGrey),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -362,12 +379,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor: AppColors.ivoryDark,
+                              backgroundColor: AppColors.lightGreen,
                               backgroundImage: prop.assignedAgent?.avatar != null
                                   ? CachedNetworkImageProvider(prop.assignedAgent!.avatar!)
                                   : null,
                               child: prop.assignedAgent?.avatar == null
-                                  ? const Icon(Icons.person, color: AppColors.navy)
+                                  ? const Icon(Icons.person, color: AppColors.primaryGreen)
                                   : null,
                             ),
                             const SizedBox(width: 12),
@@ -377,11 +394,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 children: [
                                   Text(
                                     prop.assignedAgent?.name ?? prop.owner?.name ?? 'Nagpur Advisor',
-                                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy),
+                                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                                   ),
                                   Text(
                                     'Verified Nagpur Marketplace Representative',
-                                    style: GoogleFonts.inter(fontSize: 10, color: AppColors.charcoalMuted),
+                                    style: GoogleFonts.inter(fontSize: 10.5, color: AppColors.secondaryText),
                                   ),
                                 ],
                               ),
@@ -399,11 +416,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     builder: (_) => SiteVisitDialog(property: prop),
                                   );
                                 },
-                                icon: const Icon(Icons.calendar_month, size: 16),
-                                label: const Text('Book Site Visit', style: TextStyle(fontSize: 12)),
+                                icon: const Icon(Icons.calendar_month, size: 16, color: AppColors.primaryGreen),
+                                label: Text('Book Site Visit', style: GoogleFonts.inter(fontSize: 12, color: AppColors.primaryGreen, fontWeight: FontWeight.bold)),
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 10),
-                                  side: const BorderSide(color: AppColors.navy),
+                                  side: const BorderSide(color: AppColors.primaryGreen),
                                 ),
                               ),
                             ),
@@ -417,11 +434,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                   );
                                 },
                                 icon: const Icon(Icons.send_outlined, size: 16),
-                                label: const Text('Enquire', style: TextStyle(fontSize: 12)),
+                                label: Text('Enquire', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.gold,
+                                  backgroundColor: AppColors.primaryGreen,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(vertical: 10),
+                                  elevation: 0,
                                 ),
                               ),
                             ),
@@ -436,7 +454,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   if (_similarProperties.isNotEmpty) ...[
                     Text(
                       'Similar Properties in ${prop.localityName}',
-                      style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+                      style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                     ),
                     const SizedBox(height: 14),
                     SizedBox(
@@ -468,7 +486,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: const Border(top: BorderSide(color: AppColors.beige)),
+          border: const Border(top: BorderSide(color: AppColors.borderGrey)),
           boxShadow: [
             BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, -3)),
           ],
@@ -478,9 +496,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             children: [
               IconButton(
                 onPressed: () => _makeCall(agentPhone),
-                icon: const Icon(Icons.phone, color: AppColors.navy),
+                icon: const Icon(Icons.phone, color: AppColors.primaryText),
                 style: IconButton.styleFrom(
-                  backgroundColor: AppColors.ivoryDark,
+                  backgroundColor: AppColors.lightGrey,
                   padding: const EdgeInsets.all(12),
                 ),
               ),
@@ -489,7 +507,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 onPressed: () => _openWhatsApp(agentPhone, prop.title, prop.localityName),
                 icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
                 style: IconButton.styleFrom(
-                  backgroundColor: AppColors.verifiedGreen,
+                  backgroundColor: AppColors.whatsappGreen,
                   padding: const EdgeInsets.all(12),
                 ),
               ),
@@ -503,8 +521,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navy,
+                    backgroundColor: AppColors.primaryGreen,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    elevation: 0,
                   ),
                   child: Text(
                     'Enquire Concerning Asset',
@@ -525,23 +545,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.beige),
+        border: Border.all(color: AppColors.borderGrey),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: AppColors.gold),
+          Icon(icon, size: 18, color: AppColors.primaryGreen),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(label, style: GoogleFonts.inter(fontSize: 10, color: AppColors.charcoalMuted)),
+                Text(label, style: GoogleFonts.inter(fontSize: 10, color: AppColors.secondaryText)),
                 Text(
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.charcoal),
+                  style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                 ),
               ],
             ),
@@ -551,4 +571,3 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 }
-

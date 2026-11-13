@@ -49,11 +49,13 @@ class _AreaConverterScreenState extends State<AreaConverterScreen> {
     final result = _calculateConverted();
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Area Unit Converter',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -66,25 +68,47 @@ class _AreaConverterScreenState extends State<AreaConverterScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.beige),
+                border: Border.all(color: AppColors.borderGrey),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Enter Measurement', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('Enter Measurement', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _inputController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryText),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.lightGrey,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.borderGrey)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.borderGrey)),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5)),
+                    ),
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
 
-                  Text('From Unit', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('From Unit', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     value: _fromUnit,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.lightGrey,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.borderGrey)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.borderGrey)),
+                    ),
                     items: kUnitLabels.entries
                         .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: const TextStyle(fontSize: 13))))
                         .toList(),
@@ -95,23 +119,36 @@ class _AreaConverterScreenState extends State<AreaConverterScreen> {
                   const SizedBox(height: 14),
 
                   Center(
-                    child: IconButton(
-                      icon: const Icon(Icons.swap_vert, color: AppColors.gold, size: 28),
-                      onPressed: () {
-                        setState(() {
-                          final temp = _fromUnit;
-                          _fromUnit = _toUnit;
-                          _toUnit = temp;
-                        });
-                      },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: AppColors.lightGreen,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.swap_vert, color: AppColors.primaryGreen, size: 26),
+                        onPressed: () {
+                          setState(() {
+                            final temp = _fromUnit;
+                            _fromUnit = _toUnit;
+                            _toUnit = temp;
+                          });
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
 
-                  Text('To Unit', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('To Unit', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     value: _toUnit,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.lightGrey,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.borderGrey)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.borderGrey)),
+                    ),
                     items: kUnitLabels.entries
                         .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: const TextStyle(fontSize: 13))))
                         .toList(),
@@ -124,29 +161,30 @@ class _AreaConverterScreenState extends State<AreaConverterScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Conversion Result Box
+            // Conversion Result Box (Zameen Style)
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.navyDark,
+                color: AppColors.lightGreen,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
               ),
               child: Column(
                 children: [
                   Text(
                     'Equivalent Area',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkGreen),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '${result.toStringAsFixed(3)} ${kUnitLabels[_toUnit]?.split('(').first.trim()}',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.goldLight),
+                    style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     '1 Guntha in Nagpur = 1,089 Sq.Ft (33 ft × 33 ft)',
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.white54),
+                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                   ),
                 ],
               ),
@@ -157,4 +195,3 @@ class _AreaConverterScreenState extends State<AreaConverterScreen> {
     );
   }
 }
-

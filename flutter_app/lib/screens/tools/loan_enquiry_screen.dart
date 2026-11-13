@@ -87,8 +87,12 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
   Widget build(BuildContext context) {
     if (_success) {
       return Scaffold(
-        backgroundColor: AppColors.ivory,
-        appBar: AppBar(title: const Text('Application Submitted')),
+        backgroundColor: AppColors.mainBackground,
+        appBar: AppBar(
+          backgroundColor: AppColors.primaryGreen,
+          elevation: 0,
+          title: const Text('Application Submitted', style: TextStyle(color: Colors.white)),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -97,26 +101,38 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.beige),
+                border: Border.all(color: AppColors.borderGrey),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle, color: AppColors.verifiedGreen, size: 52),
+                  const Icon(Icons.check_circle, color: AppColors.primaryGreen, size: 54),
                   const SizedBox(height: 14),
                   Text(
                     'Mortgage Enquiry Received',
-                    style: GoogleFonts.playfairDisplay(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+                    style: GoogleFonts.inter(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Our banking advisory desk will review your borrowing eligibility and contact you with preferential quotes from SBI, HDFC, and ICICI Bank.',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted, height: 1.4),
+                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText, height: 1.4),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
                     child: const Text('Return to Tools'),
                   ),
                 ],
@@ -128,11 +144,13 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Institutional Loan Enquiry',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -142,19 +160,26 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.beige),
+            border: Border.all(color: AppColors.borderGrey),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 'Pre-Approval & Preferential Rates',
-                style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+                style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.primaryText),
               ),
               const SizedBox(height: 4),
               Text(
                 'Connect with leading PSU and private bank mortgage executives in Nagpur',
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                style: GoogleFonts.inter(fontSize: 11.5, color: AppColors.secondaryText),
               ),
               const SizedBox(height: 16),
 
@@ -167,25 +192,42 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
                 const SizedBox(height: 12),
               ],
 
-              Text('Applicant Name', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('Applicant Name', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
               const SizedBox(height: 4),
-              TextField(controller: _nameController, decoration: const InputDecoration(hintText: 'e.g. Ramesh Sharma')),
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Ramesh Sharma',
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                ),
+              ),
               const SizedBox(height: 12),
 
-              Text('Mobile Number (10 digits)', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('Mobile Number (10 digits)', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
               const SizedBox(height: 4),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
-                decoration: const InputDecoration(prefixText: '+91  ', hintText: '9823000000', counterText: ''),
+                decoration: const InputDecoration(
+                  prefixText: '+91  ',
+                  hintText: '9823000000',
+                  counterText: '',
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                ),
               ),
               const SizedBox(height: 12),
 
-              Text('Employment Type', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('Employment Type', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _employmentType,
+                decoration: const InputDecoration(
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                ),
                 items: const [
                   DropdownMenuItem(value: 'SALARIED', child: Text('Salaried Professional')),
                   DropdownMenuItem(value: 'SELF_EMPLOYED', child: Text('Self-Employed / Business')),
@@ -194,25 +236,41 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
               ),
               const SizedBox(height: 12),
 
-              Text('Monthly Net Income (₹)', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('Monthly Net Income (₹)', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
               const SizedBox(height: 4),
-              TextField(controller: _incomeController, keyboardType: TextInputType.number),
+              TextField(
+                controller: _incomeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                ),
+              ),
               const SizedBox(height: 12),
 
-              Text('Loan Amount Required (₹)', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('Loan Amount Required (₹)', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
               const SizedBox(height: 4),
-              TextField(controller: _loanRequiredController, keyboardType: TextInputType.number),
+              TextField(
+                controller: _loanRequiredController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                ),
+              ),
               const SizedBox(height: 20),
 
               ElevatedButton(
                 onPressed: _loading ? null : _submitLoanEnquiry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.navy,
+                  backgroundColor: AppColors.primaryGreen,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 0,
                 ),
                 child: _loading
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Submit Mortgage Application'),
+                    : Text('Submit Mortgage Application', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5)),
               ),
             ],
           ),
@@ -221,4 +279,3 @@ class _LoanEnquiryScreenState extends State<LoanEnquiryScreen> {
     );
   }
 }
-

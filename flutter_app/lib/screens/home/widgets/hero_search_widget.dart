@@ -79,13 +79,13 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
     final activeTab = propProv.activeTab;
 
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.navyDark,
-        image: const DecorationImage(
+      decoration: const BoxDecoration(
+        color: AppColors.primaryText,
+        image: DecorationImage(
           image: AssetImage('assets/images/hero-mobile.jpg'),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
-            Color(0xCC0F1E28),
+            Color(0xBA141E18),
             BlendMode.darken,
           ),
         ),
@@ -97,34 +97,34 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
           // Subtitle Badge
           Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.gold.withOpacity(0.18),
+                color: AppColors.primaryGreen.withOpacity(0.22),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.gold.withOpacity(0.4)),
+                border: Border.all(color: AppColors.primaryGreen.withOpacity(0.5)),
               ),
               child: Text(
                 'NAGPUR REAL ESTATE MARKETPLACE',
                 style: GoogleFonts.inter(
                   fontSize: 9.5,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.goldLight,
-                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.lightGreen,
+                  letterSpacing: 1.1,
                 ),
               ),
             ),
           ),
           const SizedBox(height: 12),
 
-          // Main Headline
+          // Main Headline (Clean Sans-Serif Modern Zameen Style)
           Text(
             'Find Your Next Address in Nagpur',
             textAlign: TextAlign.center,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.inter(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
               color: Colors.white,
-              height: 1.2,
+              height: 1.25,
             ),
           ),
           const SizedBox(height: 8),
@@ -134,21 +134,21 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: Colors.white70,
+              color: Colors.white.withOpacity(0.85),
               height: 1.4,
             ),
           ),
           const SizedBox(height: 20),
 
-          // Search Box Container
+          // Zameen-Style Floating Search Panel
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.18),
-                  blurRadius: 20,
+                  color: Colors.black.withOpacity(0.16),
+                  blurRadius: 22,
                   offset: const Offset(0, 8),
                 ),
               ],
@@ -156,11 +156,12 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Tabs: Buy / Rent / Plots / Commercial
+                // Tabs: Buy / Rent / Plots / Commercial (Green active tab, grey inactive)
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.ivoryDark,
+                    color: AppColors.lightGrey,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.borderGrey),
                   ),
                   padding: const EdgeInsets.all(3),
                   child: Row(
@@ -232,26 +233,27 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
                 ),
                 const SizedBox(height: 14),
 
-                // Search Action Button
+                // Zameen-Style Vibrant Green Search Action Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _onSearchPressed,
-                    icon: const Icon(Icons.search, size: 18),
+                    icon: const Icon(Icons.search, size: 20),
                     label: Text(
                       'Search Properties',
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 14.5,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.navy,
+                      backgroundColor: AppColors.primaryGreen,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      elevation: 0,
                     ),
                   ),
                 ),
@@ -271,7 +273,7 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.navy : Colors.transparent,
+            color: isSelected ? AppColors.primaryGreen : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Center(
@@ -280,7 +282,7 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.charcoal,
+                color: isSelected ? Colors.white : AppColors.secondaryText,
               ),
             ),
           ),
@@ -298,13 +300,13 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.ivoryLight,
+        color: AppColors.lightGrey,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.beige),
+        border: Border.all(color: AppColors.borderGrey),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: AppColors.gold),
+          Icon(icon, size: 18, color: AppColors.primaryGreen),
           const SizedBox(width: 8),
           Expanded(
             child: DropdownButtonHideUnderline(
@@ -315,7 +317,7 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
                 onChanged: onChanged,
                 style: GoogleFonts.inter(
                   fontSize: 12.5,
-                  color: AppColors.charcoal,
+                  color: AppColors.primaryText,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -326,4 +328,3 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
     );
   }
 }
-

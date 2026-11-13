@@ -3,38 +3,44 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Navy Palette
-  static const Color navy = Color(0xFF172C3B);
-  static const Color navyLight = Color(0xFF223D52);
-  static const Color navyDark = Color(0xFF0F1E28);
-  static const Color navyDeep = Color(0xFF0B171F);
-
-  // Ivory Palette (Backgrounds)
-  static const Color ivory = Color(0xFFF7F4ED);
-  static const Color ivoryLight = Color(0xFFFAF8F3);
-  static const Color ivoryDark = Color(0xFFEFECE3);
-
-  // Gold Palette (Accents & Highlights)
-  static const Color gold = Color(0xFFB89A65);
-  static const Color goldLight = Color(0xFFCBB285);
-  static const Color goldDark = Color(0xFF9A7D4C);
-  static const Color goldSubtle = Color(0xFFEAE1CE);
-
-  // Charcoal & Neutrals
-  static const Color charcoal = Color(0xFF252525);
-  static const Color charcoalLight = Color(0xFF404040);
-  static const Color charcoalMuted = Color(0xFF6B7280);
-
-  // Beige (Borders & Dividers)
-  static const Color beige = Color(0xFFE9E4DA);
-  static const Color beigeLight = Color(0xFFF3EFE7);
-  static const Color beigeDark = Color(0xFFDCD5C8);
+  // Zameen-Inspired Green and White Theme
+  static const Color primaryGreen = Color(0xFF079B5A);
+  static const Color darkGreen = Color(0xFF087C4A);
+  static const Color lightGreen = Color(0xFFE8F5ED);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color mainBackground = Color(0xFFFFFFFF);
+  static const Color lightGrey = Color(0xFFF7F7F7);
+  static const Color borderGrey = Color(0xFFE6E6E6);
+  static const Color primaryText = Color(0xFF242424);
+  static const Color secondaryText = Color(0xFF858585);
+  static const Color mutedText = Color(0xFFA0A0A0);
 
   // Functional Colors
-  static const Color verifiedGreen = Color(0xFF16A34A);
-  static const Color whatsappGreen = Color(0xFF16A34A);
+  static const Color verifiedGreen = Color(0xFF079B5A);
+  static const Color whatsappGreen = Color(0xFF25D366);
   static const Color errorRed = Color(0xFFDC2626);
-  static const Color white = Colors.white;
-  static const Color black = Colors.black;
-}
+  static const Color black = Color(0xFF000000);
 
+  // Aliases for smooth migration & backward compatibility
+  static const Color navy = primaryText;
+  static const Color navyLight = secondaryText;
+  static const Color navyDark = primaryGreen;
+  static const Color navyDeep = darkGreen;
+
+  static const Color ivory = mainBackground;
+  static const Color ivoryLight = lightGrey;
+  static const Color ivoryDark = lightGrey;
+
+  static const Color gold = primaryGreen;
+  static const Color goldLight = lightGreen;
+  static const Color goldDark = darkGreen;
+  static const Color goldSubtle = lightGreen;
+
+  static const Color charcoal = primaryText;
+  static const Color charcoalLight = secondaryText;
+  static const Color charcoalMuted = secondaryText;
+
+  static const Color beige = borderGrey;
+  static const Color beigeLight = lightGrey;
+  static const Color beigeDark = borderGrey;
+}

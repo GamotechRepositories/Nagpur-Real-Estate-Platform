@@ -38,11 +38,13 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Home Loan EMI Calculator',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -50,13 +52,20 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Calculator Card
+            // Calculator Input Card
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.beige),
+                border: Border.all(color: AppColors.borderGrey),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,8 +74,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Property Price', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
-                      Text(_inrFormat.format(_price), style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                      Text('Property Price', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
+                      Text(_inrFormat.format(_price), style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryGreen)),
                     ],
                   ),
                   Slider(
@@ -74,7 +83,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                     min: 1000000,
                     max: 50000000,
                     divisions: 98,
-                    activeColor: AppColors.gold,
+                    activeColor: AppColors.primaryGreen,
+                    inactiveColor: AppColors.borderGrey,
                     onChanged: (val) {
                       setState(() {
                         _price = val;
@@ -88,8 +98,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Down Payment', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
-                      Text(_inrFormat.format(_downPayment), style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                      Text('Down Payment', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
+                      Text(_inrFormat.format(_downPayment), style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryText)),
                     ],
                   ),
                   Slider(
@@ -97,7 +107,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                     min: 0,
                     max: _price,
                     divisions: 50,
-                    activeColor: AppColors.navyLight,
+                    activeColor: AppColors.darkGreen,
+                    inactiveColor: AppColors.borderGrey,
                     onChanged: (val) => setState(() => _downPayment = val),
                   ),
                   const SizedBox(height: 12),
@@ -106,8 +117,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Interest Rate (p.a.)', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
-                      Text('${_interestRate.toStringAsFixed(1)} %', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                      Text('Interest Rate (p.a.)', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
+                      Text('${_interestRate.toStringAsFixed(1)} %', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryText)),
                     ],
                   ),
                   Slider(
@@ -115,7 +126,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                     min: 6.0,
                     max: 15.0,
                     divisions: 18,
-                    activeColor: AppColors.navy,
+                    activeColor: AppColors.primaryGreen,
+                    inactiveColor: AppColors.borderGrey,
                     onChanged: (val) => setState(() => _interestRate = val),
                   ),
                   const SizedBox(height: 12),
@@ -124,8 +136,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Loan Tenure', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
-                      Text('${_tenureYears.toInt()} Years', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                      Text('Loan Tenure', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.secondaryText)),
+                      Text('${_tenureYears.toInt()} Years', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryText)),
                     ],
                   ),
                   Slider(
@@ -133,7 +145,8 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                     min: 5,
                     max: 30,
                     divisions: 25,
-                    activeColor: AppColors.goldDark,
+                    activeColor: AppColors.darkGreen,
+                    inactiveColor: AppColors.borderGrey,
                     onChanged: (val) => setState(() => _tenureYears = val),
                   ),
                 ],
@@ -141,26 +154,27 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Results Card
+            // Results Card (Zameen Style Light Green Accent Box)
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.navyDark,
+                color: AppColors.lightGreen,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
               ),
               child: Column(
                 children: [
                   Text(
                     'Monthly Payment (EMI)',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkGreen),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _inrFormat.format(emi),
-                    style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.goldLight),
+                    style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
                   ),
                   const SizedBox(height: 16),
-                  const Divider(color: Colors.white12),
+                  const Divider(color: AppColors.borderGrey),
                   const SizedBox(height: 12),
 
                   _buildResultRow('Principal Loan Amount', _inrFormat.format(loanAmount)),
@@ -181,11 +195,13 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                   MaterialPageRoute(builder: (_) => const LoanEnquiryScreen()),
                 );
               },
-              icon: const Icon(Icons.account_balance),
-              label: const Text('Apply for Preferential Mortgage Rates'),
+              icon: const Icon(Icons.account_balance, size: 18),
+              label: Text('Apply for Preferential Mortgage Rates', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.navy,
+                backgroundColor: AppColors.primaryGreen,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
+                elevation: 0,
               ),
             ),
           ],
@@ -198,10 +214,9 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 12, color: Colors.white70)),
-        Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+        Text(label, style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText)),
+        Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryText)),
       ],
     );
   }
 }
-

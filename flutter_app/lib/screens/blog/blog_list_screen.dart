@@ -40,11 +40,13 @@ class BlogListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Real Estate Insights & News',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: ListView.builder(
@@ -71,7 +73,14 @@ class BlogListScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.beige),
+                border: Border.all(color: AppColors.borderGrey),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -95,27 +104,27 @@ class BlogListScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppColors.gold.withOpacity(0.15),
+                                color: AppColors.lightGreen,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 art['tag']!,
-                                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.goldDark),
+                                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
                               ),
                             ),
                             Text(
                               '${art['date']} • ${art['readTime']}',
-                              style: GoogleFonts.inter(fontSize: 10, color: AppColors.charcoalMuted),
+                              style: GoogleFonts.inter(fontSize: 10.5, color: AppColors.secondaryText),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           art['title']!,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 16,
+                          style: GoogleFonts.inter(
+                            fontSize: 15.5,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.navy,
+                            color: AppColors.primaryText,
                             height: 1.3,
                           ),
                         ),
@@ -124,7 +133,7 @@ class BlogListScreen extends StatelessWidget {
                           art['summary']!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted, height: 1.4),
+                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText, height: 1.4),
                         ),
                       ],
                     ),
@@ -138,4 +147,3 @@ class BlogListScreen extends StatelessWidget {
     );
   }
 }
-

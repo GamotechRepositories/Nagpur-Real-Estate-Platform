@@ -15,15 +15,17 @@ class ProjectsListScreen extends StatelessWidget {
     final projects = prov.projects;
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'New & Ongoing Projects',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: projects.isEmpty
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: projects.length,
@@ -43,10 +45,10 @@ class ProjectsListScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.beige),
+                      border: Border.all(color: AppColors.borderGrey, width: 1),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.navy.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -71,12 +73,12 @@ class ProjectsListScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.navy,
+                                  color: AppColors.primaryGreen,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   proj.projectStatus,
-                                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.3),
                                 ),
                               ),
                             ),
@@ -86,16 +88,16 @@ class ProjectsListScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withOpacity(0.92),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.verified, size: 12, color: AppColors.verifiedGreen),
+                                    const Icon(Icons.verified, size: 12, color: AppColors.primaryGreen),
                                     const SizedBox(width: 4),
                                     Text(
                                       proj.reraNumber,
-                                      style: GoogleFonts.inter(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppColors.charcoal),
+                                      style: GoogleFonts.inter(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                                     ),
                                   ],
                                 ),
@@ -113,23 +115,23 @@ class ProjectsListScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     proj.priceStarting,
-                                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.goldDark),
+                                    style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
                                   ),
                                   Text(
                                     proj.configurationsText,
-                                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.charcoal),
+                                    style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 proj.name,
-                                style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy),
+                                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 'By ${proj.builderName} • ${proj.localityName}, Nagpur',
-                                style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted),
+                                style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText),
                               ),
                             ],
                           ),

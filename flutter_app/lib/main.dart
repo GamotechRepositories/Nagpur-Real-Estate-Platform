@@ -20,7 +20,7 @@ import 'screens/post_property/post_property_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set system UI overlay style matching dark navy header
+  // Set system UI overlay style matching primary green header
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

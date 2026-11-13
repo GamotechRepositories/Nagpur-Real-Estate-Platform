@@ -15,15 +15,17 @@ class AgentsListScreen extends StatelessWidget {
     final agents = prov.agents;
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Verified Agents Directory',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: agents.isEmpty
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: agents.length,
@@ -35,10 +37,10 @@ class AgentsListScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.beige),
+                    border: Border.all(color: AppColors.borderGrey),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.navy.withOpacity(0.04),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -51,6 +53,7 @@ class AgentsListScreen extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 28,
+                            backgroundColor: AppColors.lightGreen,
                             backgroundImage: CachedNetworkImageProvider(agent.avatar),
                           ),
                           const SizedBox(width: 14),
@@ -63,19 +66,20 @@ class AgentsListScreen extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         agent.name,
-                                        style: GoogleFonts.playfairDisplay(
-                                          fontSize: 16,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.navy,
+                                          color: AppColors.primaryText,
                                         ),
                                       ),
                                     ),
-                                    const Icon(Icons.verified, size: 16, color: AppColors.verifiedGreen),
+                                    const Icon(Icons.verified, size: 16, color: AppColors.primaryGreen),
                                   ],
                                 ),
+                                const SizedBox(height: 2),
                                 Text(
                                   agent.agency,
-                                  style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                                  style: GoogleFonts.inter(fontSize: 11.5, color: AppColors.secondaryText),
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
@@ -84,19 +88,19 @@ class AgentsListScreen extends StatelessWidget {
                                     const SizedBox(width: 3),
                                     Text(
                                       '${agent.rating} (${agent.reviewsCount} reviews)',
-                                      style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold),
+                                      style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
                                       '• ${agent.experience}',
-                                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   agent.specialization,
-                                  style: GoogleFonts.inter(fontSize: 11, color: AppColors.goldDark, fontWeight: FontWeight.w500),
+                                  style: GoogleFonts.inter(fontSize: 11, color: AppColors.primaryGreen, fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -104,17 +108,18 @@ class AgentsListScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 14),
-                      const Divider(height: 1, color: AppColors.beige),
+                      const Divider(height: 1, color: AppColors.borderGrey),
                       const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () => launchUrl(Uri.parse('tel:+91${agent.phone}')),
-                              icon: const Icon(Icons.phone, size: 16),
-                              label: const Text('Call Agent'),
+                              icon: const Icon(Icons.phone, size: 15, color: AppColors.primaryText),
+                              label: const Text('Call Agent', style: TextStyle(color: AppColors.primaryText, fontSize: 12)),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 10),
+                                side: const BorderSide(color: AppColors.borderGrey),
                               ),
                             ),
                           ),
@@ -122,19 +127,16 @@ class AgentsListScreen extends StatelessWidget {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                final text = Uri.encodeComponent(
-                                  'Hello ${agent.name}, I am looking for property options in Nagpur.',
-                                );
-                                launchUrl(
-                                  Uri.parse('https://wa.me/91${agent.phone}?text=$text'),
-                                  mode: LaunchMode.externalApplication,
-                                );
+                                final text = Uri.encodeComponent('Hello ${agent.name}, I am reaching out from Nagpur Realty.');
+                                launchUrl(Uri.parse('https://wa.me/91${agent.phone}?text=$text'), mode: LaunchMode.externalApplication);
                               },
-                              icon: const Icon(Icons.chat_bubble_outline, size: 16),
-                              label: const Text('WhatsApp'),
+                              icon: const Icon(Icons.chat_bubble_outline, size: 15),
+                              label: const Text('WhatsApp', style: TextStyle(fontSize: 12)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.verifiedGreen,
+                                backgroundColor: AppColors.whatsappGreen,
+                                foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 10),
+                                elevation: 0,
                               ),
                             ),
                           ),

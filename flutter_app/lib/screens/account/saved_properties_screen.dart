@@ -39,15 +39,17 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Curated Wishlist',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
           : _savedList.isEmpty
               ? Center(
                   child: Padding(
@@ -56,24 +58,24 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 60,
-                          height: 60,
+                          width: 64,
+                          height: 64,
                           decoration: const BoxDecoration(
-                            color: AppColors.ivoryDark,
+                            color: AppColors.lightGreen,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.favorite_border, color: AppColors.gold, size: 30),
+                          child: const Icon(Icons.favorite_border, color: AppColors.primaryGreen, size: 32),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Your Wishlist is Empty',
-                          style: GoogleFonts.playfairDisplay(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+                          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Explore the Nagpur collection and bookmark residences to compare valuations and schedule viewing appointments.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted, height: 1.4),
+                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText, height: 1.4),
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
@@ -83,7 +85,11 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                               MaterialPageRoute(builder: (_) => const PropertyListScreen()),
                             );
                           },
-                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.navy),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryGreen,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
                           child: const Text('Explore Nagpur Properties'),
                         ),
                       ],

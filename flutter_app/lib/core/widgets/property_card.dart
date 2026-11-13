@@ -83,12 +83,12 @@ class PropertyCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.beige),
+          border: Border.all(color: AppColors.borderGrey, width: 1),
           boxShadow: [
             BoxShadow(
-              color: AppColors.navy.withOpacity(0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -105,23 +105,23 @@ class PropertyCard extends StatelessWidget {
                     imageUrl: property.coverImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: AppColors.ivoryDark,
+                      color: AppColors.lightGrey,
                       child: const Center(
                         child: SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: AppColors.gold,
+                            color: AppColors.primaryGreen,
                           ),
                         ),
                       ),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: AppColors.ivoryDark,
+                      color: AppColors.lightGrey,
                       child: const Icon(
                         Icons.home_work_outlined,
-                        color: AppColors.charcoalMuted,
+                        color: AppColors.secondaryText,
                         size: 36,
                       ),
                     ),
@@ -129,46 +129,55 @@ class PropertyCard extends StatelessWidget {
                 ),
                 // Badges (Top Left)
                 Positioned(
-                  top: 10,
-                  left: 10,
+                  top: 8,
+                  left: 8,
                   child: Row(
                     children: [
                       if (property.isFeatured)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 7,
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.gold,
+                            color: AppColors.primaryGreen,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'Featured',
+                            'FEATURED',
                             style: GoogleFonts.inter(
-                              fontSize: 10,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
+                              letterSpacing: 0.3,
                             ),
                           ),
                         )
                       else if (property.isVerified)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 7,
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.verifiedGreen,
+                            color: AppColors.darkGreen,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
-                            'Verified',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.verified, size: 11, color: Colors.white),
+                              const SizedBox(width: 3),
+                              Text(
+                                'VERIFIED',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                     ],
@@ -176,8 +185,8 @@ class PropertyCard extends StatelessWidget {
                 ),
                 // Save Heart (Top Right)
                 Positioned(
-                  top: 10,
-                  right: 10,
+                  top: 8,
+                  right: 8,
                   child: GestureDetector(
                     onTap: () => _onSaveTap(context),
                     child: Container(
@@ -195,7 +204,7 @@ class PropertyCard extends StatelessWidget {
                       ),
                       child: Icon(
                         isSaved ? Icons.favorite : Icons.favorite_border,
-                        color: isSaved ? Colors.red : AppColors.charcoal,
+                        color: isSaved ? AppColors.errorRed : AppColors.secondaryText,
                         size: 18,
                       ),
                     ),
@@ -210,16 +219,16 @@ class PropertyCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Price
+                  // Price (Zameen Style: Bold, crisp)
                   Text(
                     Formatters.formatIndianPrice(
                       property.price,
                       priceUnit: property.purpose,
                     ),
                     style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.navy,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primaryGreen,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -229,21 +238,21 @@ class PropertyCard extends StatelessWidget {
                     property.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.charcoal,
+                    style: GoogleFonts.inter(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryText,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
 
-                  // Locality
+                  // Locality with Pin Icon
                   Row(
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
                         size: 13,
-                        color: AppColors.charcoalMuted,
+                        color: AppColors.primaryGreen,
                       ),
                       const SizedBox(width: 3),
                       Expanded(
@@ -253,63 +262,55 @@ class PropertyCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
                             fontSize: 11,
-                            color: AppColors.charcoalMuted,
+                            color: AppColors.secondaryText,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
 
-                  // Specs Row (BHK | Bath | Area)
+                  // Specs Row (Bed | Bath | Area)
                   Row(
                     children: [
                       if (property.bedrooms > 0) ...[
+                        Icon(Icons.bed_outlined, size: 13, color: AppColors.secondaryText),
+                        const SizedBox(width: 2),
                         Text(
-                          '${property.bedrooms} BHK',
+                          '${property.bedrooms}',
                           style: GoogleFonts.inter(
                             fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.charcoal,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryText,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Text(
-                            '|',
-                            style: TextStyle(
-                              color: AppColors.beigeDark,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
+                        const SizedBox(width: 6),
                       ],
                       if (property.bathrooms > 0) ...[
+                        Icon(Icons.bathtub_outlined, size: 13, color: AppColors.secondaryText),
+                        const SizedBox(width: 2),
                         Text(
-                          '${property.bathrooms} Bath',
+                          '${property.bathrooms}',
                           style: GoogleFonts.inter(
                             fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.charcoal,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryText,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Text(
-                            '|',
-                            style: TextStyle(
-                              color: AppColors.beigeDark,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
+                        const SizedBox(width: 6),
                       ],
-                      Text(
-                        Formatters.formatArea(property.areaSqFt),
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.charcoal,
+                      Icon(Icons.square_foot_outlined, size: 13, color: AppColors.secondaryText),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          Formatters.formatArea(property.areaSqFt),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryText,
+                          ),
                         ),
                       ),
                     ],
@@ -317,19 +318,19 @@ class PropertyCard extends StatelessWidget {
 
                   // EMI info if BUY
                   if (property.purpose != 'RENT') ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       'EMI from ${Formatters.calculateEstimateEmi(property.price)}',
                       style: GoogleFonts.inter(
                         fontSize: 10,
-                        color: AppColors.charcoalMuted,
+                        color: AppColors.mutedText,
                       ),
                     ),
                   ],
 
-                  const SizedBox(height: 12),
-                  const Divider(height: 1, color: AppColors.beige),
                   const SizedBox(height: 10),
+                  const Divider(height: 1, color: AppColors.borderGrey),
+                  const SizedBox(height: 8),
 
                   // Action Buttons (Call & WhatsApp)
                   Row(
@@ -337,18 +338,19 @@ class PropertyCard extends StatelessWidget {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => _makePhoneCall(agentPhone),
-                          icon: const Icon(Icons.phone, size: 14),
-                          label: const Text('Call'),
+                          icon: const Icon(Icons.phone, size: 13, color: AppColors.primaryText),
+                          label: const Text('Call', style: TextStyle(fontSize: 11, color: AppColors.primaryText)),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            side: const BorderSide(color: AppColors.beigeDark),
+                            padding: const EdgeInsets.symmetric(vertical: 7),
+                            side: const BorderSide(color: AppColors.borderGrey),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                             ),
+                            visualDensity: VisualDensity.compact,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () => _openWhatsApp(
@@ -356,16 +358,17 @@ class PropertyCard extends StatelessWidget {
                             property.title,
                             property.localityName,
                           ),
-                          icon: const Icon(Icons.chat_bubble_outline, size: 14),
-                          label: const Text('WhatsApp'),
+                          icon: const Icon(Icons.chat_bubble_outline, size: 13),
+                          label: const Text('WhatsApp', style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.verifiedGreen,
+                            backgroundColor: AppColors.whatsappGreen,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 7),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                             ),
+                            visualDensity: VisualDensity.compact,
                           ),
                         ),
                       ),
@@ -399,11 +402,11 @@ class PropertyCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.beige),
+          border: Border.all(color: AppColors.borderGrey, width: 1),
           boxShadow: [
             BoxShadow(
-              color: AppColors.navy.withOpacity(0.05),
-              blurRadius: 12,
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
               offset: const Offset(0, 3),
             ),
           ],
@@ -429,18 +432,19 @@ class PropertyCard extends StatelessWidget {
                       ? Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
-                            vertical: 3,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.gold,
+                            color: AppColors.primaryGreen,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'Featured',
+                            'FEATURED',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
+                              letterSpacing: 0.3,
                             ),
                           ),
                         )
@@ -448,19 +452,27 @@ class PropertyCard extends StatelessWidget {
                           ? Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
-                                vertical: 3,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.verifiedGreen,
+                                color: AppColors.darkGreen,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(
-                                'Verified',
-                                style: GoogleFonts.inter(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.verified, size: 12, color: Colors.white),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'VERIFIED',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
                           : const SizedBox.shrink(),
@@ -480,7 +492,7 @@ class PropertyCard extends StatelessWidget {
                       ),
                       child: Icon(
                         isSaved ? Icons.favorite : Icons.favorite_border,
-                        color: isSaved ? Colors.red : AppColors.charcoal,
+                        color: isSaved ? AppColors.errorRed : AppColors.secondaryText,
                         size: 18,
                       ),
                     ),
@@ -504,9 +516,9 @@ class PropertyCard extends StatelessWidget {
                           priceUnit: property.purpose,
                         ),
                         style: GoogleFonts.inter(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.navy,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryGreen,
                         ),
                       ),
                       if (property.purpose != 'RENT')
@@ -514,7 +526,7 @@ class PropertyCard extends StatelessWidget {
                           'EMI from ${Formatters.calculateEstimateEmi(property.price)}',
                           style: GoogleFonts.inter(
                             fontSize: 11,
-                            color: AppColors.charcoalMuted,
+                            color: AppColors.secondaryText,
                           ),
                         ),
                     ],
@@ -524,10 +536,10 @@ class PropertyCard extends StatelessWidget {
                     property.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.charcoal,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryText,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -536,14 +548,14 @@ class PropertyCard extends StatelessWidget {
                       const Icon(
                         Icons.location_on_outlined,
                         size: 14,
-                        color: AppColors.charcoalMuted,
+                        color: AppColors.primaryGreen,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${property.localityName}, Nagpur',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: AppColors.charcoalMuted,
+                          color: AppColors.secondaryText,
                         ),
                       ),
                       const Spacer(),
@@ -552,7 +564,7 @@ class PropertyCard extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.charcoal,
+                          color: AppColors.primaryText,
                         ),
                       ),
                     ],
@@ -563,10 +575,11 @@ class PropertyCard extends StatelessWidget {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => _makePhoneCall(agentPhone),
-                          icon: const Icon(Icons.phone, size: 14),
-                          label: const Text('Call'),
+                          icon: const Icon(Icons.phone, size: 14, color: AppColors.primaryText),
+                          label: const Text('Call', style: TextStyle(color: AppColors.primaryText)),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 9),
+                            side: const BorderSide(color: AppColors.borderGrey),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                             ),
@@ -584,7 +597,7 @@ class PropertyCard extends StatelessWidget {
                           icon: const Icon(Icons.chat_bubble_outline, size: 14),
                           label: const Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.verifiedGreen,
+                            backgroundColor: AppColors.whatsappGreen,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 9),
                             elevation: 0,

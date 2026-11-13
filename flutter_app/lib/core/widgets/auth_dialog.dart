@@ -126,14 +126,14 @@ class _AuthDialogState extends State<AuthDialog> {
                 children: [
                   Text(
                     'Nagpur Realty Sign In',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navy,
+                      color: AppColors.primaryText,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: const Icon(Icons.close, size: 20, color: AppColors.secondaryText),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -143,8 +143,9 @@ class _AuthDialogState extends State<AuthDialog> {
               // Tab Switcher (OTP vs Admin)
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.ivoryDark,
+                  color: AppColors.lightGrey,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.borderGrey),
                 ),
                 padding: const EdgeInsets.all(3),
                 child: Row(
@@ -158,24 +159,16 @@ class _AuthDialogState extends State<AuthDialog> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _activeTab == 0 ? AppColors.white : Colors.transparent,
+                            color: _activeTab == 0 ? AppColors.primaryGreen : Colors.transparent,
                             borderRadius: BorderRadius.circular(6),
-                            boxShadow: _activeTab == 0
-                                ? [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                    )
-                                  ]
-                                : null,
                           ),
                           child: Center(
                             child: Text(
                               'Phone OTP',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: _activeTab == 0 ? AppColors.navy : AppColors.charcoalMuted,
+                                fontWeight: FontWeight.bold,
+                                color: _activeTab == 0 ? Colors.white : AppColors.secondaryText,
                               ),
                             ),
                           ),
@@ -191,24 +184,16 @@ class _AuthDialogState extends State<AuthDialog> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: _activeTab == 1 ? AppColors.white : Colors.transparent,
+                            color: _activeTab == 1 ? AppColors.primaryGreen : Colors.transparent,
                             borderRadius: BorderRadius.circular(6),
-                            boxShadow: _activeTab == 1
-                                ? [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                    )
-                                  ]
-                                : null,
                           ),
                           child: Center(
                             child: Text(
                               'Staff / Admin',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: _activeTab == 1 ? AppColors.navy : AppColors.charcoalMuted,
+                                fontWeight: FontWeight.bold,
+                                color: _activeTab == 1 ? Colors.white : AppColors.secondaryText,
                               ),
                             ),
                           ),
@@ -244,9 +229,9 @@ class _AuthDialogState extends State<AuthDialog> {
                   Text(
                     'Mobile Number (10 digits)',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.charcoal,
+                      color: AppColors.primaryText,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -258,6 +243,8 @@ class _AuthDialogState extends State<AuthDialog> {
                       prefixText: '+91  ',
                       hintText: '9823000000',
                       counterText: '',
+                      fillColor: AppColors.lightGrey,
+                      filled: true,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -266,9 +253,9 @@ class _AuthDialogState extends State<AuthDialog> {
                   Text(
                     'Full Name (Optional)',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.charcoal,
+                      color: AppColors.primaryText,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -276,6 +263,8 @@ class _AuthDialogState extends State<AuthDialog> {
                     controller: _nameController,
                     decoration: const InputDecoration(
                       hintText: 'e.g. Ramesh Sharma',
+                      fillColor: AppColors.lightGrey,
+                      filled: true,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -284,9 +273,9 @@ class _AuthDialogState extends State<AuthDialog> {
                   Text(
                     'I am registering as:',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.charcoal,
+                      color: AppColors.primaryText,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -294,7 +283,7 @@ class _AuthDialogState extends State<AuthDialog> {
                     children: [
                       _buildRoleChip('Buyer / Tenant', 'USER'),
                       const SizedBox(width: 8),
-                      _buildRoleChip('Property Owner', 'OWNER'),
+                      _buildRoleChip('Owner', 'OWNER'),
                       const SizedBox(width: 8),
                       _buildRoleChip('Agent', 'AGENT'),
                     ],
@@ -304,8 +293,10 @@ class _AuthDialogState extends State<AuthDialog> {
                   ElevatedButton(
                     onPressed: auth.isLoading ? null : _handleRequestOtp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.navy,
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
                     ),
                     child: auth.isLoading
                         ? const SizedBox(
@@ -318,7 +309,7 @@ class _AuthDialogState extends State<AuthDialog> {
                           )
                         : Text(
                             'Request Secure OTP',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5),
                           ),
                   ),
                 ] else ...[
@@ -327,16 +318,16 @@ class _AuthDialogState extends State<AuthDialog> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade50,
+                        color: AppColors.lightGreen,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.gold),
+                        border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
                       ),
                       child: Text(
                         'Development OTP Code: $_devOtp',
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.goldDark,
+                          color: AppColors.primaryGreen,
                         ),
                       ),
                     ),
@@ -346,7 +337,7 @@ class _AuthDialogState extends State<AuthDialog> {
                     'Enter 6-Digit OTP sent to +91 ${_phoneController.text}',
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: AppColors.charcoalMuted,
+                      color: AppColors.secondaryText,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -359,18 +350,23 @@ class _AuthDialogState extends State<AuthDialog> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 8,
+                      color: AppColors.primaryGreen,
                     ),
                     decoration: const InputDecoration(
                       hintText: '123456',
                       counterText: '',
+                      fillColor: AppColors.lightGrey,
+                      filled: true,
                     ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: auth.isLoading ? null : _handleVerifyOtp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.navy,
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
                     ),
                     child: auth.isLoading
                         ? const SizedBox(
@@ -383,7 +379,7 @@ class _AuthDialogState extends State<AuthDialog> {
                           )
                         : Text(
                             'Verify & Continue',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5),
                           ),
                   ),
                   const SizedBox(height: 8),
@@ -393,7 +389,7 @@ class _AuthDialogState extends State<AuthDialog> {
                       'Change Phone Number',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: AppColors.charcoalMuted,
+                        color: AppColors.secondaryText,
                       ),
                     ),
                   ),
@@ -403,9 +399,9 @@ class _AuthDialogState extends State<AuthDialog> {
                 Text(
                   'Staff Email Address',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.charcoal,
+                    color: AppColors.primaryText,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -414,15 +410,17 @@ class _AuthDialogState extends State<AuthDialog> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                     hintText: 'admin@nagpurestate.com',
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Password',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.charcoal,
+                    color: AppColors.primaryText,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -431,14 +429,18 @@ class _AuthDialogState extends State<AuthDialog> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     hintText: '••••••••',
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
                   ),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: auth.isLoading ? null : _handleAdminLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navy,
+                    backgroundColor: AppColors.primaryGreen,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    elevation: 0,
                   ),
                   child: auth.isLoading
                       ? const SizedBox(
@@ -451,7 +453,7 @@ class _AuthDialogState extends State<AuthDialog> {
                         )
                       : Text(
                           'Sign In to Staff Console',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5),
                         ),
                 ),
               ],
@@ -470,10 +472,11 @@ class _AuthDialogState extends State<AuthDialog> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.navy : AppColors.ivory,
+            color: isSelected ? AppColors.lightGreen : Colors.white,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSelected ? AppColors.navy : AppColors.beige,
+              color: isSelected ? AppColors.primaryGreen : AppColors.borderGrey,
+              width: isSelected ? 1.5 : 1,
             ),
           ),
           child: Center(
@@ -483,7 +486,7 @@ class _AuthDialogState extends State<AuthDialog> {
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : AppColors.charcoal,
+                color: isSelected ? AppColors.primaryGreen : AppColors.primaryText,
               ),
             ),
           ),
@@ -492,4 +495,3 @@ class _AuthDialogState extends State<AuthDialog> {
     );
   }
 }
-

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorage {
   static const String _tokenKey = 'nagpur_access_token';
   static const String _userKey = 'nagpur_user';
+  static const String _backendModeKey = 'nagpur_backend_mode'; // 'live' | 'local'
 
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -41,10 +42,19 @@ class LocalStorage {
     await prefs.remove(_userKey);
   }
 
+  static Future<void> saveBackendMode(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_backendModeKey, mode);
+  }
+
+  static Future<String?> getBackendMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_backendModeKey);
+  }
+
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userKey);
   }
 }
-

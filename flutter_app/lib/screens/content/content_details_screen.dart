@@ -79,11 +79,13 @@ class ContentDetailsScreen extends StatelessWidget {
             : 'Detailed advisory guidelines curated by Nagpur Realty editorial and legal compliance teams.');
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           category,
-          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -93,7 +95,14 @@ class ContentDetailsScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.beige),
+            border: Border.all(color: AppColors.borderGrey),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,35 +110,35 @@ class ContentDetailsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.gold.withOpacity(0.15),
+                  color: AppColors.lightGreen,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   readTime,
-                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.goldDark),
+                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 title,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 22,
+                style: GoogleFonts.inter(
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.navy,
+                  color: AppColors.primaryText,
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 'Nagpur Realty Compliance & Advisory Board',
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
               ),
               const SizedBox(height: 16),
-              const Divider(color: AppColors.beige),
+              const Divider(color: AppColors.borderGrey),
               const SizedBox(height: 16),
               Text(
                 body,
-                style: GoogleFonts.inter(fontSize: 13, color: AppColors.charcoal, height: 1.6),
+                style: GoogleFonts.inter(fontSize: 13.5, color: AppColors.primaryText, height: 1.6),
               ),
             ],
           ),
@@ -138,4 +147,3 @@ class ContentDetailsScreen extends StatelessWidget {
     );
   }
 }
-

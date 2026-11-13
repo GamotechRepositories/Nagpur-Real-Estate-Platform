@@ -47,30 +47,48 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
 
     if (!auth.isAuthenticated) {
       return Scaffold(
-        appBar: AppBar(title: const Text('My Properties')),
+        backgroundColor: AppColors.mainBackground,
+        appBar: AppBar(
+          backgroundColor: AppColors.primaryGreen,
+          elevation: 0,
+          title: const Text('My Properties', style: TextStyle(color: Colors.white)),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock_outline, size: 48, color: AppColors.gold),
-                const SizedBox(height: 14),
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: const BoxDecoration(
+                    color: AppColors.lightGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_outline, size: 30, color: AppColors.primaryGreen),
+                ),
+                const SizedBox(height: 16),
                 Text(
                   'Sign In Required',
-                  style: GoogleFonts.playfairDisplay(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Please sign in to manage your active property portfolio.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted),
+                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 ElevatedButton(
                   onPressed: () {
                     showDialog(context: context, builder: (_) => const AuthDialog());
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
                   child: const Text('Sign In to Account'),
                 ),
               ],
@@ -81,11 +99,13 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Principal Asset Management',
-          style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: [
           IconButton(
@@ -100,20 +120,20 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
           : _properties.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.home_work_outlined, size: 48, color: AppColors.charcoalMuted),
+                      const Icon(Icons.home_work_outlined, size: 48, color: AppColors.secondaryText),
                       const SizedBox(height: 12),
                       Text(
                         'No Properties Listed Yet',
-                        style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                       ),
                       const SizedBox(height: 6),
-                      Text('List your flat, plot, or commercial asset in Nagpur.', style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted)),
+                      Text('List your flat, plot, or commercial asset in Nagpur.', style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText)),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
@@ -122,6 +142,10 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
                             MaterialPageRoute(builder: (_) => const PostPropertyScreen()),
                           );
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryGreen,
+                          foregroundColor: Colors.white,
+                        ),
                         child: const Text('List New Asset Free'),
                       ),
                     ],
@@ -145,7 +169,14 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.beige),
+                          border: Border.all(color: AppColors.borderGrey),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -169,10 +200,10 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: prop.status == 'LIVE' ? Colors.green.shade50 : Colors.amber.shade50,
+                                          color: prop.status == 'LIVE' ? AppColors.lightGreen : Colors.amber.shade50,
                                           borderRadius: BorderRadius.circular(4),
                                           border: Border.all(
-                                            color: prop.status == 'LIVE' ? AppColors.verifiedGreen : AppColors.gold,
+                                            color: prop.status == 'LIVE' ? AppColors.primaryGreen : Colors.amber.shade700,
                                           ),
                                         ),
                                         child: Text(
@@ -180,13 +211,13 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
                                           style: GoogleFonts.inter(
                                             fontSize: 9.5,
                                             fontWeight: FontWeight.bold,
-                                            color: prop.status == 'LIVE' ? AppColors.verifiedGreen : AppColors.goldDark,
+                                            color: prop.status == 'LIVE' ? AppColors.primaryGreen : Colors.amber.shade800,
                                           ),
                                         ),
                                       ),
                                       Text(
                                         Formatters.formatIndianPrice(prop.price),
-                                        style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.navy),
+                                        style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
                                       ),
                                     ],
                                   ),
@@ -195,23 +226,23 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
                                     prop.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.playfairDisplay(fontSize: 14, fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     '${prop.localityName}, Nagpur • ${prop.bedrooms} BHK',
-                                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                                   ),
                                   const SizedBox(height: 6),
                                   Row(
                                     children: [
-                                      Icon(Icons.remove_red_eye_outlined, size: 12, color: AppColors.charcoalMuted),
+                                      const Icon(Icons.remove_red_eye_outlined, size: 12, color: AppColors.secondaryText),
                                       const SizedBox(width: 3),
-                                      Text('${prop.viewsCount} views', style: const TextStyle(fontSize: 10, color: AppColors.charcoalMuted)),
+                                      Text('${prop.viewsCount} views', style: const TextStyle(fontSize: 10, color: AppColors.secondaryText)),
                                       const SizedBox(width: 12),
-                                      Icon(Icons.mark_email_unread_outlined, size: 12, color: AppColors.charcoalMuted),
+                                      const Icon(Icons.mark_email_unread_outlined, size: 12, color: AppColors.secondaryText),
                                       const SizedBox(width: 3),
-                                      Text('${prop.enquiriesCount} leads', style: const TextStyle(fontSize: 10, color: AppColors.charcoalMuted)),
+                                      Text('${prop.enquiriesCount} leads', style: const TextStyle(fontSize: 10, color: AppColors.secondaryText)),
                                     ],
                                   ),
                                 ],
@@ -226,4 +257,3 @@ class _MyPropertiesScreenState extends State<MyPropertiesScreen> {
     );
   }
 }
-

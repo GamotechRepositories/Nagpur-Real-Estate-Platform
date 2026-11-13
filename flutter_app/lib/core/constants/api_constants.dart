@@ -1,14 +1,25 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConstants {
   ApiConstants._();
 
+  // Production Render Live Backend URL
+  static const String liveBaseUrl = 'https://nagpur-real-estate-platform.onrender.com/api/v1';
+
+  // Local Development Backend URL (via USB / adb reverse tcp:5000 tcp:5000 or localhost)
+  static const String localBaseUrl = 'http://127.0.0.1:5000/api/v1';
+
   // Smart base URL resolution:
-  // - On Android Device with adb reverse or Android Emulator:
-  //   With `adb reverse tcp:5000 tcp:5000`, physical phone can reach `http://localhost:5000/api/v1`
-  //   Or via host IP `http://10.173.21.28:5000/api/v1`
-  //   Default to localhost:5000 which works everywhere with adb reverse
+  // - In release mode (production APK / live): always uses Render Live URL.
+  // - In debug mode (USB debugging): defaults to local, but allows fallback to Render.
   static String get baseUrl {
-    // When running on physical device with adb reverse or desktop/web:
-    return 'http://127.0.0.1:5000/api/v1';
+    const customUrl = String.fromEnvironment('API_URL');
+    if (customUrl.isNotEmpty) return customUrl;
+
+    if (kReleaseMode) {
+      return liveBaseUrl;
+    }
+    return localBaseUrl;
   }
 
   // Auth endpoints

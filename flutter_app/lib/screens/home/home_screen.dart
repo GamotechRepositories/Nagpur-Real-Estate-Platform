@@ -12,6 +12,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/property_provider.dart';
 import '../properties/property_list_screen.dart';
 import '../localities/locality_details_screen.dart';
+import '../localities/localities_list_screen.dart';
+import '../agents/agents_list_screen.dart';
 import '../tools/emi_calculator_screen.dart';
 import '../account/saved_properties_screen.dart';
 import '../post_property/post_property_screen.dart';
@@ -55,10 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       drawer: const AppDrawer(),
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: const BrandLogo(light: true, showSubtitle: true),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           // Wishlist Shortcut
           IconButton(
@@ -73,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: const BoxDecoration(
-                        color: AppColors.gold,
+                        color: Colors.white,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -81,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.primaryGreen,
                         ),
                       ),
                     ),
@@ -106,14 +111,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: RefreshIndicator(
-        color: AppColors.gold,
+        color: AppColors.primaryGreen,
         onRefresh: () => propProv.fetchHomeData(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Hero Search Section
+              // 1. Hero Search Section (Zameen Style)
               const HeroSearchWidget(),
 
               // 2. Featured Properties Section
@@ -154,8 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         },
-        backgroundColor: AppColors.gold,
+        backgroundColor: AppColors.primaryGreen,
         foregroundColor: Colors.white,
+        elevation: 3,
         icon: const Icon(Icons.add, size: 20),
         label: Text(
           'Post Property',
@@ -170,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 40),
         child: Center(
-          child: CircularProgressIndicator(color: AppColors.gold),
+          child: CircularProgressIndicator(color: AppColors.primaryGreen),
         ),
       );
     }
@@ -187,24 +193,27 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Featured Properties',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.navy,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Featured Properties',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryText,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Handpicked high-demand listings in Nagpur',
-                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      'Handpicked high-demand listings in Nagpur',
+                      style: GoogleFonts.inter(fontSize: 11.5, color: AppColors.secondaryText),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   prov.clearFilters();
@@ -218,12 +227,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       'View All',
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.goldDark,
+                        color: AppColors.primaryGreen,
                       ),
                     ),
-                    const Icon(Icons.chevron_right, size: 16, color: AppColors.goldDark),
+                    const Icon(Icons.chevron_right, size: 16, color: AppColors.primaryGreen),
                   ],
                 ),
               ),
@@ -259,28 +268,63 @@ class _HomeScreenState extends State<HomeScreen> {
     if (localities.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      color: AppColors.ivoryLight,
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+      color: AppColors.lightGrey,
+      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Explore Nagpur Localities',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.navy,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Neighborhood guides, average rates, and active marketplace inventory',
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Explore Nagpur Localities',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Neighborhood guides, average rates, and active marketplace inventory',
+                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LocalitiesListScreen()),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      'View All',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryGreen,
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, size: 16, color: AppColors.primaryGreen),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 
           SizedBox(
-            height: 180,
+            height: 185,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: localities.length,
@@ -300,8 +344,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.beige),
+                      border: Border.all(color: AppColors.borderGrey),
                       color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Column(
@@ -322,10 +373,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 loc.name,
                                 maxLines: 1,
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.navy,
+                                  color: AppColors.primaryText,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -335,16 +386,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     '${loc.propertyCount} Properties',
                                     style: GoogleFonts.inter(
-                                      fontSize: 10,
-                                      color: AppColors.charcoalMuted,
+                                      fontSize: 10.5,
+                                      color: AppColors.secondaryText,
                                     ),
                                   ),
                                   Text(
                                     loc.avgPrice,
                                     style: GoogleFonts.inter(
-                                      fontSize: 10,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.goldDark,
+                                      color: AppColors.primaryGreen,
                                     ),
                                   ),
                                 ],
@@ -377,11 +428,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.verifiedGreen.withOpacity(0.12),
+                decoration: const BoxDecoration(
+                  color: AppColors.lightGreen,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.verified, color: AppColors.verifiedGreen, size: 20),
+                child: const Icon(Icons.verified, color: AppColors.primaryGreen, size: 20),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -390,15 +441,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       'MahaRERA Verified Properties',
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.navy,
+                      style: GoogleFonts.inter(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryText,
                       ),
                     ),
                     Text(
                       'RERA certified developments with clear legal titles',
-                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                     ),
                   ],
                 ),
@@ -428,20 +479,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.calculate_outlined, color: AppColors.gold, size: 24),
+              const Icon(Icons.calculate_outlined, color: AppColors.primaryGreen, size: 24),
               const SizedBox(width: 8),
               Text(
                 'Home Loan EMI Calculator',
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.navy,
+                style: GoogleFonts.inter(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primaryText,
                 ),
               ),
             ],
@@ -449,16 +500,16 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 4),
           Text(
             'Estimate your monthly outflow based on standard 8.5% interest',
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+            style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.ivory,
+              color: AppColors.lightGrey,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.beige),
+              border: Border.all(color: AppColors.borderGrey),
             ),
             child: Column(
               children: [
@@ -467,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text('Property Price', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
                     Text('₹ ${(_previewPrice / 100000).toStringAsFixed(0)} Lakhs',
-                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryGreen)),
                   ],
                 ),
                 Slider(
@@ -475,7 +526,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   min: 2000000,
                   max: 30000000,
                   divisions: 56,
-                  activeColor: AppColors.gold,
+                  activeColor: AppColors.primaryGreen,
+                  inactiveColor: AppColors.borderGrey,
                   onChanged: (val) => setState(() => _previewPrice = val),
                 ),
                 const SizedBox(height: 8),
@@ -485,7 +537,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text('Loan Tenure', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
                     Text('${_previewTenure.toInt()} Years',
-                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryText)),
                   ],
                 ),
                 Slider(
@@ -493,27 +545,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   min: 5,
                   max: 30,
                   divisions: 25,
-                  activeColor: AppColors.navy,
+                  activeColor: AppColors.darkGreen,
+                  inactiveColor: AppColors.borderGrey,
                   onChanged: (val) => setState(() => _previewTenure = val),
                 ),
                 const SizedBox(height: 12),
 
+                // Zameen-Style Highlight Box for EMI
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.navyDark,
+                    color: AppColors.lightGreen,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Estimated Monthly EMI',
-                        style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+                        style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkGreen),
                       ),
                       Text(
                         '₹ ${emi.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}/mo',
-                        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.goldLight),
+                        style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.primaryGreen),
                       ),
                     ],
                   ),
@@ -531,11 +586,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 11),
-                      side: const BorderSide(color: AppColors.gold),
+                      side: const BorderSide(color: AppColors.primaryGreen),
+                      foregroundColor: AppColors.primaryGreen,
                     ),
                     child: Text(
                       'Detailed Amortization & Loan Application →',
-                      style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.goldDark),
+                      style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primaryGreen),
                     ),
                   ),
                 ),
@@ -556,23 +612,58 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Trusted Nagpur Real Estate Advisors',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.navy,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Verified RERA registered local consultants',
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Trusted Nagpur Real Estate Advisors',
+                      style: GoogleFonts.inter(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Verified RERA registered local consultants',
+                      style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AgentsListScreen()),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      'View All',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryGreen,
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, size: 16, color: AppColors.primaryGreen),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
 
           SizedBox(
-            height: 170,
+            height: 175,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: agents.length,
@@ -585,7 +676,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.beige),
+                    border: Border.all(color: AppColors.borderGrey),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -604,13 +702,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   agent.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.navy),
+                                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                                 ),
                                 Text(
                                   agent.agency,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.inter(fontSize: 10, color: AppColors.charcoalMuted),
+                                  style: GoogleFonts.inter(fontSize: 10, color: AppColors.secondaryText),
                                 ),
                                 Row(
                                   children: [
@@ -635,9 +733,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: () => launchUrl(Uri.parse('tel:+91${agent.phone}')),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 6),
-                                side: const BorderSide(color: AppColors.beigeDark),
+                                side: const BorderSide(color: AppColors.borderGrey),
                               ),
-                              child: const Text('Call', style: TextStyle(fontSize: 11)),
+                              child: const Text('Call', style: TextStyle(fontSize: 11, color: AppColors.primaryText)),
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -648,8 +746,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 launchUrl(Uri.parse('https://wa.me/91${agent.phone}?text=$text'), mode: LaunchMode.externalApplication);
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.verifiedGreen,
+                                backgroundColor: AppColors.whatsappGreen,
                                 padding: const EdgeInsets.symmetric(vertical: 6),
+                                elevation: 0,
                               ),
                               child: const Text('WhatsApp', style: TextStyle(fontSize: 11, color: Colors.white)),
                             ),
@@ -669,22 +768,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWhyChooseSection(BuildContext context) {
     return Container(
-      color: AppColors.ivoryDark,
+      color: AppColors.lightGrey,
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
       child: Column(
         children: [
           Text(
             'Why Choose Nagpur Realty',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.navy,
+            style: GoogleFonts.inter(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.primaryText,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             'Nagpur’s dedicated digital real estate ecosystem',
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+            style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
           ),
           const SizedBox(height: 20),
 
@@ -716,11 +815,11 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.gold.withOpacity(0.15),
+          decoration: const BoxDecoration(
+            color: AppColors.lightGreen,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: AppColors.goldDark, size: 20),
+          child: Icon(icon, color: AppColors.primaryGreen, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -729,12 +828,12 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.navy),
+                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryText),
               ),
               const SizedBox(height: 2),
               Text(
                 desc,
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted, height: 1.3),
+                style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText, height: 1.3),
               ),
             ],
           ),
@@ -745,7 +844,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFooterSection(BuildContext context) {
     return Container(
-      color: AppColors.navyDark,
+      color: const Color(0xFF1B2A22), // Deep Forest Neutral Footer
       padding: const EdgeInsets.fromLTRB(16, 28, 16, 60),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -770,4 +869,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

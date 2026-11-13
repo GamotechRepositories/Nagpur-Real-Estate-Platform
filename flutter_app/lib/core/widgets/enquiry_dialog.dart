@@ -108,14 +108,14 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
                 children: [
                   Text(
                     'Direct Property Enquiry',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navy,
+                      color: AppColors.primaryText,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: const Icon(Icons.close, size: 20, color: AppColors.secondaryText),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -124,7 +124,7 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
                 widget.property.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoalMuted),
+                style: GoogleFonts.inter(fontSize: 12, color: AppColors.secondaryText),
               ),
               const SizedBox(height: 14),
 
@@ -132,27 +132,27 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: AppColors.lightGreen,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.verifiedGreen),
+                    border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.check_circle, color: AppColors.verifiedGreen, size: 36),
+                      const Icon(Icons.check_circle, color: AppColors.primaryGreen, size: 36),
                       const SizedBox(height: 8),
                       Text(
                         'Enquiry Transmitted Successfully',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.navy,
+                          color: AppColors.primaryText,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Our Nagpur concierge has routed your details to the listing agent.',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                        style: GoogleFonts.inter(fontSize: 11.5, color: AppColors.secondaryText),
                       ),
                     ],
                   ),
@@ -174,15 +174,19 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
                   const SizedBox(height: 10),
                 ],
 
-                Text('Full Name', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+                Text('Full Name', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
                 const SizedBox(height: 4),
                 TextField(
                   controller: _nameController,
-                  decoration: const InputDecoration(hintText: 'Enter your name'),
+                  decoration: const InputDecoration(
+                    hintText: 'Enter your name',
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
+                  ),
                 ),
                 const SizedBox(height: 10),
 
-                Text('Mobile Number', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+                Text('Mobile Number', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
                 const SizedBox(height: 4),
                 TextField(
                   controller: _phoneController,
@@ -192,33 +196,45 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
                     prefixText: '+91  ',
                     hintText: '9823000000',
                     counterText: '',
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                Text('Email (Optional)', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+                Text('Email (Optional)', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
                 const SizedBox(height: 4),
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(hintText: 'you@example.com'),
+                  decoration: const InputDecoration(
+                    hintText: 'you@example.com',
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
+                  ),
                 ),
                 const SizedBox(height: 10),
 
-                Text('Message', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600)),
+                Text('Message', style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
                 const SizedBox(height: 4),
                 TextField(
                   controller: _messageController,
                   maxLines: 3,
-                  decoration: const InputDecoration(hintText: 'Your requirements or questions...'),
+                  decoration: const InputDecoration(
+                    hintText: 'Your requirements or questions...',
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
+                  ),
                 ),
                 const SizedBox(height: 18),
 
                 ElevatedButton(
                   onPressed: _loading ? null : _handleSubmit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navy,
+                    backgroundColor: AppColors.primaryGreen,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    elevation: 0,
                   ),
                   child: _loading
                       ? const SizedBox(
@@ -226,7 +242,7 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : Text('Send Private Enquiry', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                      : Text('Send Private Enquiry', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5)),
                 ),
               ],
             ],
@@ -236,4 +252,3 @@ class _EnquiryDialogState extends State<EnquiryDialog> {
     );
   }
 }
-

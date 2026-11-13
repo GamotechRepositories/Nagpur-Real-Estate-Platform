@@ -15,15 +15,17 @@ class LocalitiesListScreen extends StatelessWidget {
     final localities = prov.localities;
 
     return Scaffold(
-      backgroundColor: AppColors.ivory,
+      backgroundColor: AppColors.mainBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 0,
         title: Text(
           'Nagpur Localities Directory',
-          style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: localities.isEmpty
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: localities.length,
@@ -43,7 +45,14 @@ class LocalitiesListScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.beige),
+                      border: Border.all(color: AppColors.borderGrey),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Column(
@@ -66,18 +75,18 @@ class LocalitiesListScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     loc.name,
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 18,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.navy,
+                                      color: AppColors.primaryText,
                                     ),
                                   ),
                                   Text(
                                     loc.avgPrice,
                                     style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.goldDark,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primaryGreen,
                                     ),
                                   ),
                                 ],
@@ -85,7 +94,7 @@ class LocalitiesListScreen extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text(
                                 '${loc.propertyCount} Active Properties • Pincode: ${loc.pincode.isNotEmpty ? loc.pincode : '440010'}',
-                                style: GoogleFonts.inter(fontSize: 11, color: AppColors.charcoalMuted),
+                                style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                               ),
                               if (loc.description.isNotEmpty) ...[
                                 const SizedBox(height: 6),
@@ -93,9 +102,20 @@ class LocalitiesListScreen extends StatelessWidget {
                                   loc.description,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.charcoal, height: 1.3),
+                                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.primaryText, height: 1.3),
                                 ),
                               ],
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Explore Neighborhood Guide',
+                                    style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.arrow_forward, size: 14, color: AppColors.primaryGreen),
+                                ],
+                              ),
                             ],
                           ),
                         ),
