@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
@@ -17,8 +18,17 @@ import 'screens/account/my_properties_screen.dart';
 import 'screens/account/saved_properties_screen.dart';
 import 'screens/post_property/post_property_screen.dart';
 
+Future<void> _loadEnv() async {
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    await dotenv.load(fileName: '.env.example');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await _loadEnv();
 
   // Set system UI overlay style matching primary green header
   SystemChrome.setSystemUIOverlayStyle(

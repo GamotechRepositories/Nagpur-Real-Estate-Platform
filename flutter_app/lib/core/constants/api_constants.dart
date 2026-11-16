@@ -1,17 +1,42 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
   ApiConstants._();
 
-  // Production Render Live Backend URL
-  static const String liveBaseUrl = 'https://nagpur-real-estate-platform.onrender.com/api/v1';
+  static const String _apiPrefix = '/api/v1';
+  static const String _defaultLiveRoot =
+      'https://nagpur-real-estate-platform.onrender.com';
+  static const String _defaultLocalRoot = 'http://127.0.0.1:5000';
 
-  // Local Development Backend URL (via USB / adb reverse tcp:5000 tcp:5000 or localhost)
-  static const String localBaseUrl = 'http://127.0.0.1:5000/api/v1';
+  static String _normalizeApiBase(String root) {
+    final trimmed = root.trim().replaceAll(RegExp(r'/+$'), '');
+    if (trimmed.endsWith(_apiPrefix)) return trimmed;
+    return '$trimmed$_apiPrefix';
+  }
+
+  /// Production Render live backend URL (from `.env` → `API_BASE_URL`).
+  static String get liveBaseUrl {
+    final fromEnv = dotenv.env['API_BASE_URL'];
+    if (fromEnv != null && fromEnv.isNotEmpty) {
+      return _normalizeApiBase(fromEnv);
+    }
+    return _normalizeApiBase(_defaultLiveRoot);
+  }
+
+  /// Local development backend URL (from `.env` → `LOCAL_API_BASE_URL`).
+  static String get localBaseUrl {
+    final fromEnv = dotenv.env['LOCAL_API_BASE_URL'];
+    if (fromEnv != null && fromEnv.isNotEmpty) {
+      return _normalizeApiBase(fromEnv);
+    }
+    return _normalizeApiBase(_defaultLocalRoot);
+  }
 
   // Smart base URL resolution:
   // - In release mode (production APK / live): always uses Render Live URL.
   // - In debug mode (USB debugging): defaults to local, but allows fallback to Render.
+  // - Override with --dart-define=API_URL=...
   static String get baseUrl {
     const customUrl = String.fromEnvironment('API_URL');
     if (customUrl.isNotEmpty) return customUrl;
