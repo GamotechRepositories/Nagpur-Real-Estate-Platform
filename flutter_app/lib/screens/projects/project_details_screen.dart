@@ -159,7 +159,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: 36 + MediaQuery.of(context).padding.bottom),
                   ],
 
                   SizedBox(
@@ -192,7 +192,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  SizedBox(height: 36 + MediaQuery.of(context).padding.bottom),
                 ],
               ),
             ),

@@ -5,103 +5,100 @@ import '../constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 
 class AuthDialog extends StatefulWidget {
-  const AuthDialog({Key? key}) : super(key: key);
+  final int initialTab; // 0: Sign In, 1: Register
+  const AuthDialog({Key? key, this.initialTab = 0}) : super(key: key);
 
   @override
   State<AuthDialog> createState() => _AuthDialogState();
 }
 
 class _AuthDialogState extends State<AuthDialog> {
-  int _activeTab = 0; // 0: OTP, 1: Admin Email
-  int _otpStep = 0; // 0: Request, 1: Verify
+  late int _isRegisterMode; // 0 = Sign In, 1 = Register
 
-  final _phoneController = TextEditingController();
   final _nameController = TextEditingController();
-  final _otpController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _idController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  String _selectedRole = 'USER';
-  String? _devOtp;
+  bool _obscurePassword = true;
   String _errorMessage = '';
 
   @override
+  void initState() {
+    super.initState();
+    _isRegisterMode = widget.initialTab;
+  }
+
+  @override
   void dispose() {
-    _phoneController.dispose();
     _nameController.dispose();
-    _otpController.dispose();
-    _emailController.dispose();
+    _idController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleRequestOtp() async {
+  Future<void> _handleSubmit() async {
     setState(() => _errorMessage = '');
-    final cleanPhone = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (cleanPhone.length != 10) {
-      setState(() => _errorMessage = 'Please enter a valid 10-digit mobile number');
-      return;
-    }
-
-    try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      final devCode = await auth.requestOtp(
-        phone: cleanPhone,
-        name: _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
-      );
-
-      setState(() {
-        _devOtp = devCode;
-        if (devCode != null) {
-          _otpController.text = devCode;
-        }
-        _otpStep = 1;
-      });
-    } catch (e) {
-      setState(() => _errorMessage = 'Failed to send OTP. Please try again.');
-    }
-  }
-
-  Future<void> _handleVerifyOtp() async {
-    setState(() => _errorMessage = '');
-    final cleanPhone = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-    final otp = _otpController.text.trim();
-
-    if (otp.length != 6) {
-      setState(() => _errorMessage = 'Please enter the complete 6-digit OTP');
-      return;
-    }
-
-    try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      await auth.verifyOtp(
-        phone: cleanPhone,
-        otp: otp,
-        name: _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
-        role: _selectedRole,
-      );
-      if (mounted) Navigator.pop(context);
-    } catch (e) {
-      setState(() => _errorMessage = 'Invalid or expired OTP. Please try again.');
-    }
-  }
-
-  Future<void> _handleAdminLogin() async {
-    setState(() => _errorMessage = '');
-    final email = _emailController.text.trim();
+    final id = _idController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      setState(() => _errorMessage = 'Please provide both email and password');
+    if (id.isEmpty) {
+      setState(() => _errorMessage = 'Please enter your User ID (Mobile number or Email)');
       return;
     }
 
+    if (password.isEmpty) {
+      setState(() => _errorMessage = 'Please enter your password');
+      return;
+    }
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
     try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      await auth.loginAdmin(email: email, password: password);
-      if (mounted) Navigator.pop(context);
+      if (_isRegisterMode == 1) {
+        final name = _nameController.text.trim();
+        if (name.isEmpty) {
+          setState(() => _errorMessage = 'Please enter your full name');
+          return;
+        }
+        if (password.length < 6) {
+          setState(() => _errorMessage = 'Password must be at least 6 characters');
+          return;
+        }
+
+        await auth.register(
+          name: name,
+          id: id,
+          password: password,
+        );
+      } else {
+        await auth.login(
+          id: id,
+          password: password,
+        );
+      }
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _isRegisterMode == 1 ? 'Account registered successfully!' : 'Signed in successfully!',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: AppColors.primaryGreen,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
-      setState(() => _errorMessage = 'Invalid email or password');
+      if (mounted) {
+        setState(() {
+          _errorMessage = _isRegisterMode == 1
+              ? 'Registration failed. Please check your details and try again.'
+              : 'Invalid User ID or Password. Please check and try again.';
+        });
+      }
     }
   }
 
@@ -115,22 +112,35 @@ class _AuthDialogState extends State<AuthDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(22),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Top Header with Close
+              // Top Title & Close Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Nagpur Realty Sign In',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryText,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isRegisterMode == 1 ? 'Create Account' : 'Welcome Back',
+                        style: GoogleFonts.inter(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryText,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Nagpur Real Estate Marketplace',
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5,
+                          color: AppColors.secondaryText,
+                        ),
+                      ),
+                    ],
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20, color: AppColors.secondaryText),
@@ -138,9 +148,9 @@ class _AuthDialogState extends State<AuthDialog> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
 
-              // Tab Switcher (OTP vs Admin)
+              // Simple 2-Tab Switcher: Sign In vs Register
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.lightGrey,
@@ -153,22 +163,22 @@ class _AuthDialogState extends State<AuthDialog> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() {
-                          _activeTab = 0;
+                          _isRegisterMode = 0;
                           _errorMessage = '';
                         }),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 9),
                           decoration: BoxDecoration(
-                            color: _activeTab == 0 ? AppColors.primaryGreen : Colors.transparent,
+                            color: _isRegisterMode == 0 ? AppColors.primaryGreen : Colors.transparent,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Center(
                             child: Text(
-                              'Phone OTP',
+                              'Sign In',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: _activeTab == 0 ? Colors.white : AppColors.secondaryText,
+                                color: _isRegisterMode == 0 ? Colors.white : AppColors.secondaryText,
                               ),
                             ),
                           ),
@@ -178,22 +188,22 @@ class _AuthDialogState extends State<AuthDialog> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() {
-                          _activeTab = 1;
+                          _isRegisterMode = 1;
                           _errorMessage = '';
                         }),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 9),
                           decoration: BoxDecoration(
-                            color: _activeTab == 1 ? AppColors.primaryGreen : Colors.transparent,
+                            color: _isRegisterMode == 1 ? AppColors.primaryGreen : Colors.transparent,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Center(
                             child: Text(
-                              'Staff / Admin',
+                              'Register',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: _activeTab == 1 ? Colors.white : AppColors.secondaryText,
+                                color: _isRegisterMode == 1 ? Colors.white : AppColors.secondaryText,
                               ),
                             ),
                           ),
@@ -203,292 +213,196 @@ class _AuthDialogState extends State<AuthDialog> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // Error banner
+              // Error Message Banner
               if (_errorMessage.isNotEmpty) ...[
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.red.shade200),
                   ),
-                  child: Text(
-                    _errorMessage,
-                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.errorRed),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // Content based on tab
-              if (_activeTab == 0) ...[
-                if (_otpStep == 0) ...[
-                  // Phone Number Input
-                  Text(
-                    'Mobile Number (10 digits)',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    maxLength: 10,
-                    decoration: const InputDecoration(
-                      prefixText: '+91  ',
-                      hintText: '9823000000',
-                      counterText: '',
-                      fillColor: AppColors.lightGrey,
-                      filled: true,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Optional Name Input
-                  Text(
-                    'Full Name (Optional)',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. Ramesh Sharma',
-                      fillColor: AppColors.lightGrey,
-                      filled: true,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Role Selection
-                  Text(
-                    'I am registering as:',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
+                  child: Row(
                     children: [
-                      _buildRoleChip('Buyer / Tenant', 'USER'),
+                      const Icon(Icons.error_outline, size: 16, color: AppColors.errorRed),
                       const SizedBox(width: 8),
-                      _buildRoleChip('Owner', 'OWNER'),
-                      const SizedBox(width: 8),
-                      _buildRoleChip('Agent', 'AGENT'),
+                      Expanded(
+                        child: Text(
+                          _errorMessage,
+                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.errorRed),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 14),
+              ],
 
-                  ElevatedButton(
-                    onPressed: auth.isLoading ? null : _handleRequestOtp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                    ),
-                    child: auth.isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            'Request Secure OTP',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5),
-                          ),
+              // Full Name Field (Only in Register mode)
+              if (_isRegisterMode == 1) ...[
+                Text(
+                  'Full Name',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryText,
                   ),
-                ] else ...[
-                  // OTP Verification Step
-                  if (_devOtp != null) ...[
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGreen,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
-                      ),
-                      child: Text(
-                        'Development OTP Code: $_devOtp',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.badge_outlined, size: 18, color: AppColors.primaryGreen),
+                    hintText: 'e.g. Ramesh Sharma',
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    fillColor: AppColors.lightGrey,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppColors.borderGrey),
                     ),
-                    const SizedBox(height: 12),
-                  ],
-                  Text(
-                    'Enter 6-Digit OTP sent to +91 ${_phoneController.text}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppColors.borderGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // User ID Field (Mobile or Email)
+              Text(
+                'User ID (Mobile or Email)',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryText,
+                ),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: _idController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.person_outline, size: 18, color: AppColors.primaryGreen),
+                  hintText: '9823000000 or email@example.com',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Password Field
+              Text(
+                'Password',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryText,
+                ),
+              ),
+              const SizedBox(height: 6),
+              TextField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.lock_outline, size: 18, color: AppColors.primaryGreen),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      size: 18,
                       color: AppColors.secondaryText,
                     ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _otpController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    textAlign: TextAlign.center,
+                  hintText: _isRegisterMode == 1 ? 'Create password (min 6 characters)' : 'Enter password',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  fillColor: AppColors.lightGrey,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 22),
+
+              // Submit Button
+              ElevatedButton(
+                onPressed: auth.isLoading ? null : _handleSubmit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
+                ),
+                child: auth.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        _isRegisterMode == 1 ? 'Create Account' : 'Sign In',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 14),
+
+              // Switch between Sign In and Register Link
+              Center(
+                child: TextButton(
+                  onPressed: () => setState(() {
+                    _isRegisterMode = _isRegisterMode == 0 ? 1 : 0;
+                    _errorMessage = '';
+                  }),
+                  child: Text(
+                    _isRegisterMode == 1
+                        ? 'Already have an account? Sign In'
+                        : "Don't have an account? Register",
                     style: GoogleFonts.inter(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 8,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.primaryGreen,
                     ),
-                    decoration: const InputDecoration(
-                      hintText: '123456',
-                      counterText: '',
-                      fillColor: AppColors.lightGrey,
-                      filled: true,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: auth.isLoading ? null : _handleVerifyOtp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                    ),
-                    child: auth.isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            'Verify & Continue',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5),
-                          ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => setState(() => _otpStep = 0),
-                    child: Text(
-                      'Change Phone Number',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.secondaryText,
-                      ),
-                    ),
-                  ),
-                ],
-              ] else ...[
-                // Admin Email / Password
-                Text(
-                  'Staff Email Address',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryText,
                   ),
                 ),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    hintText: 'admin@nagpurestate.com',
-                    fillColor: AppColors.lightGrey,
-                    filled: true,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Password',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    hintText: '••••••••',
-                    fillColor: AppColors.lightGrey,
-                    filled: true,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: auth.isLoading ? null : _handleAdminLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    elevation: 0,
-                  ),
-                  child: auth.isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          'Sign In to Staff Console',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13.5),
-                        ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleChip(String label, String value) {
-    final isSelected = _selectedRole == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedRole = value),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.lightGreen : Colors.white,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: isSelected ? AppColors.primaryGreen : AppColors.borderGrey,
-              width: isSelected ? 1.5 : 1,
-            ),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primaryGreen : AppColors.primaryText,
               ),
-            ),
+            ],
           ),
         ),
       ),

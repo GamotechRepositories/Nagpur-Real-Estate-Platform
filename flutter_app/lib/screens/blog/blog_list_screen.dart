@@ -50,7 +50,7 @@ class BlogListScreen extends StatelessWidget {
         ),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 36 + MediaQuery.of(context).padding.bottom),
         itemCount: kStaticArticles.length,
         itemBuilder: (context, index) {
           final art = kStaticArticles[index];

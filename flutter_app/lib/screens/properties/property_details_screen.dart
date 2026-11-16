@@ -474,7 +474,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 48 + MediaQuery.of(context).padding.bottom),
                   ],
                 ],
               ),

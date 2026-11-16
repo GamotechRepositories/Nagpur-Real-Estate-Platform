@@ -845,7 +845,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildFooterSection(BuildContext context) {
     return Container(
       color: const Color(0xFF1B2A22), // Deep Forest Neutral Footer
-      padding: const EdgeInsets.fromLTRB(16, 28, 16, 60),
+      padding: EdgeInsets.fromLTRB(16, 28, 16, 70 + MediaQuery.of(context).padding.bottom),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

@@ -89,7 +89,7 @@ class ContentDetailsScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 36 + MediaQuery.of(context).padding.bottom),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(

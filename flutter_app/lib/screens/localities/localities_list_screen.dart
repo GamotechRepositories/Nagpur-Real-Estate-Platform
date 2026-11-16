@@ -27,7 +27,7 @@ class LocalitiesListScreen extends StatelessWidget {
       body: localities.isEmpty
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 36 + MediaQuery.of(context).padding.bottom),
               itemCount: localities.length,
               itemBuilder: (context, index) {
                 final loc = localities[index];

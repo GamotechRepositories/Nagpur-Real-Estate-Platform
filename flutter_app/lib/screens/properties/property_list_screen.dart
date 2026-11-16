@@ -35,6 +35,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -42,14 +43,18 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setModalState) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                MediaQuery.of(ctx).viewInsets.bottom + 24,
-              ),
-              child: Column(
+            final bottomNavPadding = MediaQuery.of(ctx).padding.bottom;
+            final keyboardPadding = MediaQuery.of(ctx).viewInsets.bottom;
+            return SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  keyboardPadding + (bottomNavPadding > 0 ? bottomNavPadding + 8 : 20),
+                ),
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -183,6 +188,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                   ),
                 ],
               ),
+            ),
             );
           },
         );
@@ -333,7 +339,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                         onRefresh: () => prov.searchProperties(),
                         child: _viewLayout == PropertyCardLayout.horizontal
                             ? ListView.builder(
-                                padding: const EdgeInsets.all(14),
+                                padding: EdgeInsets.fromLTRB(14, 14, 14, 32 + MediaQuery.of(context).padding.bottom),
                                 itemCount: prov.properties.length,
                                 itemBuilder: (context, index) {
                                   return PropertyCard(
@@ -343,7 +349,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                                 },
                               )
                             : GridView.builder(
-                                padding: const EdgeInsets.all(14),
+                                padding: EdgeInsets.fromLTRB(14, 14, 14, 32 + MediaQuery.of(context).padding.bottom),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   childAspectRatio: 0.58,

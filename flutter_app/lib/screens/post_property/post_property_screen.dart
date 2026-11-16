@@ -242,13 +242,17 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
 
           // Bottom Navigation Buttons
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              12,
+              16,
+              12 + MediaQuery.of(context).padding.bottom,
+            ),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: AppColors.borderGrey)),
             ),
-            child: SafeArea(
-              child: Row(
+            child: Row(
                 children: [
                   if (_currentStep > 1)
                     Expanded(
@@ -293,8 +297,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
       ),
     );
   }

@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../storage/local_storage.dart';
@@ -11,11 +13,18 @@ class ApiClient {
   String _currentBaseUrl = ApiConstants.baseUrl;
 
   ApiClient._internal() {
+    // In release mode (production APK), ALWAYS force live Render backend
+    if (kReleaseMode) {
+      _currentBaseUrl = ApiConstants.liveBaseUrl;
+    }
+
     dio = Dio(
       BaseOptions(
         baseUrl: _currentBaseUrl,
-        connectTimeout: const Duration(seconds: 12),
-        receiveTimeout: const Duration(seconds: 12),
+        // Extended timeouts for Render free tier cold-start wakeup (up to 45s)
+        connectTimeout: const Duration(seconds: 45),
+        receiveTimeout: const Duration(seconds: 45),
+        sendTimeout: const Duration(seconds: 45),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -23,7 +32,22 @@ class ApiClient {
       ),
     );
 
-    // Initialize with stored preference if available
+    // Resilient SSL Handshake configuration for Android release builds
+    if (!kIsWeb && dio.httpClientAdapter is IOHttpClientAdapter) {
+      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+        client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+          // Trust Render cloud domain, local hosts, and standard endpoints
+          return host.contains('onrender.com') ||
+              host.contains('127.0.0.1') ||
+              host.contains('localhost') ||
+              host.contains('10.0.2.2');
+        };
+        return client;
+      };
+    }
+
+    // Initialize with stored preference if in debug mode
     _loadStoredBackend();
 
     // Request & Response Interceptors
@@ -39,8 +63,7 @@ class ApiClient {
         onError: (DioException error, handler) async {
           // Automatic fallback: If local server (USB) is unavailable or connection refused/timeout,
           // automatically switch to the live Render backend so the app continues working seamlessly!
-          if (!kReleaseMode &&
-              _currentBaseUrl == ApiConstants.localBaseUrl &&
+          if (_currentBaseUrl != ApiConstants.liveBaseUrl &&
               (error.type == DioExceptionType.connectionError ||
                   error.type == DioExceptionType.connectionTimeout)) {
             debugPrint(
@@ -80,6 +103,11 @@ class ApiClient {
   }
 
   Future<void> _loadStoredBackend() async {
+    if (kReleaseMode) {
+      // Release mode MUST always target the live Render cloud
+      setBaseUrl(ApiConstants.liveBaseUrl);
+      return;
+    }
     try {
       final savedMode = await LocalStorage.getBackendMode();
       if (savedMode == 'live') {

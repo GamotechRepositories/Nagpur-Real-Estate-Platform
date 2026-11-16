@@ -16,7 +16,6 @@ import '../../screens/content/content_details_screen.dart';
 import '../../screens/account/my_properties_screen.dart';
 import '../../screens/account/saved_properties_screen.dart';
 import '../../screens/post_property/post_property_screen.dart';
-import '../network/api_client.dart';
 import 'brand_logo.dart';
 import 'auth_dialog.dart';
 
@@ -30,26 +29,30 @@ class AppDrawer extends StatelessWidget {
 
     return Drawer(
       backgroundColor: AppColors.white,
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Zameen-Style Header: Vibrant Primary Green with Logo and Close Icon
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-              color: AppColors.primaryGreen,
-              child: Row(
-                children: [
-                  const BrandLogo(light: true, showSubtitle: true),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white, size: 22),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
+      child: Column(
+        children: [
+          // Header: Vibrant Primary Green extending to top of screen with Logo and Close Icon
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              18,
+              MediaQuery.of(context).padding.top + 14,
+              18,
+              16,
             ),
+            color: AppColors.primaryGreen,
+            child: Row(
+              children: [
+                const BrandLogo(light: true, showSubtitle: true),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 22),
+                  onPressed: () => Navigator.pop(context),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+          ),
 
             // User Profile Banner / Sign-in Prompt
             if (auth.isAuthenticated && auth.user != null)
@@ -101,8 +104,16 @@ class AppDrawer extends StatelessWidget {
                 ),
               )
             else
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) => const AuthDialog(),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 decoration: const BoxDecoration(
                   color: AppColors.lightGrey,
                   border: Border(bottom: BorderSide(color: AppColors.borderGrey)),
@@ -145,84 +156,6 @@ class AppDrawer extends StatelessWidget {
                   ],
                 ),
               ),
-
-            // Backend Environment Status & Toggle (Live Render vs Local USB)
-            StatefulBuilder(
-              builder: (ctx, setDrawerState) {
-                final client = ApiClient();
-                final isLive = client.isLive;
-                return Container(
-                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isLive ? AppColors.lightGreen : AppColors.lightGrey,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isLive ? AppColors.primaryGreen.withOpacity(0.35) : AppColors.borderGrey,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        isLive ? Icons.cloud_done_outlined : Icons.usb_outlined,
-                        size: 18,
-                        color: isLive ? AppColors.primaryGreen : AppColors.primaryText,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isLive ? 'Backend: Live (Render Cloud)' : 'Backend: Localhost (USB)',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: isLive ? AppColors.darkGreen : AppColors.primaryText,
-                              ),
-                            ),
-                            Text(
-                              isLive ? 'Connected to live cloud' : '127.0.0.1:5000',
-                              style: GoogleFonts.inter(
-                                fontSize: 9.5,
-                                color: AppColors.secondaryText,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          if (isLive) {
-                            client.switchToLocal();
-                          } else {
-                            client.switchToLive();
-                          }
-                          setDrawerState(() {});
-                          propProv.fetchHomeData();
-                        },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: isLive ? Colors.white : AppColors.primaryGreen,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: AppColors.primaryGreen),
-                          ),
-                          child: Text(
-                            isLive ? 'Use USB' : 'Use Live',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isLive ? AppColors.primaryGreen : Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
             ),
 
             // Scrollable Navigation Items
@@ -428,7 +361,7 @@ class AppDrawer extends StatelessWidget {
 
             // Bottom Actions (Zameen-Style Green Post Property & User Navigation)
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(16, 14, 16, 14 + MediaQuery.of(context).padding.bottom),
               decoration: const BoxDecoration(
                 color: AppColors.white,
                 border: Border(top: BorderSide(color: AppColors.borderGrey)),
@@ -548,8 +481,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildSectionHeader(String title) {
