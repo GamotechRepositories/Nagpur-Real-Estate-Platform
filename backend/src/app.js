@@ -25,8 +25,10 @@ const allowedOrigins = [
   process.env.ADMIN_URL || 'http://localhost:5174',
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:5175',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:5174',
+  'http://127.0.0.1:5175',
 ];
 
 app.use(
@@ -57,11 +59,13 @@ if (process.env.NODE_ENV !== 'test') {
 // Serve uploaded media statically
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// General API rate limiter on v1 endpoints
+// General API rate limiter on endpoints
 app.use('/api/v1', apiLimiter);
+app.use('/api', apiLimiter);
 
-// Root API v1 routes
+// Root API routes (supports both /api/v1 and /api)
 app.use('/api/v1', routes);
+app.use('/api', routes);
 
 // 404 Route Not Found
 app.use(notFoundHandler);

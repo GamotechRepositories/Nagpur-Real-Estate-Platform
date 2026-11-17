@@ -11,7 +11,11 @@
     "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:admin": "npm run dev --prefix admin",
+    "dev:agent": "npm run dev --prefix agent-portal",
     "build:frontend": "npm run build --workspace=frontend",
+    "build:admin": "npm run build --prefix admin",
+    "build:agent": "npm run build --prefix agent-portal",
     "seed": "npm run seed --workspace=backend",
     "test": "npm run test --workspace=backend"
   },

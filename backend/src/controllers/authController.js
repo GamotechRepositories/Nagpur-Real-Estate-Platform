@@ -185,6 +185,89 @@ const handleAdminLogin = async (req, res, next) => {
 };
 
 /**
+ * Agent Portal Authentication (Profolio Partner Login)
+ * Supports login via either Email OR Phone Number + Password
+ */
+const handleAgentLogin = async (req, res, next) => {
+  try {
+    const { email, phone, identifier, password } = req.body;
+    const loginIdentifier = (identifier || email || phone || '').trim();
+
+    if (!loginIdentifier || !password) {
+      return sendError(res, 'Email/phone and password are required', 'VALIDATION_ERROR', {}, 400);
+    }
+
+    // Find agent by email or phone (case-insensitive for email, strict for phone)
+    const user = await User.findOne({
+      $or: [
+        { email: loginIdentifier.toLowerCase() },
+        { phone: loginIdentifier },
+      ],
+    }).select('+password');
+
+    if (!user) {
+      return sendError(res, 'Invalid agent credentials or account does not exist', 'INVALID_CREDENTIALS', {}, 401);
+    }
+
+    // Role check - must have role AGENT
+    if (user.role !== ROLES.AGENT) {
+      return sendError(res, 'Access restricted to registered agency partners. Please use the appropriate portal.', 'FORBIDDEN', {}, 403);
+    }
+
+    if (user.status !== 'ACTIVE') {
+      return sendError(res, 'Your agent account is currently suspended. Please contact platform administration.', 'ACCOUNT_SUSPENDED', {}, 403);
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return sendError(res, 'Invalid agent credentials', 'INVALID_CREDENTIALS', {}, 401);
+    }
+
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    const agentProfile = await AgentProfile.findOne({ user: user._id });
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await RefreshToken.create({
+      user: user._id,
+      tokenHash: hashToken(refreshToken),
+      deviceInfo: req.headers['user-agent'] || 'Profolio Agent Console',
+      ipAddress: req.ip || '',
+      expiresAt,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return sendSuccess(res, 'Agent logged in successfully', {
+      user: {
+        _id: user._id,
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        avatar: user.avatar,
+        status: user.status,
+        agentProfile: agentProfile || null,
+      },
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Rotate Refresh Token
  */
 const handleRefreshToken = async (req, res, next) => {
@@ -297,6 +380,7 @@ module.exports = {
   handleRequestOtp,
   handleVerifyOtp,
   handleAdminLogin,
+  handleAgentLogin,
   handleRefreshToken,
   handleLogout,
   handleGetMe,

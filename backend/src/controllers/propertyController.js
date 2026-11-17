@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Property = require('../models/Property');
 const PropertyMedia = require('../models/PropertyMedia');
 const Locality = require('../models/Locality');
@@ -261,12 +262,15 @@ const createProperty = async (req, res, next) => {
     const status = isSaveAsDraft ? PROPERTY_STATUS.DRAFT : PROPERTY_STATUS.PENDING_REVIEW;
     const projectId = body.project && mongoose.Types.ObjectId.isValid(body.project) ? body.project : undefined;
 
+    const isAgent = req.user && req.user.role === 'AGENT';
+
     const property = await Property.create({
       ...body,
       slug,
       locality: localityDoc ? localityDoc._id : undefined,
       project: projectId,
       owner: req.user._id,
+      assignedAgent: isAgent ? req.user._id : body.assignedAgent,
       status,
       location: {
         type: 'Point',

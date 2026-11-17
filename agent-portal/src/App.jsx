@@ -1,0 +1,46 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AgentLayout } from './components/layout/AgentLayout';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { AgentLoginPage } from './pages/Auth/AgentLoginPage';
+import { AgentDashboardPage } from './pages/Dashboard/AgentDashboardPage';
+import { AgentListingsPage } from './pages/Listings/AgentListingsPage';
+import { AgentAddPropertyPage } from './pages/Listings/AgentAddPropertyPage';
+import { AgentLeadsPage } from './pages/Leads/AgentLeadsPage';
+import { AgentProfilePage } from './pages/Profile/AgentProfilePage';
+import { NotFoundPage } from './pages/NotFoundPage';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60 * 3, // 3 minutes
+    },
+  },
+});
+
+export const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        {/* Public Agent Auth Route */}
+        <Route path="/login" element={<AgentLoginPage />} />
+
+        {/* Protected Agent Workspace Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AgentLayout />}>
+            <Route path="/" element={<AgentDashboardPage />} />
+            <Route path="/listings" element={<AgentListingsPage />} />
+            <Route path="/listings/new" element={<AgentAddPropertyPage />} />
+            <Route path="/leads" element={<AgentLeadsPage />} />
+            <Route path="/profile" element={<AgentProfilePage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Route>
+      </Routes>
+    </QueryClientProvider>
+  );
+};
+

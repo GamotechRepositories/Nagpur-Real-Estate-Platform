@@ -17,6 +17,9 @@ router.post('/otp/verify', validateBody(verifyOtpSchema), authController.handleV
 // Admin & Staff email/password login
 router.post('/login', loginLimiter, validateBody(adminLoginSchema), authController.handleAdminLogin);
 
+// Dedicated Agent (Profolio) login
+router.post('/agent/login', loginLimiter, authController.handleAgentLogin);
+
 // Token management
 router.post('/refresh', authController.handleRefreshToken);
 router.post('/logout', authController.handleLogout);

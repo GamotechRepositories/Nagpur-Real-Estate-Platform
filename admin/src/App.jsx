@@ -21,6 +21,7 @@ const StaffManagementPage = lazy(() => import('./pages/Administration/StaffManag
 const StaffFormPage = lazy(() => import('./pages/Administration/StaffFormPage'));
 const UsersManagementPage = lazy(() => import('./pages/Administration/UsersManagementPage'));
 const AgentsManagementPage = lazy(() => import('./pages/Administration/AgentsManagementPage'));
+const AgentDetailsPage = lazy(() => import('./pages/Administration/AgentDetailsPage'));
 const NotificationsBroadcastPage = lazy(() => import('./pages/Administration/NotificationsBroadcastPage'));
 const ProfilePage = lazy(() => import('./pages/Administration/ProfilePage'));
 const SettingsManagementPage = lazy(() => import('./pages/System/SettingsManagementPage'));
@@ -147,6 +148,7 @@ function App() {
             >
               <Route path="/leads" element={<LeadManagementPage />} />
               <Route path="/agents" element={<AgentsManagementPage />} />
+              <Route path="/agents/:id" element={<AgentDetailsPage />} />
             </Route>
 
             {/* Site Visits */}
