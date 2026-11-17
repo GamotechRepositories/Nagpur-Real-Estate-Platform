@@ -27,6 +27,11 @@ class ContentModel {
     const defaultImage =
         'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
+    final rawImage = json['coverImage']?.toString() ?? json['image']?.toString() ?? '';
+    final cleanImage = (rawImage.trim().startsWith('http://') || rawImage.trim().startsWith('https://'))
+        ? rawImage.trim()
+        : defaultImage;
+
     return ContentModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       slug: json['slug']?.toString() ?? '',
@@ -37,7 +42,7 @@ class ContentModel {
       author: json['author']?.toString() ?? 'Nagpur Realty Editorial',
       excerpt: json['excerpt']?.toString() ?? '',
       body: json['body']?.toString() ?? '',
-      image: json['coverImage']?.toString() ?? defaultImage,
+      image: cleanImage,
     );
   }
 }

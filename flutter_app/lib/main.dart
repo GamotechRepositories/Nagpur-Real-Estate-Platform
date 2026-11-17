@@ -22,7 +22,11 @@ Future<void> _loadEnv() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    await dotenv.load(fileName: '.env.example');
+    try {
+      await dotenv.load(fileName: '.env.example');
+    } catch (_) {
+      // Gracefully fall back to built-in ApiConstants defaults
+    }
   }
 }
 

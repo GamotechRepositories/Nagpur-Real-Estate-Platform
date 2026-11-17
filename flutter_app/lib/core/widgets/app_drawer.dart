@@ -91,7 +91,7 @@ class AppDrawer extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '+91 ${auth.user!.phone} • ${auth.user!.role}',
+                            '+91 ${auth.user!.phone}',
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               color: AppColors.secondaryText,

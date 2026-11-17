@@ -28,6 +28,11 @@ class LocalityModel {
         ? '₹${areaGuide!['averagePricePerSqFt']}/Sq.Ft.'
         : '₹5,500/Sq.Ft.';
 
+    final rawImage = json['heroImage']?.toString() ?? json['image']?.toString() ?? '';
+    final cleanImage = (rawImage.trim().startsWith('http://') || rawImage.trim().startsWith('https://'))
+        ? rawImage.trim()
+        : defaultImage;
+
     return LocalityModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? 'Nagpur Locality',
@@ -35,7 +40,7 @@ class LocalityModel {
       pincode: json['pincode']?.toString() ?? '',
       propertyCount: int.tryParse(json['propertyCount']?.toString() ?? '0') ?? 0,
       avgPrice: avgPriceFromGuide,
-      image: json['heroImage']?.toString() ?? defaultImage,
+      image: cleanImage,
       description: json['description']?.toString() ?? '',
     );
   }

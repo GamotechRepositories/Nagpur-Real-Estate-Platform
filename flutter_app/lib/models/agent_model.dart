@@ -28,6 +28,10 @@ class AgentModel {
         'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80';
 
     final userObj = json['user'] as Map<String, dynamic>?;
+    final rawAvatar = userObj?['avatar']?.toString() ?? json['avatar']?.toString() ?? '';
+    final cleanAvatar = (rawAvatar.trim().startsWith('http://') || rawAvatar.trim().startsWith('https://'))
+        ? rawAvatar.trim()
+        : defaultAvatar;
 
     return AgentModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
@@ -37,7 +41,7 @@ class AgentModel {
       reviewsCount: int.tryParse(json['reviewsCount']?.toString() ?? '28') ?? 28,
       experience: json['experience']?.toString() ?? '8+ Years Exp.',
       phone: userObj?['phone']?.toString() ?? json['phone']?.toString() ?? '9823000000',
-      avatar: userObj?['avatar']?.toString() ?? json['avatar']?.toString() ?? defaultAvatar,
+      avatar: cleanAvatar,
       specialization: json['bio']?.toString() ?? json['specialization']?.toString() ?? 'Nagpur Specialist',
       verified: true,
     );

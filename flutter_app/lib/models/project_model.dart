@@ -38,6 +38,11 @@ class ProjectModel {
     final rawAmenities = json['amenities'] as List<dynamic>? ?? [];
     final amenitiesList = rawAmenities.map((a) => a.toString()).toList();
 
+    final rawImage = json['coverImage']?.toString() ?? json['image']?.toString() ?? '';
+    final cleanImage = (rawImage.trim().startsWith('http://') || rawImage.trim().startsWith('https://'))
+        ? rawImage.trim()
+        : defaultImage;
+
     return ProjectModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? 'Nagpur Project',
@@ -50,7 +55,7 @@ class ProjectModel {
       priceStarting: json['priceStarting']?.toString() ?? '₹80 Lakh Onwards',
       minPrice: num.tryParse(json['minPrice']?.toString() ?? '8000000') ?? 8000000,
       configurationsText: json['configurationsText']?.toString() ?? '2 & 3 BHK Apartments',
-      image: json['coverImage']?.toString() ?? json['image']?.toString() ?? defaultImage,
+      image: cleanImage,
       description: json['description']?.toString() ?? '',
       amenities: amenitiesList,
     );

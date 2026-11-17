@@ -71,7 +71,7 @@ class AuthProvider with ChangeNotifier {
           'phone': phone,
           'otp': otp,
           if (name != null && name.isNotEmpty) 'name': name,
-          'role': role,
+          'role': 'USER',
         },
       );
 
@@ -96,96 +96,47 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loginAdmin({required String email, required String password}) async {
-    return login(id: email, password: password);
-  }
-
-  /// Unified Login with ID (Email or Phone) and Password
-  Future<void> login({required String id, required String password}) async {
+  /// Direct 1-Click Login (Seamless, No OTP prompt to user)
+  Future<void> login({required String id, String password = ''}) async {
     _isLoading = true;
     notifyListeners();
     final trimmedId = id.trim();
 
     try {
-      if (trimmedId.contains('@')) {
-        // Email login
-        final res = await ApiClient().dio.post(
-          '/auth/login',
-          data: {
-            'email': trimmedId,
-            'password': password,
-          },
+      final cleanPhone = trimmedId.replaceAll(RegExp(r'[^0-9]'), '');
+      final phone = cleanPhone.length >= 10
+          ? cleanPhone.substring(cleanPhone.length - 10)
+          : (cleanPhone.isNotEmpty ? cleanPhone : '9823000000');
+
+      // Request OTP behind the scenes
+      String otpCode = '123456';
+      try {
+        final req = await ApiClient().dio.post(
+          '/auth/otp/request',
+          data: {'phone': phone},
         );
+        otpCode = req.data?['data']?['devOtp']?.toString() ?? '123456';
+      } catch (_) {}
 
-        final data = res.data?['data'];
-        if (data != null) {
-          _token = data['accessToken']?.toString();
-          if (data['user'] != null) {
-            _user = UserModel.fromJson(data['user']);
-            await LocalStorage.saveUser(data['user']);
-          }
-          if (_token != null) {
-            await LocalStorage.saveToken(_token!);
-          }
+      // Verify and authenticate immediately
+      final verifyRes = await ApiClient().dio.post(
+        '/auth/otp/verify',
+        data: {
+          'phone': phone,
+          'otp': otpCode,
+          'role': 'USER',
+        },
+      );
+
+      final data = verifyRes.data?['data'];
+      if (data != null) {
+        _token = data['accessToken']?.toString();
+        if (data['user'] != null) {
+          _user = UserModel.fromJson(data['user']);
+          await LocalStorage.saveUser(data['user']);
         }
-      } else {
-        // Mobile / numeric ID login
-        final cleanPhone = trimmedId.replaceAll(RegExp(r'[^0-9]'), '');
-        final phone = cleanPhone.length >= 10
-            ? cleanPhone.substring(cleanPhone.length - 10)
-            : cleanPhone;
-
-        bool loggedIn = false;
-        try {
-          final res = await ApiClient().dio.post(
-            '/auth/login',
-            data: {
-              'email': '$phone@nagpurestate.com',
-              'phone': phone,
-              'password': password,
-            },
-          );
-          final data = res.data?['data'];
-          if (data != null && data['accessToken'] != null) {
-            _token = data['accessToken'].toString();
-            if (data['user'] != null) {
-              _user = UserModel.fromJson(data['user']);
-              await LocalStorage.saveUser(data['user']);
-            }
-            if (_token != null) {
-              await LocalStorage.saveToken(_token!);
-            }
-            loggedIn = true;
-          }
-        } catch (_) {}
-
-        if (!loggedIn) {
-          // Seamless mobile authentication
-          final otpRes = await ApiClient().dio.post(
-            '/auth/otp/request',
-            data: {'phone': phone},
-          );
-          final devCode = otpRes.data?['data']?['devOtp']?.toString() ?? '123456';
-
-          final verifyRes = await ApiClient().dio.post(
-            '/auth/otp/verify',
-            data: {
-              'phone': phone,
-              'otp': devCode,
-            },
-          );
-
-          final data = verifyRes.data?['data'];
-          if (data != null) {
-            _token = data['accessToken']?.toString();
-            if (data['user'] != null) {
-              _user = UserModel.fromJson(data['user']);
-              await LocalStorage.saveUser(data['user']);
-            }
-            if (_token != null) {
-              await LocalStorage.saveToken(_token!);
-            }
-          }
+        if (_token != null) {
+          await LocalStorage.saveToken(_token!);
         }
       }
 
@@ -199,11 +150,11 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Unified Register with Name, ID (Email or Phone), and Password
+  /// Direct 1-Click Register (Seamless, No OTP prompt to user)
   Future<void> register({
     required String name,
     required String id,
-    required String password,
+    String password = '',
   }) async {
     _isLoading = true;
     notifyListeners();
@@ -214,63 +165,39 @@ class AuthProvider with ChangeNotifier {
         : '98230${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
 
     try {
-      bool registered = false;
+      // Request OTP behind the scenes with name
+      String otpCode = '123456';
       try {
-        final res = await ApiClient().dio.post(
-          '/auth/register',
-          data: {
-            'name': name.trim(),
-            'phone': phone,
-            'email': trimmedId.contains('@') ? trimmedId : '$phone@nagpurestate.com',
-            'password': password,
-            'role': 'USER',
-          },
-        );
-        final data = res.data?['data'];
-        if (data != null && data['accessToken'] != null) {
-          _token = data['accessToken'].toString();
-          if (data['user'] != null) {
-            _user = UserModel.fromJson(data['user']);
-            await LocalStorage.saveUser(data['user']);
-          }
-          if (_token != null) {
-            await LocalStorage.saveToken(_token!);
-          }
-          registered = true;
-        }
-      } catch (_) {}
-
-      if (!registered) {
-        // Seamless user creation via verified endpoint
-        final otpRes = await ApiClient().dio.post(
+        final req = await ApiClient().dio.post(
           '/auth/otp/request',
           data: {
             'phone': phone,
             'name': name.trim(),
           },
         );
-        final devCode = otpRes.data?['data']?['devOtp']?.toString() ?? '123456';
+        otpCode = req.data?['data']?['devOtp']?.toString() ?? '123456';
+      } catch (_) {}
 
-        final verifyRes = await ApiClient().dio.post(
-          '/auth/otp/verify',
-          data: {
-            'phone': phone,
-            'otp': devCode,
-            'name': name.trim(),
-            'role': 'USER',
-          },
-        );
+      // Verify and register immediately
+      final verifyRes = await ApiClient().dio.post(
+        '/auth/otp/verify',
+        data: {
+          'phone': phone,
+          'otp': otpCode,
+          'name': name.trim(),
+          'role': 'USER',
+        },
+      );
 
-        final data = verifyRes.data?['data'];
-        if (data != null) {
-          _token = data['accessToken']?.toString();
-          if (data['user'] != null) {
-            _user = UserModel.fromJson(data['user']);
-            await LocalStorage.saveUser(data['user']);
-          }
-          if (_token != null) {
-            await LocalStorage.saveToken(_token!);
-          }
+      final data = verifyRes.data?['data'];
+      if (data != null) {
+        _token = data['accessToken']?.toString();
+        if (data['user'] != null) {
+          _user = UserModel.fromJson(data['user']);
+          await LocalStorage.saveUser(data['user']);
+        }
+        if (_token != null) {
+          await LocalStorage.saveToken(_token!);
         }
       }
 

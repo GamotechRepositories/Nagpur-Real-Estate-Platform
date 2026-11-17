@@ -16,7 +16,7 @@ class _AuthDialogState extends State<AuthDialog> {
   late int _isRegisterMode; // 0 = Sign In, 1 = Register
 
   final _nameController = TextEditingController();
-  final _idController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
@@ -31,48 +31,47 @@ class _AuthDialogState extends State<AuthDialog> {
   @override
   void dispose() {
     _nameController.dispose();
-    _idController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+  String _extractPhone(String input) {
+    final clean = input.replaceAll(RegExp(r'[^0-9]'), '');
+    return clean.length >= 10 ? clean.substring(clean.length - 10) : clean;
+  }
+
   Future<void> _handleSubmit() async {
     setState(() => _errorMessage = '');
-    final id = _idController.text.trim();
+
+    final phone = _extractPhone(_phoneController.text.trim());
     final password = _passwordController.text;
 
-    if (id.isEmpty) {
-      setState(() => _errorMessage = 'Please enter your User ID (Mobile number or Email)');
+    if (phone.isEmpty || phone.length != 10) {
+      setState(() => _errorMessage = 'Please enter a valid 10-digit mobile number');
       return;
     }
 
-    if (password.isEmpty) {
-      setState(() => _errorMessage = 'Please enter your password');
-      return;
+    if (_isRegisterMode == 1) {
+      final name = _nameController.text.trim();
+      if (name.isEmpty) {
+        setState(() => _errorMessage = 'Please enter your full name');
+        return;
+      }
     }
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     try {
       if (_isRegisterMode == 1) {
-        final name = _nameController.text.trim();
-        if (name.isEmpty) {
-          setState(() => _errorMessage = 'Please enter your full name');
-          return;
-        }
-        if (password.length < 6) {
-          setState(() => _errorMessage = 'Password must be at least 6 characters');
-          return;
-        }
-
         await auth.register(
-          name: name,
-          id: id,
+          name: _nameController.text.trim(),
+          id: phone,
           password: password,
         );
       } else {
         await auth.login(
-          id: id,
+          id: phone,
           password: password,
         );
       }
@@ -82,7 +81,9 @@ class _AuthDialogState extends State<AuthDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _isRegisterMode == 1 ? 'Account registered successfully!' : 'Signed in successfully!',
+              _isRegisterMode == 1
+                  ? 'Account created successfully! Welcome!'
+                  : 'Signed in successfully!',
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
             backgroundColor: AppColors.primaryGreen,
@@ -95,8 +96,8 @@ class _AuthDialogState extends State<AuthDialog> {
       if (mounted) {
         setState(() {
           _errorMessage = _isRegisterMode == 1
-              ? 'Registration failed. Please check your details and try again.'
-              : 'Invalid User ID or Password. Please check and try again.';
+              ? 'Could not create account. Please check details and try again.'
+              : 'Sign in failed. Please check your mobile number and try again.';
         });
       }
     }
@@ -253,6 +254,7 @@ class _AuthDialogState extends State<AuthDialog> {
                 const SizedBox(height: 6),
                 TextField(
                   controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.badge_outlined, size: 18, color: AppColors.primaryGreen),
                     hintText: 'e.g. Ramesh Sharma',
@@ -276,9 +278,9 @@ class _AuthDialogState extends State<AuthDialog> {
                 const SizedBox(height: 14),
               ],
 
-              // User ID Field (Mobile or Email)
+              // Mobile Number Field
               Text(
-                'User ID (Mobile or Email)',
+                'Mobile Number',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -287,11 +289,13 @@ class _AuthDialogState extends State<AuthDialog> {
               ),
               const SizedBox(height: 6),
               TextField(
-                controller: _idController,
-                keyboardType: TextInputType.emailAddress,
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.person_outline, size: 18, color: AppColors.primaryGreen),
-                  hintText: '9823000000 or email@example.com',
+                  counterText: '',
+                  prefixIcon: const Icon(Icons.phone_android_outlined, size: 18, color: AppColors.primaryGreen),
+                  hintText: '9823000000',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   fillColor: AppColors.lightGrey,
                   filled: true,
@@ -334,7 +338,7 @@ class _AuthDialogState extends State<AuthDialog> {
                     ),
                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  hintText: _isRegisterMode == 1 ? 'Create password (min 6 characters)' : 'Enter password',
+                  hintText: _isRegisterMode == 1 ? 'Enter password' : 'Enter password',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   fillColor: AppColors.lightGrey,
                   filled: true,
