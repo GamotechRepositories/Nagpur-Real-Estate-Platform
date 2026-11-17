@@ -11,8 +11,8 @@ try {
 }
 
 const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'nagpur-real-estate-media';
-const CLOUDFRONT_URL = (process.env.AWS_CLOUDFRONT_URL || '').replace(/\/$/, '');
+const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME || 'bulkmobilemart-bucket';
+const CLOUDFRONT_URL = (process.env.CLOUDFRONT_URL || process.env.AWS_CLOUDFRONT_URL || '').replace(/\/$/, '');
 
 // Check if valid AWS credentials exist (not dummy/placeholder)
 const isAwsConfigured = () => {
