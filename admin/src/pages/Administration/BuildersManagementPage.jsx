@@ -17,7 +17,7 @@ import {
   Clock,
   Edit2,
   Lock,
-  ArrowRight,
+  Eye,
   ExternalLink,
   Layers,
   Compass,
@@ -360,10 +360,10 @@ export const BuildersManagementPage = () => {
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center space-x-1 py-1 px-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold text-[11px] transition-colors"
+                            className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition"
+                            title="Chat on WhatsApp"
                           >
                             <MessageCircle className="w-3.5 h-3.5" />
-                            <span>WhatsApp</span>
                           </a>
 
                           <a
@@ -429,10 +429,10 @@ export const BuildersManagementPage = () => {
                           <button
                             type="button"
                             onClick={() => navigate(`/builders/${builder._id}`)}
-                            className="py-1 px-2.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-[11px] border border-teal-200 transition inline-flex items-center gap-1"
+                            className="p-1.5 rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:text-teal-900 transition"
+                            title="View Builder Details"
                           >
-                            <span>Details</span>
-                            <ArrowRight className="w-3 h-3" />
+                            <Eye className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
