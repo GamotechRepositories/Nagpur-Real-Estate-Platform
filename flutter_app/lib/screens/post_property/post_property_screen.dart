@@ -1301,24 +1301,27 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Property Photos & Media',
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryText,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Property Photos & Media',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryText,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Upload real property photos (Hall, Bedrooms, Kitchen, Elevation)',
-                        style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Text(
+                          'Upload real property photos (Hall, Bedrooms, Kitchen, Elevation)',
+                          style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(

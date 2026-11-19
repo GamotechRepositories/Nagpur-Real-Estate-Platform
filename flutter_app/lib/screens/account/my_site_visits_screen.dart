@@ -183,46 +183,56 @@ class _MySiteVisitsScreenState extends State<MySiteVisitsScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Filter Tabs
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildTab('ALL', 'All Visits (${_visits.length})'),
-                  _buildTab('REQUESTED', 'Pending'),
-                  _buildTab('CONFIRMED', 'Confirmed'),
-                  _buildTab('COMPLETED', 'Completed'),
-                  _buildTab('CANCELLED', 'Cancelled'),
-                ],
+      body: SafeArea(
+        bottom: true,
+        child: Column(
+          children: [
+            // Filter Tabs
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: [
+                    _buildTab('ALL', 'All Visits (${_visits.length})'),
+                    _buildTab('REQUESTED', 'Pending'),
+                    _buildTab('CONFIRMED', 'Confirmed'),
+                    _buildTab('COMPLETED', 'Completed'),
+                    _buildTab('CANCELLED', 'Cancelled'),
+                    const SizedBox(width: 8),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Divider(height: 1, color: AppColors.borderGrey),
+            const Divider(height: 1, color: AppColors.borderGrey),
 
-          // Visit List
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
-                : RefreshIndicator(
-                    onRefresh: _fetchVisits,
-                    color: AppColors.primaryGreen,
-                    child: _filteredVisits.isEmpty
-                        ? _buildEmptyState()
-                        : ListView.builder(
-                            padding: const EdgeInsets.all(12),
-                            itemCount: _filteredVisits.length,
-                            itemBuilder: (context, index) {
-                              return _buildVisitCard(_filteredVisits[index]);
-                            },
-                          ),
-                  ),
-          ),
-        ],
+            // Visit List
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
+                  : RefreshIndicator(
+                      onRefresh: _fetchVisits,
+                      color: AppColors.primaryGreen,
+                      child: _filteredVisits.isEmpty
+                          ? _buildEmptyState()
+                          : ListView.builder(
+                              padding: EdgeInsets.fromLTRB(
+                                12,
+                                12,
+                                12,
+                                16 + MediaQuery.of(context).padding.bottom + 24,
+                              ),
+                              itemCount: _filteredVisits.length,
+                              itemBuilder: (context, index) {
+                                return _buildVisitCard(_filteredVisits[index]);
+                              },
+                            ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -244,8 +254,11 @@ class _MySiteVisitsScreenState extends State<MySiteVisitsScreen> {
         selectedColor: AppColors.primaryGreen,
         backgroundColor: const Color(0xFFF1F5F9),
         showCheckmark: false,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: isSelected ? AppColors.primaryGreen : Colors.transparent),
         ),
         onSelected: (_) {
@@ -514,41 +527,70 @@ class _MySiteVisitsScreenState extends State<MySiteVisitsScreen> {
 
           // Assigned Agent Contact Footer
           if (agent != null)
-            Padding(
-              padding: const EdgeInsets.all(12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+              ),
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 16,
+                    radius: 17,
                     backgroundColor: AppColors.primaryGreen.withOpacity(0.12),
-                    child: const Icon(Icons.support_agent, size: 18, color: AppColors.primaryGreen),
+                    child: const Icon(Icons.support_agent, size: 19, color: AppColors.primaryGreen),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           agent['name']?.toString() ?? 'Assigned Agent',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.bold),
                         ),
+                        const SizedBox(height: 1),
                         Text(
                           'Your Inspection Coordinator',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(fontSize: 10.5, color: AppColors.secondaryText),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   if (agent['phone'] != null && agent['phone'].toString().isNotEmpty) ...[
-                    IconButton(
-                      icon: const Icon(Icons.phone, color: AppColors.primaryGreen, size: 20),
-                      onPressed: () => _callPhone(agent['phone'].toString()),
-                      tooltip: 'Call Agent',
+                    // Call Button
+                    Material(
+                      color: const Color(0xFFE8F5E9),
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => _callPhone(agent['phone'].toString()),
+                        child: const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Icon(Icons.phone, color: AppColors.primaryGreen, size: 18),
+                        ),
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 20),
-                      onPressed: () => _openWhatsApp(agent['phone'].toString(), title),
-                      tooltip: 'WhatsApp Agent',
+                    const SizedBox(width: 8),
+                    // WhatsApp Button
+                    Material(
+                      color: const Color(0xFFE8F8F0),
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => _openWhatsApp(agent['phone'].toString(), title),
+                        child: const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Icon(Icons.chat_bubble, color: Color(0xFF25D366), size: 18),
+                        ),
+                      ),
                     ),
                   ],
                 ],
