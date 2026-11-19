@@ -602,7 +602,7 @@ const getMyLeads = async (req, res, next) => {
     };
 
     if (status && status !== 'ALL') {
-      filter.status = status;
+      filter.leadStatus = status;
     }
 
     if (search && search.trim()) {
@@ -614,7 +614,7 @@ const getMyLeads = async (req, res, next) => {
       ];
     }
 
-    const [leads, totalCount] = await Promise.all([
+    const [rawLeads, totalCount] = await Promise.all([
       Enquiry.find(filter)
         .populate('property', 'title slug price coverImage localityName')
         .sort({ createdAt: -1 })
@@ -623,6 +623,14 @@ const getMyLeads = async (req, res, next) => {
         .lean(),
       Enquiry.countDocuments(filter),
     ]);
+
+    // Normalize field names so both `name/phone/status` and `customerName/phoneNumber/leadStatus` work
+    const leads = rawLeads.map((l) => ({
+      ...l,
+      name: l.customerName || l.name,
+      phone: l.phoneNumber || l.phone,
+      status: l.leadStatus || l.status || 'NEW',
+    }));
 
     return sendSuccess(res, 'Agent leads retrieved successfully', {
       leads,
@@ -654,7 +662,9 @@ const updateLeadStatusByAgent = async (req, res, next) => {
       return sendError(res, 'Lead not found', 'NOT_FOUND', {}, 404);
     }
 
-    if (status) lead.status = status;
+    if (status) {
+      lead.leadStatus = status;
+    }
     if (notes) lead.notes = notes;
 
     await lead.save();

@@ -60,11 +60,10 @@ export const AgentLeadsPage = () => {
   const filteredLeads = leads.filter((lead) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
-    return (
-      lead.name?.toLowerCase().includes(q) ||
-      lead.phone?.includes(q) ||
-      lead.property?.title?.toLowerCase().includes(q)
-    );
+    const leadName = (lead.customerName || lead.name || '').toLowerCase();
+    const leadPhone = (lead.phoneNumber || lead.phone || '');
+    const propTitle = (lead.property?.title || lead.propertyTitle || '').toLowerCase();
+    return leadName.includes(q) || leadPhone.includes(q) || propTitle.includes(q);
   });
 
   return (
@@ -141,13 +140,14 @@ export const AgentLeadsPage = () => {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredLeads.map((lead) => {
-                  const rawPhone = (lead?.phone || '').replace(/[^0-9]/g, '');
-                  const buyerName = lead?.name || 'Prospective Buyer';
+                  const leadPhone = lead.phoneNumber || lead.phone || '';
+                  const rawPhone = leadPhone.replace(/[^0-9]/g, '');
+                  const buyerName = lead.customerName || lead.name || 'Prospective Buyer';
+                  const currentStatus = lead.leadStatus || lead.status || 'NEW';
+                  const propertyTitle = lead.property?.title || lead.propertyTitle || 'Property';
                   const waUrl = rawPhone
                     ? `https://wa.me/91${rawPhone}?text=${encodeURIComponent(
-                        `Hello ${buyerName}, I am ${user?.name || 'your real estate advisor'} following up on your inquiry about ${
-                          lead?.property?.title || 'the property'
-                        } on Nagpur Real Estate.`
+                        `Hello ${buyerName}, I am ${user?.name || 'your real estate advisor'} following up on your inquiry about ${propertyTitle} on Nagpur Real Estate.`
                       )}`
                     : '#';
 
@@ -155,8 +155,8 @@ export const AgentLeadsPage = () => {
                     <tr key={lead._id} className="hover:bg-slate-50 transition">
                       {/* Buyer */}
                       <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900">{lead.name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">{lead.phone}</div>
+                        <div className="font-bold text-slate-900">{buyerName}</div>
+                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">{leadPhone}</div>
                         {lead.email && <div className="text-[11px] text-slate-400">{lead.email}</div>}
                         <div className="text-[10px] text-slate-400 mt-0.5">
                           Received {formatRelativeTime(lead.createdAt)}
@@ -177,6 +177,15 @@ export const AgentLeadsPage = () => {
                               {lead.property.localityName || 'Nagpur'}
                             </div>
                           </div>
+                        ) : lead.propertyTitle ? (
+                          <div>
+                            <div className="font-semibold text-slate-800 truncate">
+                              {lead.propertyTitle}
+                            </div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              {lead.locality || 'Nagpur'}
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-slate-400 text-xs">General Consultation</span>
                         )}
@@ -192,7 +201,7 @@ export const AgentLeadsPage = () => {
                       {/* Pipeline Status Selector */}
                       <td className="px-4 py-3">
                         <select
-                          value={lead.status}
+                          value={currentStatus}
                           onChange={(e) =>
                             updateStatusMutation.mutate({ id: lead._id, status: e.target.value })
                           }

@@ -65,8 +65,15 @@ const getSiteVisits = async (req, res, next) => {
     const { status, date } = req.query;
     let filter = {};
 
-    if (req.user.role === ROLES.AGENT) {
-      filter.assignedAgent = req.user._id;
+    if (req.user.role === ROLES.AGENT || req.user.role === ROLES.BUILDER) {
+      const myProperties = await Property.find({
+        $or: [{ owner: req.user._id }, { assignedAgent: req.user._id }],
+      }).select('_id');
+      const propIds = myProperties.map((p) => p._id);
+      filter.$or = [
+        { assignedAgent: req.user._id },
+        { property: { $in: propIds } },
+      ];
     } else if (req.user.role === ROLES.OWNER) {
       // Find properties owned by this owner
       const myProperties = await Property.find({ owner: req.user._id }).select('_id');

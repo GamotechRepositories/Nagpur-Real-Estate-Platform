@@ -8,6 +8,7 @@ import { AgentDashboardPage } from './pages/Dashboard/AgentDashboardPage';
 import { AgentListingsPage } from './pages/Listings/AgentListingsPage';
 import { AgentAddPropertyPage } from './pages/Listings/AgentAddPropertyPage';
 import { AgentLeadsPage } from './pages/Leads/AgentLeadsPage';
+import { AgentSiteVisitsPage } from './pages/SiteVisits/AgentSiteVisitsPage';
 import { AgentProfilePage } from './pages/Profile/AgentProfilePage';
 import { BuilderProjectsPage } from './pages/Projects/BuilderProjectsPage';
 import { BuilderAddProjectPage } from './pages/Projects/BuilderAddProjectPage';
@@ -39,6 +40,7 @@ export const App = () => {
             <Route path="/listings" element={<AgentListingsPage />} />
             <Route path="/listings/new" element={<AgentAddPropertyPage />} />
             <Route path="/leads" element={<AgentLeadsPage />} />
+            <Route path="/site-visits" element={<AgentSiteVisitsPage />} />
             <Route path="/profile" element={<AgentProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

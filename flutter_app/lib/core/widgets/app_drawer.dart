@@ -15,6 +15,7 @@ import '../../screens/blog/blog_list_screen.dart';
 import '../../screens/content/content_details_screen.dart';
 import '../../screens/account/my_properties_screen.dart';
 import '../../screens/account/saved_properties_screen.dart';
+import '../../screens/account/my_site_visits_screen.dart';
 import '../../screens/post_property/post_property_screen.dart';
 import 'brand_logo.dart';
 import 'auth_dialog.dart';
@@ -163,6 +164,22 @@ class AppDrawer extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 children: [
+                  if (auth.isAuthenticated) ...[
+                    _buildSectionHeader('MY ACTIVITY'),
+                    _buildNavTile(
+                      context,
+                      icon: Icons.calendar_month_outlined,
+                      title: 'My Site Visits',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MySiteVisitsScreen()),
+                        );
+                      },
+                    ),
+                    const Divider(color: AppColors.borderGrey),
+                  ],
                   _buildSectionHeader('PROPERTY CATEGORIES'),
                   _buildNavTile(
                     context,
@@ -404,6 +421,26 @@ class AppDrawer extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   if (auth.isAuthenticated) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MySiteVisitsScreen()),
+                          );
+                        },
+                        icon: const Icon(Icons.calendar_month_outlined, size: 16, color: AppColors.primaryGreen),
+                        label: const Text('My Site Visits', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          side: const BorderSide(color: AppColors.primaryGreen),
+                          foregroundColor: AppColors.primaryGreen,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
