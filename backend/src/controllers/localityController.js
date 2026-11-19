@@ -92,9 +92,26 @@ const upsertLocality = async (req, res, next) => {
   }
 };
 
+/**
+ * Delete Locality (Admin)
+ */
+const deleteLocality = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const locality = await Locality.findByIdAndDelete(id);
+    if (!locality) {
+      return sendError(res, 'Locality not found', 'NOT_FOUND', {}, 404);
+    }
+    return sendSuccess(res, 'Locality deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getLocalities,
   getLocalityBySlug,
   upsertLocality,
+  deleteLocality,
 };
 

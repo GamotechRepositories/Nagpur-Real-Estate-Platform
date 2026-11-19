@@ -7,13 +7,13 @@ import {
   Search,
   Shield,
   Activity,
-  UserX,
   Edit,
+  Trash2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Badge from '../../components/common/Badge';
-import ConfirmationModal from '../../components/common/ConfirmationModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import { useToastStore } from '../../store/useToastStore';
 import { formatDate } from '../../utils/formatters';
 
@@ -211,10 +211,10 @@ const StaffManagementPage = () => {
                           {!isSuperAdmin && (
                             <button
                               onClick={() => setSuspendingStaff(staff)}
-                              className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-                              title="Suspend Employee"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                              title="Delete Employee"
                             >
-                              <UserX className="w-3.5 h-3.5" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
@@ -228,15 +228,14 @@ const StaffManagementPage = () => {
         </div>
       </div>
 
-      {/* SUSPEND CONFIRMATION MODAL */}
-      <ConfirmationModal
+      {/* DELETE CONFIRMATION MODAL */}
+      <ConfirmModal
         isOpen={Boolean(suspendingStaff)}
         onClose={() => setSuspendingStaff(null)}
         onConfirm={() => suspendMutation.mutate(suspendingStaff?._id)}
-        title="Suspend Employee Account"
-        message={`Are you sure you want to suspend access for ${suspendingStaff?.name} (${suspendingStaff?.email})? They will no longer be able to log in to the administrative console.`}
-        confirmText="Suspend Account"
-        confirmVariant="danger"
+        title="Delete Employee Account"
+        message={`Are you sure you want to delete ${suspendingStaff?.name}?`}
+        confirmText="Delete"
         isLoading={suspendMutation.isPending}
       />
     </div>

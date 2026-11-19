@@ -655,6 +655,7 @@ const getMyProperties = async (req, res, next) => {
   try {
     const builder = await Builder.findOne({ user: req.user._id });
     const userId = req.user._id;
+    const { status, search } = req.query;
 
     let projectIds = [];
     if (builder) {
@@ -668,15 +669,36 @@ const getMyProperties = async (req, res, next) => {
       projectIds = projects.map((p) => p._id);
     }
 
-    const propertyFilter = {
+    const ownershipFilter = {
       $or: [
         { owner: userId },
         ...(projectIds.length > 0 ? [{ project: { $in: projectIds } }] : []),
       ],
     };
 
+    const andConditions = [ownershipFilter];
+
+    if (status && status !== 'ALL') {
+      andConditions.push({ status });
+    }
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      andConditions.push({
+        $or: [
+          { title: { $regex: q, $options: 'i' } },
+          { localityName: { $regex: q, $options: 'i' } },
+          { address: { $regex: q, $options: 'i' } },
+          { slug: { $regex: q, $options: 'i' } },
+        ],
+      });
+    }
+
+    const propertyFilter = andConditions.length > 1 ? { $and: andConditions } : andConditions[0];
+
     const properties = await Property.find(propertyFilter)
       .populate('project', 'name slug localityName reraNumber projectStatus')
+      .populate('owner', 'name phone email role')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -742,11 +764,44 @@ const createMyPropertyUnit = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin: Delete a builder
+ */
+const deleteBuilderByAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const builder = await Builder.findById(id);
+    if (!builder) {
+      return sendError(res, 'Builder not found', 'NOT_FOUND', {}, 404);
+    }
+
+    const userId = builder.user;
+    await Builder.findByIdAndDelete(id);
+
+    if (userId) {
+      await User.findByIdAndDelete(userId);
+    }
+
+    await logAudit({
+      req,
+      action: 'ADMIN_DELETE_BUILDER',
+      targetType: 'BUILDER',
+      targetId: id,
+      notes: `Builder "${builder.name}" deleted by admin`,
+    });
+
+    return sendSuccess(res, 'Builder deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getBuilders,
   getBuilderById,
   createBuilderByAdmin,
   updateBuilderByAdmin,
+  deleteBuilderByAdmin,
   getMyBuilderStats,
   getMyProjects,
   createMyProject,

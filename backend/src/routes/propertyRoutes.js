@@ -15,6 +15,7 @@ router.post('/', authenticate, validateBody(propertyCreateSchema), propertyContr
 router.patch('/:id', authenticate, propertyController.updateProperty);
 router.post('/:id/media', authenticate, upload.array('files', 15), propertyController.uploadPropertyMedia);
 router.post('/:id/status', authenticate, propertyController.updatePropertyStatus);
+router.delete('/:id', authenticate, propertyController.deleteProperty);
 
 module.exports = router;
 

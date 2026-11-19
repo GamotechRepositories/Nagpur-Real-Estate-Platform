@@ -10,6 +10,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 
 export const AgentLoginPage = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export const AgentLoginPage = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [modalState, setModalState] = useState({ isOpen: false, title: 'Attention', message: '' });
 
   // If already authenticated as agent or builder, redirect to dashboard
   if (token && (user?.role === 'AGENT' || user?.role === 'BUILDER')) {
@@ -40,7 +42,11 @@ export const AgentLoginPage = () => {
     e.preventDefault();
 
     if (!identifier.trim() || !password.trim()) {
-      alert('Please enter your mobile number/email and password.');
+      setModalState({
+        isOpen: true,
+        title: 'Missing Details',
+        message: 'Please enter your mobile number/email and password.',
+      });
       return;
     }
 
@@ -54,7 +60,11 @@ export const AgentLoginPage = () => {
       navigate('/');
     } else {
       const msg = result.message || 'Login failed. Please verify your credentials.';
-      alert(msg);
+      setModalState({
+        isOpen: true,
+        title: 'Sign In Failed',
+        message: msg,
+      });
     }
   };
 
@@ -199,6 +209,15 @@ export const AgentLoginPage = () => {
           <span>MahaRERA Compliant Real Estate Partner Platform</span>
         </div>
       </div>
+
+      {/* In-App Alert/Warning Pop-up Modal */}
+      <ConfirmModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, title: '', message: '' })}
+        title={modalState.title}
+        message={modalState.message}
+        type="warning"
+      />
     </div>
   );
 };

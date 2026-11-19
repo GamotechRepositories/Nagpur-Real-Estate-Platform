@@ -22,5 +22,6 @@ router.get('/:id', builderController.getBuilderById);
 router.post('/admin', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.createBuilderByAdmin);
 router.put('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.updateBuilderByAdmin);
 router.patch('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.updateBuilderByAdmin);
+router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.deleteBuilderByAdmin);
 
 module.exports = router;

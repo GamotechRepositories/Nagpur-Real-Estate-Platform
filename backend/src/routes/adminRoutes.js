@@ -110,6 +110,12 @@ router.patch(
   adminController.updateUserRoleStatus
 );
 
+router.delete(
+  '/users/:id',
+  authorize(ROLES.SUPER_ADMIN),
+  adminController.deleteUser
+);
+
 // Platform Settings & Routing configuration
 router.get(
   '/settings',

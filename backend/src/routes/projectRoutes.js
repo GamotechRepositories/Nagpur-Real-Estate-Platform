@@ -11,6 +11,7 @@ router.get('/:slug', projectController.getProjectBySlug);
 
 // Admin
 router.post('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR), projectController.createOrUpdateProject);
+router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR, ROLES.CRM_MANAGER), projectController.deleteProject);
 
 module.exports = router;
 

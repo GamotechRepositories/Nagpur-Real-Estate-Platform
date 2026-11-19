@@ -18,11 +18,13 @@ import {
   Edit2,
   Lock,
   Eye,
+  Trash2,
   ExternalLink,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Modal from '../../components/common/Modal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import EmptyState from '../../components/common/EmptyState';
 import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
 
@@ -37,6 +39,8 @@ export const AgentsManagementPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [passwordWasUpdated, setPasswordWasUpdated] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
+  const [alertModal, setAlertModal] = useState({ isOpen: false, title: 'Notice', message: '' });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -173,6 +177,23 @@ export const AgentsManagementPage = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      return apiClient.delete(`/agents/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-agents-list']);
+      setDeleteModal({ isOpen: false, item: null });
+    },
+    onError: (err) => {
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: err.response?.data?.message || err.message || 'Failed to delete agent.',
+      });
+    },
+  });
+
   const filteredAgents = agents?.filter((a) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -239,12 +260,11 @@ export const AgentsManagementPage = () => {
               <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Certified Agent & Agency</th>
-                  <th className="py-3 px-3">MahaRERA No.</th>
-                  <th className="py-3 px-3">Coverage Areas</th>
                   <th className="py-3 px-3">Rating & Experience</th>
                   <th className="py-3 px-3">Contact & WhatsApp</th>
                   <th className="py-3 px-3">Lead Routing</th>
                   <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-3 text-center">Delete</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -278,40 +298,6 @@ export const AgentsManagementPage = () => {
                               {agent.agencyName || 'Independent Consultant'}
                             </p>
                           </div>
-                        </div>
-                      </td>
-
-                      {/* MahaRERA Number */}
-                      <td className="py-3 px-3 font-mono">
-                        {agent.reraNumber ? (
-                          <span className="font-semibold text-slate-800 bg-slate-100 py-0.5 px-2 rounded text-[11px] border border-slate-200">
-                            {agent.reraNumber}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 italic">Not set</span>
-                        )}
-                      </td>
-
-                      {/* Coverage Areas */}
-                      <td className="py-3 px-3">
-                        <div className="flex flex-wrap gap-1 max-w-xs">
-                          {agent.areasServed && agent.areasServed.length > 0 ? (
-                            agent.areasServed.slice(0, 3).map((area, idx) => (
-                              <span
-                                key={idx}
-                                className="py-0.5 px-1.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium"
-                              >
-                                {area}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-slate-400 text-[11px]">Nagpur</span>
-                          )}
-                          {agent.areasServed && agent.areasServed.length > 3 && (
-                            <span className="text-[10px] text-slate-400 font-semibold">
-                              +{agent.areasServed.length - 3} more
-                            </span>
-                          )}
                         </div>
                       </td>
 
@@ -410,6 +396,19 @@ export const AgentsManagementPage = () => {
                             <Eye className="w-3.5 h-3.5" />
                           </button>
                         </div>
+                      </td>
+
+                      {/* Delete */}
+                      <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteModal({ isOpen: true, item: agent })}
+                          disabled={deleteMutation.isPending}
+                          className="p-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer disabled:opacity-50"
+                          title="Delete Agent"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -833,6 +832,26 @@ export const AgentsManagementPage = () => {
           </div>
         </Modal>
       )}
+
+      {/* In-App Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, item: null })}
+        onConfirm={() => deleteMutation.mutate(deleteModal.item?._id)}
+        title="Delete Agent"
+        message={`Are you sure you want to delete "${deleteModal.item?.user?.name || deleteModal.item?.agencyName || 'this agent'}"?`}
+        confirmText="Delete"
+        isLoading={deleteMutation.isPending}
+      />
+
+      {/* In-App Alert Modal */}
+      <ConfirmModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ isOpen: false, title: '', message: '' })}
+        title={alertModal.title}
+        message={alertModal.message}
+        type="warning"
+      />
     </div>
   );
 };

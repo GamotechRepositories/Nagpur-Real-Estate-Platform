@@ -7,11 +7,13 @@ import {
   MapPin,
   Shield,
   Edit2,
+  Trash2,
   Building,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Modal from '../../components/common/Modal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import Badge from '../../components/common/Badge';
 import EmptyState from '../../components/common/EmptyState';
 import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
@@ -24,6 +26,7 @@ export const ProjectsManagementPage = () => {
   const [search, setSearch] = useState('');
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -78,6 +81,16 @@ export const ProjectsManagementPage = () => {
         isFeatured: false,
         isPublished: true,
       });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      return apiClient.delete(`/projects/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-projects-list']);
+      setDeleteModal({ isOpen: false, item: null });
     },
   });
 
@@ -266,13 +279,22 @@ export const ProjectsManagementPage = () => {
 
                       {/* Actions */}
                       <td className="py-3 px-4 text-right whitespace-nowrap">
-                        <button
-                          onClick={() => handleOpenEdit(proj)}
-                          className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                          <span>Edit</span>
-                        </button>
+                        <div className="flex items-center justify-end space-x-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(proj)}
+                            className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => setDeleteModal({ isOpen: true, item: proj })}
+                            className="p-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -447,6 +469,17 @@ export const ProjectsManagementPage = () => {
           </form>
         </Modal>
       )}
+
+      {/* In-App Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, item: null })}
+        onConfirm={() => deleteMutation.mutate(deleteModal.item?._id)}
+        title="Delete Project"
+        message={`Are you sure you want to delete project "${deleteModal.item?.name || ''}"?`}
+        confirmText="Delete"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 };

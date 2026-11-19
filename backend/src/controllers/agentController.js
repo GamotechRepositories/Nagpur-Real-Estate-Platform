@@ -675,6 +675,30 @@ const updateLeadStatusByAgent = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin: Delete an agent
+ */
+const deleteAgentByAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const agent = await AgentProfile.findById(id);
+    if (!agent) {
+      return sendError(res, 'Agent not found', 'NOT_FOUND', {}, 404);
+    }
+
+    const userId = agent.user;
+    await AgentProfile.findByIdAndDelete(id);
+
+    if (userId) {
+      await User.findByIdAndDelete(userId);
+    }
+
+    return sendSuccess(res, 'Agent deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAgents,
   getAgentById,
@@ -682,6 +706,7 @@ module.exports = {
   createAgentByAdmin,
   updateAgentByAdmin,
   updateAgentStatusByAdmin,
+  deleteAgentByAdmin,
   getMyAgentStats,
   getMyProperties,
   getMyLeads,

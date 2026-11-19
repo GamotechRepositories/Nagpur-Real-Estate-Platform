@@ -6,12 +6,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit2,
+  Trash2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Badge from '../../components/common/Badge';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import { formatDate } from '../../utils/formatters';
 
 const ALL_ROLES = [
@@ -33,6 +35,7 @@ export const UsersManagementPage = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [newRole, setNewRole] = useState('');
   const [newStatus, setNewStatus] = useState('');
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
 
   const { data: response, isLoading } = useQuery({
     queryKey: ['admin-users-list', search, roleFilter, statusFilter, page],
@@ -60,6 +63,17 @@ export const UsersManagementPage = () => {
       queryClient.invalidateQueries(['admin-users-list']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
       setEditingUser(null);
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id) => {
+      return apiClient.delete(`/admin/users/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-users-list']);
+      queryClient.invalidateQueries(['admin-dashboard-stats']);
+      setDeleteModal({ isOpen: false, item: null });
     },
   });
 
@@ -185,13 +199,22 @@ export const UsersManagementPage = () => {
                       {formatDate(u.createdAt)}
                     </td>
                     <td className="py-2.5 px-3 sm:px-4 text-right">
-                      <button
-                        onClick={() => handleOpenEdit(u)}
-                        className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                        title="Edit Role & Status"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end space-x-1">
+                        <button
+                          onClick={() => handleOpenEdit(u)}
+                          className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+                          title="Edit Role & Status"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteModal({ isOpen: true, item: u })}
+                          className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -298,6 +321,17 @@ export const UsersManagementPage = () => {
           </form>
         </Modal>
       )}
+
+      {/* In-App Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, item: null })}
+        onConfirm={() => deleteUserMutation.mutate(deleteModal.item?._id)}
+        title="Delete User"
+        message={`Are you sure you want to delete user "${deleteModal.item?.name || deleteModal.item?.email || ''}"?`}
+        confirmText="Delete"
+        isLoading={deleteUserMutation.isPending}
+      />
     </div>
   );
 };

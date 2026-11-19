@@ -78,9 +78,26 @@ const createOrUpdateProject = async (req, res, next) => {
   }
 };
 
+/**
+ * Delete Project (Admin)
+ */
+const deleteProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const project = await Project.findByIdAndDelete(id);
+    if (!project) {
+      return sendError(res, 'Project not found', 'NOT_FOUND', {}, 404);
+    }
+    return sendSuccess(res, 'Project deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProjects,
   getProjectBySlug,
   createOrUpdateProject,
+  deleteProject,
 };
 

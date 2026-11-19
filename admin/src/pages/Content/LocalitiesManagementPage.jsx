@@ -5,10 +5,12 @@ import {
   Plus,
   Search,
   Edit2,
+  Trash2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
 import Modal from '../../components/common/Modal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import EmptyState from '../../components/common/EmptyState';
 import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
 import { formatIndianPrice } from '../../utils/formatters';
@@ -18,6 +20,7 @@ export const LocalitiesManagementPage = () => {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingLocality, setEditingLocality] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -55,6 +58,16 @@ export const LocalitiesManagementPage = () => {
         description: '',
         isFeatured: true,
       });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      return apiClient.delete(`/localities/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-localities-list']);
+      setDeleteModal({ isOpen: false, item: null });
     },
   });
 
@@ -203,13 +216,22 @@ export const LocalitiesManagementPage = () => {
 
                       {/* Actions */}
                       <td className="py-3 px-4 text-right whitespace-nowrap">
-                        <button
-                          onClick={() => handleOpenEdit(loc)}
-                          className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                          <span>Edit</span>
-                        </button>
+                        <div className="flex items-center justify-end space-x-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(loc)}
+                            className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => setDeleteModal({ isOpen: true, item: loc })}
+                            className="p-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"
+                            title="Delete Locality"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -344,6 +366,17 @@ export const LocalitiesManagementPage = () => {
           </form>
         </Modal>
       )}
+
+      {/* In-App Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, item: null })}
+        onConfirm={() => deleteMutation.mutate(deleteModal.item?._id)}
+        title="Delete Locality"
+        message={`Are you sure you want to delete locality "${deleteModal.item?.name || ''}"?`}
+        confirmText="Delete"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 };

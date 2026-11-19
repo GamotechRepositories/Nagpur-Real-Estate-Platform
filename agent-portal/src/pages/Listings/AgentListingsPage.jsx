@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -46,35 +46,79 @@ export const AgentListingsPage = () => {
   const { user } = useAuthStore();
   const isBuilder = user?.role === 'BUILDER';
 
+  // Fetch all properties for this partner (cached for fast zero-latency instant tab switching)
   const { data, isLoading } = useQuery({
-    queryKey: ['agent-properties', isBuilder, activeStatus, searchTerm],
+    queryKey: ['agent-properties-all', isBuilder],
     queryFn: () => {
-      const params = new URLSearchParams();
-      if (activeStatus !== 'ALL') params.set('status', activeStatus);
-      if (searchTerm) params.set('search', searchTerm);
       const url = isBuilder
-        ? `/builders/me/properties?${params.toString()}`
-        : `/agents/me/properties?${params.toString()}`;
+        ? `/builders/me/properties`
+        : `/agents/me/properties?limit=200`;
       return apiClient.get(url);
     },
+    staleTime: 1000 * 30,
   });
 
   const markSoldMutation = useMutation({
     mutationFn: (propertyId) => apiClient.patch(`/properties/${propertyId}/status`, { status: 'SOLD' }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['agent-properties']);
+      queryClient.invalidateQueries(['agent-properties-all']);
       queryClient.invalidateQueries(['agent-stats']);
       setIsSoldModalOpen(false);
       setSelectedProperty(null);
     },
   });
 
-  const properties = Array.isArray(data?.data?.properties)
-    ? data.data.properties
-    : Array.isArray(data?.data)
-    ? data.data
-    : [];
-  const totalCount = data?.data?.totalCount || data?.meta?.totalCount || properties.length;
+  const rawProperties = useMemo(() => {
+    if (Array.isArray(data?.data?.properties)) return data.data.properties;
+    if (Array.isArray(data?.data)) return data.data;
+    return [];
+  }, [data]);
+
+  // Real-time status counts across all listings
+  const statusCounts = useMemo(() => {
+    const counts = {
+      ALL: rawProperties.length,
+      LIVE: 0,
+      PENDING_REVIEW: 0,
+      REJECTED: 0,
+      SOLD: 0,
+      EXPIRED: 0,
+    };
+    for (const prop of rawProperties) {
+      if (counts[prop.status] !== undefined) {
+        counts[prop.status]++;
+      }
+    }
+    return counts;
+  }, [rawProperties]);
+
+  // Filter properties instantly client-side for zero-latency, 100% correct status rendering
+  const properties = useMemo(() => {
+    return rawProperties.filter((prop) => {
+      // 1. Status Filter
+      if (activeStatus !== 'ALL') {
+        if (prop.status !== activeStatus) return false;
+      }
+      // 2. Search Filter
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase().trim();
+        const titleMatch = prop.title?.toLowerCase().includes(q);
+        const locMatch =
+          prop.localityName?.toLowerCase().includes(q) ||
+          prop.locality?.name?.toLowerCase().includes(q);
+        const addressMatch = prop.address?.toLowerCase().includes(q);
+        const slugMatch =
+          prop.slug?.toLowerCase().includes(q) || prop._id?.toLowerCase().includes(q);
+        const projectMatch = prop.project?.name?.toLowerCase().includes(q);
+        if (!titleMatch && !locMatch && !addressMatch && !slugMatch && !projectMatch) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [rawProperties, activeStatus, searchTerm]);
+
+  const totalCount = properties.length;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
@@ -103,6 +147,7 @@ export const AgentListingsPage = () => {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
           {STATUS_TABS.map((tab) => {
             const isActive = activeStatus === tab.key;
+            const count = statusCounts[tab.key] ?? 0;
             return (
               <button
                 key={tab.key}
@@ -115,13 +160,20 @@ export const AgentListingsPage = () => {
                   }
                   setSearchParams(nextParams);
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition inline-flex items-center gap-1.5 cursor-pointer ${
                   isActive
                     ? 'bg-teal-700 text-white shadow-2xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                {tab.label}
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
+                  {count}
+                </span>
               </button>
             );
           })}

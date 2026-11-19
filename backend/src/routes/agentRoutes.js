@@ -21,6 +21,7 @@ router.post('/admin', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAG
 router.put('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.updateAgentByAdmin);
 router.patch('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.updateAgentByAdmin);
 router.patch('/:id/verify', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.updateAgentStatusByAdmin);
+router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.deleteAgentByAdmin);
 
 module.exports = router;
 

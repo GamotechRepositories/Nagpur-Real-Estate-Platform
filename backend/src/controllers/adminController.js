@@ -818,6 +818,35 @@ const updateAllocatedRepresentatives = async (req, res, next) => {
   }
 };
 
+/**
+ * Permanently delete a user (Super Admin only)
+ */
+const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (req.user._id.toString() === id) {
+      return sendError(res, 'You cannot delete your own administrative account', 'SELF_DELETION_FORBIDDEN', {}, 400);
+    }
+    const user = await User.findById(id);
+    if (!user) {
+      return sendError(res, 'User not found', 'NOT_FOUND', {}, 404);
+    }
+    await User.findByIdAndDelete(id);
+
+    await logAudit({
+      req,
+      action: 'DELETE_USER',
+      targetType: 'USER',
+      targetId: id,
+      notes: `User permanently deleted: ${user.name} (${user.email || user.phone})`,
+    });
+
+    return sendSuccess(res, 'User deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getModerationQueue,
@@ -829,6 +858,7 @@ module.exports = {
   updateAllocatedRepresentatives,
   getUsers,
   updateUserRoleStatus,
+  deleteUser,
   getSettings,
   updateSettings,
   getAuditLogs,

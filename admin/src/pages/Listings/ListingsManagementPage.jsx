@@ -28,6 +28,7 @@ import PageHeader from '../../components/common/PageHeader';
 import Badge from '../../components/common/Badge';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import { formatIndianPrice, formatDate } from '../../utils/formatters';
 
 export const ListingsManagementPage = () => {
@@ -40,6 +41,8 @@ export const ListingsManagementPage = () => {
   const [inspectProperty, setInspectProperty] = useState(null);
   const [isEditingReps, setIsEditingReps] = useState(false);
   const [selectedRepIds, setSelectedRepIds] = useState([]);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
+  const [alertModal, setAlertModal] = useState({ isOpen: false, title: 'Notice', message: '' });
 
   // Fetch Available Certified Agents for Allocation
   const { data: agents = [] } = useQuery({
@@ -124,10 +127,31 @@ export const ListingsManagementPage = () => {
       queryClient.invalidateQueries(['admin-listings']);
       setInspectProperty(updatedProperty);
       setIsEditingReps(false);
-      alert('Allocated representatives updated successfully!');
+      setAlertModal({ isOpen: true, title: 'Success', message: 'Allocated representatives updated successfully!' });
     },
     onError: (err) => {
-      alert(err.response?.data?.message || err.message || 'Failed to update allocated representatives.');
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: err.response?.data?.message || err.message || 'Failed to update allocated representatives.',
+      });
+    },
+  });
+
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (id) => {
+      return apiClient.delete(`/properties/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-listings']);
+      setDeleteModal({ isOpen: false, item: null });
+    },
+    onError: (err) => {
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: err.response?.data?.message || err.message || 'Failed to delete listing.',
+      });
     },
   });
 
@@ -437,10 +461,18 @@ export const ListingsManagementPage = () => {
                       <div className="flex items-center justify-end space-x-1">
                         <button
                           onClick={() => handleOpenInspect(prop)}
-                          className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900"
+                          className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition"
                           title="View Details & Manage Allocation"
                         >
                           <Eye className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => setDeleteModal({ isOpen: true, item: prop })}
+                          className="p-1 rounded hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition"
+                          title="Delete Property"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
 
                         {prop.status === 'EXPIRED' && (
@@ -903,6 +935,26 @@ export const ListingsManagementPage = () => {
           </div>
         </Modal>
       )}
+
+      {/* In-App Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, item: null })}
+        onConfirm={() => deletePropertyMutation.mutate(deleteModal.item?._id)}
+        title="Delete Property Listing"
+        message={`Are you sure you want to delete "${deleteModal.item?.title || 'this listing'}"?`}
+        confirmText="Delete"
+        isLoading={deletePropertyMutation.isPending}
+      />
+
+      {/* In-App Alert / Notice Modal */}
+      <ConfirmModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ isOpen: false, title: '', message: '' })}
+        title={alertModal.title}
+        message={alertModal.message}
+        type="info"
+      />
     </div>
   );
 };

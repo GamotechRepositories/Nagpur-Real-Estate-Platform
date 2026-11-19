@@ -498,6 +498,40 @@ const updatePropertyStatus = async (req, res, next) => {
   }
 };
 
+/**
+ * Delete a property (Admin or Owner)
+ */
+const deleteProperty = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const property = await Property.findById(id);
+    if (!property) {
+      return sendError(res, 'Property not found', 'NOT_FOUND', {}, 404);
+    }
+
+    const isOwner = property.owner && property.owner.toString() === req.user._id.toString();
+    const isStaff = [ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CRM_MANAGER].includes(req.user.role);
+
+    if (!isOwner && !isStaff) {
+      return sendError(res, 'Unauthorized to delete this property', 'FORBIDDEN', {}, 403);
+    }
+
+    await Property.findByIdAndDelete(id);
+
+    await logAudit({
+      req,
+      action: 'DELETE_PROPERTY',
+      targetType: 'PROPERTY',
+      targetId: id,
+      notes: `Property "${property.title}" deleted`,
+    });
+
+    return sendSuccess(res, 'Property deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProperties,
   getPropertyBySlug,
@@ -506,5 +540,6 @@ module.exports = {
   updateProperty,
   uploadPropertyMedia,
   updatePropertyStatus,
+  deleteProperty,
 };
 

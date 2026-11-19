@@ -11,6 +11,7 @@ router.get('/:slug', localityController.getLocalityBySlug);
 
 // Admin
 router.post('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR), localityController.upsertLocality);
+router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR), localityController.deleteLocality);
 
 module.exports = router;
 
