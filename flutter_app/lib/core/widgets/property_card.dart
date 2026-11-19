@@ -55,9 +55,7 @@ class PropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final isSaved = auth.isPropertySaved(property.id) || property.isSaved;
-    final agentPhone = property.assignedAgent?.phone ??
-        property.owner?.phone ??
-        '9823000000';
+    final agentPhone = property.contactPhone;
 
     if (layout == PropertyCardLayout.horizontal) {
       return _buildHorizontalCard(context, isSaved, agentPhone);

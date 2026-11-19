@@ -100,7 +100,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final prop = _property!;
     final auth = Provider.of<AuthProvider>(context);
     final isSaved = auth.isPropertySaved(prop.id) || prop.isSaved;
-    final agentPhone = prop.assignedAgent?.phone ?? prop.owner?.phone ?? '9823000000';
+    final agentPhone = prop.contactPhone;
     final allImages = prop.images.isNotEmpty ? prop.images.map((i) => i.url).toList() : [prop.coverImage];
 
     return Scaffold(
@@ -380,10 +380,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor: AppColors.lightGreen,
-                              backgroundImage: prop.assignedAgent?.avatar != null
-                                  ? CachedNetworkImageProvider(prop.assignedAgent!.avatar!)
+                              backgroundImage: prop.contactAvatar != null
+                                  ? CachedNetworkImageProvider(prop.contactAvatar!)
                                   : null,
-                              child: prop.assignedAgent?.avatar == null
+                              child: prop.contactAvatar == null
                                   ? const Icon(Icons.person, color: AppColors.primaryGreen)
                                   : null,
                             ),
@@ -393,7 +393,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    prop.assignedAgent?.name ?? prop.owner?.name ?? 'Nagpur Advisor',
+                                    prop.contactName,
                                     style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryText),
                                   ),
                                   Text(

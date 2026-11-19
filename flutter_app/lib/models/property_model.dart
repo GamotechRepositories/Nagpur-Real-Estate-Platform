@@ -23,20 +23,23 @@ class AgentContact {
   final String name;
   final String phone;
   final String? avatar;
+  final String? role;
 
   AgentContact({
     required this.id,
     required this.name,
     required this.phone,
     this.avatar,
+    this.role,
   });
 
   factory AgentContact.fromJson(Map<String, dynamic> json) {
     return AgentContact(
       id: json['_id']?.toString() ?? '',
       name: json['name']?.toString() ?? 'Agent',
-      phone: json['phone']?.toString() ?? '9823000000',
+      phone: json['phone']?.toString() ?? '9823012345',
       avatar: json['avatar']?.toString(),
+      role: json['role']?.toString(),
     );
   }
 }
@@ -115,6 +118,42 @@ class PropertyModel {
     this.enquiriesCount = 0,
     this.isSaved = false,
   });
+
+  bool get isOwnerPublicUser {
+    if (owner == null) return true;
+    final r = owner!.role?.toUpperCase();
+    return r == null || r == 'USER';
+  }
+
+  String get contactPhone {
+    if (assignedAgent != null && assignedAgent!.phone.isNotEmpty) {
+      return assignedAgent!.phone;
+    }
+    if (!isOwnerPublicUser && owner != null && owner!.phone.isNotEmpty) {
+      return owner!.phone;
+    }
+    return '9823012345';
+  }
+
+  String get contactName {
+    if (assignedAgent != null && assignedAgent!.name.isNotEmpty) {
+      return assignedAgent!.name;
+    }
+    if (!isOwnerPublicUser && owner != null && owner!.name.isNotEmpty) {
+      return owner!.name;
+    }
+    return 'Nagpur Certified Broker Desk';
+  }
+
+  String? get contactAvatar {
+    if (assignedAgent != null && assignedAgent!.avatar != null) {
+      return assignedAgent!.avatar;
+    }
+    if (!isOwnerPublicUser && owner != null && owner!.avatar != null) {
+      return owner!.avatar;
+    }
+    return null;
+  }
 
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
     const defaultImage =
