@@ -9,6 +9,7 @@ router.post('/', optionalAuth, validateBody(siteVisitCreateSchema), siteVisitCon
 
 // View and update site visits
 router.get('/', authenticate, siteVisitController.getSiteVisits);
+router.get('/:id', authenticate, siteVisitController.getSiteVisitById);
 router.patch('/:id', authenticate, siteVisitController.updateSiteVisit);
 
 module.exports = router;

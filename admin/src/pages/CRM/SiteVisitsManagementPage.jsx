@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CalendarDays,
@@ -8,6 +9,7 @@ import {
   X,
   Phone,
   User,
+  Eye,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -17,6 +19,7 @@ import Modal from '../../components/common/Modal';
 import { formatDate } from '../../utils/formatters';
 
 export const SiteVisitsManagementPage = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('');
   const [updateModalVisit, setUpdateModalVisit] = useState(null);
@@ -30,6 +33,16 @@ export const SiteVisitsManagementPage = () => {
       return res.data?.data || [];
     },
   });
+
+  // Ensure latest site visits are strictly shown at the top
+  const sortedVisits = useMemo(() => {
+    if (!visits) return [];
+    return [...visits].sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.preferredDate || 0).getTime();
+      const dateB = new Date(b.createdAt || b.preferredDate || 0).getTime();
+      return dateB - dateA;
+    });
+  }, [visits]);
 
   const mutation = useMutation({
     mutationFn: async ({ id, status, feedback }) => {
@@ -92,7 +105,7 @@ export const SiteVisitsManagementPage = () => {
             <div key={n} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
           ))}
         </div>
-      ) : visits && visits.length > 0 ? (
+      ) : sortedVisits && sortedVisits.length > 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-700">
@@ -108,8 +121,12 @@ export const SiteVisitsManagementPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {visits.map((visit) => (
-                  <tr key={visit._id} className="hover:bg-slate-50/80 transition group">
+                {sortedVisits.map((visit) => (
+                  <tr
+                    key={visit._id}
+                    onClick={() => navigate(`/site-visits/view/${visit._id}`)}
+                    className="hover:bg-slate-50/80 transition group cursor-pointer"
+                  >
                     {/* Property */}
                     <td className="py-3 px-4">
                       <div className="min-w-0 max-w-xs">
@@ -133,12 +150,12 @@ export const SiteVisitsManagementPage = () => {
 
                     {/* Buyer */}
                     <td className="py-3 px-3">
-                      <div className="font-medium text-slate-900">
-                        {visit.buyer?.name || 'Buyer'}
+                      <div className="font-semibold text-slate-900">
+                        {visit.customerName || visit.user?.name || visit.buyer?.name || 'Customer'}
                       </div>
-                      {visit.buyer?.phone && (
+                      {(visit.phoneNumber || visit.user?.phone || visit.buyer?.phone) && (
                         <div className="text-[11px] text-slate-500 font-mono">
-                          {visit.buyer.phone}
+                          +91 {visit.phoneNumber || visit.user?.phone || visit.buyer?.phone}
                         </div>
                       )}
                     </td>
@@ -175,7 +192,17 @@ export const SiteVisitsManagementPage = () => {
 
                     {/* Actions */}
                     <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end space-x-1.5">
+                      <div className="flex items-center justify-end space-x-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/site-visits/view/${visit._id}`)}
+                          className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold inline-flex items-center space-x-1"
+                          title="View Full Inspection Dossier"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-600" />
+                          <span>Inspect</span>
+                        </button>
+
                         {visit.status === 'REQUESTED' && (
                           <>
                             <button

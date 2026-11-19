@@ -58,7 +58,7 @@ const requestSiteVisit = async (req, res, next) => {
 };
 
 /**
- * Get Site Visits (filtered by role)
+ * Get Site Visits (filtered by role, sorted latest first)
  */
 const getSiteVisits = async (req, res, next) => {
   try {
@@ -92,11 +92,33 @@ const getSiteVisits = async (req, res, next) => {
     }
 
     const visits = await SiteVisit.find(filter)
-      .populate('property', 'title slug price coverImage localityName address')
-      .populate('assignedAgent', 'name phone')
-      .sort({ preferredDate: 1 });
+      .populate('property')
+      .populate('assignedAgent', 'name phone email avatar')
+      .populate('user', 'name phone email')
+      .sort({ createdAt: -1 });
 
     return sendSuccess(res, 'Site visits retrieved', visits);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get Single Site Visit by ID with full Property and Agent details
+ */
+const getSiteVisitById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const visit = await SiteVisit.findById(id)
+      .populate('property')
+      .populate('assignedAgent', 'name phone email avatar agentProfile')
+      .populate('user', 'name phone email');
+
+    if (!visit) {
+      return sendError(res, 'Site visit not found', 'NOT_FOUND', {}, 404);
+    }
+
+    return sendSuccess(res, 'Site visit details retrieved', visit);
   } catch (error) {
     next(error);
   }
@@ -110,14 +132,14 @@ const updateSiteVisit = async (req, res, next) => {
     const { id } = req.params;
     const { status, cancellationReason, feedbackNotes, preferredDate, preferredTimeSlot } = req.body;
 
-    const visit = await SiteVisit.findById(id).populate('property', 'title');
+    const visit = await SiteVisit.findById(id).populate('property');
     if (!visit) {
       return sendError(res, 'Site visit not found', 'NOT_FOUND', {}, 404);
     }
 
     if (status) visit.status = status;
-    if (cancellationReason) visit.cancellationReason = cancellationReason;
-    if (feedbackNotes) visit.feedbackNotes = feedbackNotes;
+    if (cancellationReason !== undefined) visit.cancellationReason = cancellationReason;
+    if (feedbackNotes !== undefined) visit.feedbackNotes = feedbackNotes;
     if (preferredDate) visit.preferredDate = new Date(preferredDate);
     if (preferredTimeSlot) visit.preferredTimeSlot = preferredTimeSlot;
 
@@ -146,6 +168,6 @@ const updateSiteVisit = async (req, res, next) => {
 module.exports = {
   requestSiteVisit,
   getSiteVisits,
+  getSiteVisitById,
   updateSiteVisit,
 };
-

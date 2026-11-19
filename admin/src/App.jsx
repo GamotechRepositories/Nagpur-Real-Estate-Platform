@@ -16,7 +16,9 @@ const PropertyEditPage = lazy(() => import('./pages/Listings/PropertyEditPage'))
 const ProjectsManagementPage = lazy(() => import('./pages/Content/ProjectsManagementPage'));
 const LocalitiesManagementPage = lazy(() => import('./pages/Content/LocalitiesManagementPage'));
 const LeadManagementPage = lazy(() => import('./pages/CRM/LeadManagementPage'));
+const LeadDossierPage = lazy(() => import('./pages/CRM/LeadDossierPage'));
 const SiteVisitsManagementPage = lazy(() => import('./pages/CRM/SiteVisitsManagementPage'));
+const SiteVisitDossierPage = lazy(() => import('./pages/CRM/SiteVisitDossierPage'));
 const LoanRequestsPage = lazy(() => import('./pages/CRM/LoanRequestsPage'));
 const ContentManagementPage = lazy(() => import('./pages/Content/ContentManagementPage'));
 const StaffManagementPage = lazy(() => import('./pages/Administration/StaffManagementPage'));
@@ -154,6 +156,8 @@ function App() {
               }
             >
               <Route path="/leads" element={<LeadManagementPage />} />
+              <Route path="/leads/:id" element={<LeadDossierPage />} />
+              <Route path="/leads/view/:id" element={<LeadDossierPage />} />
               <Route path="/agents" element={<AgentsManagementPage />} />
               <Route path="/agents/:id" element={<AgentDetailsPage />} />
               <Route path="/builders" element={<BuildersManagementPage />} />
@@ -169,6 +173,8 @@ function App() {
               }
             >
               <Route path="/site-visits" element={<SiteVisitsManagementPage />} />
+              <Route path="/site-visits/:id" element={<SiteVisitDossierPage />} />
+              <Route path="/site-visits/view/:id" element={<SiteVisitDossierPage />} />
             </Route>
 
             {/* Loan Requests */}

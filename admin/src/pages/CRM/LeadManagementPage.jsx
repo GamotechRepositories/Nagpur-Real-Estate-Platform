@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Table as TableIcon,
@@ -36,6 +37,7 @@ const STATUS_TABS = [
 ];
 
 export const LeadManagementPage = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('ALL');
   const [viewMode, setViewMode] = useState(() => {
@@ -321,7 +323,7 @@ export const LeadManagementPage = () => {
             {filteredLeads.map((lead) => (
               <div
                 key={lead._id}
-                onClick={() => setSelectedLead(lead)}
+                onClick={() => navigate(`/leads/view/${lead._id}`)}
                 className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all cursor-pointer flex flex-col justify-between space-y-3 group"
               >
                 <div className="space-y-2.5">
@@ -461,9 +463,9 @@ export const LeadManagementPage = () => {
                       )}
 
                       <button
-                        onClick={() => setSelectedLead(lead)}
+                        onClick={() => navigate(`/leads/view/${lead._id}`)}
                         className="p-1 text-slate-400 hover:text-slate-700 rounded"
-                        title="View Full Details"
+                        title="View Full Lead Dossier"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -511,8 +513,12 @@ export const LeadManagementPage = () => {
                   </tr>
                 ) : filteredLeads.length > 0 ? (
                   filteredLeads.map((lead) => (
-                    <tr key={lead._id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-bold text-slate-900">
+                    <tr
+                      key={lead._id}
+                      onClick={() => navigate(`/leads/view/${lead._id}`)}
+                      className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <td className="py-3 px-4 font-bold text-slate-900 group-hover:text-teal-700 transition-colors">
                         {lead.customerName}
                       </td>
                       <td className="py-3 px-3 font-mono text-slate-600">
@@ -535,7 +541,7 @@ export const LeadManagementPage = () => {
                         {formatDate(lead.createdAt)}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end space-x-1.5">
+                        <div className="flex items-center justify-end space-x-1.5" onClick={(e) => e.stopPropagation()}>
                           <a
                             href={`https://wa.me/91${lead.phoneNumber}`}
                             target="_blank"
@@ -546,7 +552,7 @@ export const LeadManagementPage = () => {
                             <MessageCircle className="w-3.5 h-3.5" />
                           </a>
                           <button
-                            onClick={() => setSelectedLead(lead)}
+                            onClick={() => navigate(`/leads/view/${lead._id}`)}
                             className="py-1 px-2.5 rounded border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold"
                           >
                             Inspect

@@ -95,6 +95,14 @@ export const AgentSiteVisitsPage = () => {
     return custName.includes(q) || custPhone.includes(q) || propTitle.includes(q);
   });
 
+  const sortedVisits = React.useMemo(() => {
+    return [...filteredVisits].sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.preferredDate || 0).getTime();
+      const dateB = new Date(b.createdAt || b.preferredDate || 0).getTime();
+      return dateB - dateA;
+    });
+  }, [filteredVisits]);
+
   const getStatusBadge = (st) => {
     switch (st) {
       case 'CONFIRMED':
@@ -202,7 +210,7 @@ export const AgentSiteVisitsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredVisits.map((visit) => {
+                {sortedVisits.map((visit) => {
                   const custPhone = visit.phoneNumber || '';
                   const cleanPhone = custPhone.replace(/[^0-9]/g, '');
                   const buyerName = visit.customerName || 'Valued Visitor';
