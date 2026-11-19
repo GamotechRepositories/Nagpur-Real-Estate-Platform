@@ -126,6 +126,128 @@ const propertySchema = new mongoose.Schema(
       enum: ['NORTH', 'SOUTH', 'EAST', 'WEST', 'NORTH_EAST', 'NORTH_WEST', 'SOUTH_EAST', 'SOUTH_WEST', 'NOT_SPECIFIED'],
       default: 'NOT_SPECIFIED',
     },
+    condition: {
+      type: String,
+      default: 'Ready to Move', // 'New / Brand New', 'Ready to Move', 'Under Construction', 'Resale', 'Renovated'
+    },
+    ownershipType: {
+      type: String,
+      default: 'Freehold', // 'Freehold', 'Leasehold', 'Co-operative Society', 'Power of Attorney'
+    },
+    carpetAreaSqFt: {
+      type: Number,
+      default: 0,
+    },
+    builtUpAreaSqFt: {
+      type: Number,
+      default: 0,
+    },
+    plotAreaSqFt: {
+      type: Number,
+      default: 0,
+    },
+    roadWidthFt: {
+      type: Number,
+      default: 30,
+    },
+    pricePerSqFt: {
+      type: Number,
+      default: 0,
+    },
+    bookingAmount: {
+      type: Number,
+      default: 0,
+    },
+    maintenanceCharges: {
+      type: Number,
+      default: 0,
+    },
+    maintenanceFrequency: {
+      type: String,
+      default: 'Monthly', // 'Monthly', 'Quarterly', 'Yearly'
+    },
+    securityDeposit: {
+      type: Number,
+      default: 0,
+    },
+    brokerage: {
+      type: String,
+      default: 'Zero Brokerage',
+    },
+    loanAvailable: {
+      type: Boolean,
+      default: true,
+    },
+    taxAndGovtCharges: {
+      type: String,
+      default: 'Excluded', // 'Included in Price', 'Excluded', 'To be confirmed'
+    },
+    additionalCharges: {
+      type: String,
+      default: '',
+    },
+    subLocality: {
+      type: String,
+      default: '',
+    },
+    landmark: {
+      type: String,
+      default: '',
+    },
+    virtualTourUrl: {
+      type: String,
+      default: '',
+    },
+    otherAmenities: {
+      type: String,
+      default: '',
+    },
+    occupancyCertificate: {
+      type: String,
+      default: 'Available', // 'Available', 'Not Available', 'In Progress', 'Not Applicable'
+    },
+    completionCertificate: {
+      type: String,
+      default: 'Available', // 'Available', 'Not Available', 'In Progress', 'Not Applicable'
+    },
+    propertyTaxStatus: {
+      type: String,
+      default: 'Paid', // 'Paid', 'Pending', 'Not Applicable'
+    },
+    approvedBy: {
+      type: String,
+      default: 'NMC / NIT', // 'NMC (Nagpur Municipal Corporation)', 'NIT (Nagpur Improvement Trust)', 'NMRDA', 'Gram Panchayat', 'Other'
+    },
+    bankLoanApprovedBy: {
+      type: String,
+      default: 'SBI, HDFC, ICICI, Axis Bank',
+    },
+    propertyUsp: {
+      type: String,
+      default: '',
+    },
+    keyHighlights: [
+      {
+        type: String,
+      },
+    ],
+    suitableFor: [
+      {
+        type: String,
+      },
+    ],
+    cabins: {
+      type: Number,
+      default: 0,
+    },
+    workstations: {
+      type: Number,
+      default: 0,
+    },
+    conferenceRooms: {
+      type: Number,
+      default: 0,
+    },
     amenities: [
       {
         type: String,

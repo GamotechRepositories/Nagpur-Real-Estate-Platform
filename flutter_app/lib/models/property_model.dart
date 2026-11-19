@@ -52,10 +52,26 @@ class PropertyModel {
   final String category;
   final String subtype;
   final String purpose;
+  final String condition;
+  final String ownershipType;
   final num price;
   final String priceUnit;
   final bool priceNegotiable;
+  final num pricePerSqFt;
+  final num bookingAmount;
+  final num maintenanceCharges;
+  final String maintenanceFrequency;
+  final num securityDeposit;
+  final String brokerage;
+  final bool loanAvailable;
+  final String taxAndGovtCharges;
+  final String additionalCharges;
   final num areaSqFt;
+  final num carpetAreaSqFt;
+  final num builtUpAreaSqFt;
+  final num plotAreaSqFt;
+  final num roadWidthFt;
+  final String areaUnit;
   final int bedrooms;
   final int bathrooms;
   final int balconies;
@@ -70,11 +86,27 @@ class PropertyModel {
   final bool isVerified;
   final bool isFeatured;
   final String localityName;
+  final String subLocality;
+  final String landmark;
   final String address;
   final String pincode;
   final String coverImage;
   final List<PropertyImage> images;
   final List<String> amenities;
+  final String? floorPlanUrl;
+  final String? videoUrl;
+  final String? virtualTourUrl;
+  final String? brochureUrl;
+  final String occupancyCertificate;
+  final String completionCertificate;
+  final String propertyTaxStatus;
+  final String approvedBy;
+  final String bankLoanApprovedBy;
+  final String propertyUsp;
+  final List<String> suitableFor;
+  final int cabins;
+  final int workstations;
+  final int conferenceRooms;
   final AgentContact? assignedAgent;
   final AgentContact? owner;
   final int viewsCount;
@@ -89,10 +121,26 @@ class PropertyModel {
     required this.category,
     required this.subtype,
     required this.purpose,
+    this.condition = 'Ready to Move',
+    this.ownershipType = 'Freehold',
     required this.price,
     this.priceUnit = 'Total',
     this.priceNegotiable = false,
+    this.pricePerSqFt = 0,
+    this.bookingAmount = 0,
+    this.maintenanceCharges = 0,
+    this.maintenanceFrequency = 'Monthly',
+    this.securityDeposit = 0,
+    this.brokerage = 'Zero Brokerage',
+    this.loanAvailable = true,
+    this.taxAndGovtCharges = 'Excluded',
+    this.additionalCharges = '',
     required this.areaSqFt,
+    this.carpetAreaSqFt = 0,
+    this.builtUpAreaSqFt = 0,
+    this.plotAreaSqFt = 0,
+    this.roadWidthFt = 30,
+    this.areaUnit = 'Sq.Ft',
     this.bedrooms = 0,
     this.bathrooms = 0,
     this.balconies = 0,
@@ -107,11 +155,27 @@ class PropertyModel {
     this.isVerified = false,
     this.isFeatured = false,
     required this.localityName,
+    this.subLocality = '',
+    this.landmark = '',
     this.address = '',
     this.pincode = '',
     required this.coverImage,
     required this.images,
     required this.amenities,
+    this.floorPlanUrl,
+    this.videoUrl,
+    this.virtualTourUrl,
+    this.brochureUrl,
+    this.occupancyCertificate = 'Available',
+    this.completionCertificate = 'Available',
+    this.propertyTaxStatus = 'Paid',
+    this.approvedBy = 'NMC (Nagpur Municipal Corporation)',
+    this.bankLoanApprovedBy = 'SBI, HDFC, ICICI, Axis Bank',
+    this.propertyUsp = '',
+    this.suitableFor = const [],
+    this.cabins = 0,
+    this.workstations = 0,
+    this.conferenceRooms = 0,
     this.assignedAgent,
     this.owner,
     this.viewsCount = 0,
@@ -160,15 +224,26 @@ class PropertyModel {
         'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
     final rawImages = json['images'] as List<dynamic>? ?? [];
-    final parsedImages = rawImages
-        .map((img) => PropertyImage.fromJson(img as Map<String, dynamic>))
-        .toList();
+    final parsedImages = rawImages.map((img) {
+      if (img is Map<String, dynamic>) {
+        return PropertyImage.fromJson(img);
+      }
+      return PropertyImage(url: img.toString());
+    }).toList();
 
     final cover = json['coverImage']?.toString() ??
         (parsedImages.isNotEmpty ? parsedImages.first.url : defaultImage);
 
     final rawAmenities = json['amenities'] as List<dynamic>? ?? [];
     final parsedAmenities = rawAmenities.map((a) => a.toString()).toList();
+
+    final rawSuitableFor = json['suitableFor'] as List<dynamic>? ?? [];
+    final parsedSuitableFor = rawSuitableFor.map((s) => s.toString()).toList();
+
+    final priceVal = num.tryParse(json['price']?.toString() ?? '0') ?? 0;
+    final areaVal = num.tryParse(json['areaSqFt']?.toString() ?? json['areaDisplay']?.toString() ?? '0') ?? 0;
+    final calcPricePerSqFt = num.tryParse(json['pricePerSqFt']?.toString() ?? '0') ??
+        (priceVal > 0 && areaVal > 0 ? (priceVal / areaVal).round() : 0);
 
     return PropertyModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
@@ -178,10 +253,26 @@ class PropertyModel {
       category: json['category']?.toString() ?? 'RESIDENTIAL',
       subtype: json['subtype']?.toString() ?? 'FLAT',
       purpose: json['purpose']?.toString() ?? 'BUY',
-      price: num.tryParse(json['price']?.toString() ?? '0') ?? 0,
+      condition: json['condition']?.toString() ?? 'Ready to Move',
+      ownershipType: json['ownershipType']?.toString() ?? 'Freehold',
+      price: priceVal,
       priceUnit: json['priceUnit']?.toString() ?? 'Total',
       priceNegotiable: json['priceNegotiable'] == true,
-      areaSqFt: num.tryParse(json['areaSqFt']?.toString() ?? json['areaDisplay']?.toString() ?? '0') ?? 0,
+      pricePerSqFt: calcPricePerSqFt,
+      bookingAmount: num.tryParse(json['bookingAmount']?.toString() ?? '0') ?? 0,
+      maintenanceCharges: num.tryParse(json['maintenanceCharges']?.toString() ?? '0') ?? 0,
+      maintenanceFrequency: json['maintenanceFrequency']?.toString() ?? 'Monthly',
+      securityDeposit: num.tryParse(json['securityDeposit']?.toString() ?? '0') ?? 0,
+      brokerage: json['brokerage']?.toString() ?? 'Zero Brokerage',
+      loanAvailable: json['loanAvailable'] != false,
+      taxAndGovtCharges: json['taxAndGovtCharges']?.toString() ?? 'Excluded',
+      additionalCharges: json['additionalCharges']?.toString() ?? '',
+      areaSqFt: areaVal,
+      carpetAreaSqFt: num.tryParse(json['carpetAreaSqFt']?.toString() ?? '0') ?? 0,
+      builtUpAreaSqFt: num.tryParse(json['builtUpAreaSqFt']?.toString() ?? '0') ?? 0,
+      plotAreaSqFt: num.tryParse(json['plotAreaSqFt']?.toString() ?? '0') ?? 0,
+      roadWidthFt: num.tryParse(json['roadWidthFt']?.toString() ?? '30') ?? 30,
+      areaUnit: json['areaUnit']?.toString() ?? 'Sq.Ft',
       bedrooms: int.tryParse(json['bedrooms']?.toString() ?? '0') ?? 0,
       bathrooms: int.tryParse(json['bathrooms']?.toString() ?? '0') ?? 0,
       balconies: int.tryParse(json['balconies']?.toString() ?? '0') ?? 0,
@@ -196,11 +287,27 @@ class PropertyModel {
       isVerified: json['isVerified'] == true,
       isFeatured: json['isFeatured'] == true,
       localityName: json['localityName']?.toString() ?? 'Nagpur',
+      subLocality: json['subLocality']?.toString() ?? '',
+      landmark: json['landmark']?.toString() ?? '',
       address: json['address']?.toString() ?? '',
       pincode: json['pincode']?.toString() ?? '',
       coverImage: cover.isNotEmpty ? cover : defaultImage,
       images: parsedImages,
       amenities: parsedAmenities,
+      floorPlanUrl: json['floorPlanUrl']?.toString(),
+      videoUrl: json['videoUrl']?.toString(),
+      virtualTourUrl: json['virtualTourUrl']?.toString(),
+      brochureUrl: json['brochureUrl']?.toString(),
+      occupancyCertificate: json['occupancyCertificate']?.toString() ?? 'Available',
+      completionCertificate: json['completionCertificate']?.toString() ?? 'Available',
+      propertyTaxStatus: json['propertyTaxStatus']?.toString() ?? 'Paid',
+      approvedBy: json['approvedBy']?.toString() ?? 'NMC (Nagpur Municipal Corporation)',
+      bankLoanApprovedBy: json['bankLoanApprovedBy']?.toString() ?? 'SBI, HDFC, ICICI, Axis Bank',
+      propertyUsp: json['propertyUsp']?.toString() ?? '',
+      suitableFor: parsedSuitableFor,
+      cabins: int.tryParse(json['cabins']?.toString() ?? '0') ?? 0,
+      workstations: int.tryParse(json['workstations']?.toString() ?? '0') ?? 0,
+      conferenceRooms: int.tryParse(json['conferenceRooms']?.toString() ?? '0') ?? 0,
       assignedAgent: json['assignedAgent'] is Map<String, dynamic>
           ? AgentContact.fromJson(json['assignedAgent'])
           : null,
@@ -213,4 +320,3 @@ class PropertyModel {
     );
   }
 }
-

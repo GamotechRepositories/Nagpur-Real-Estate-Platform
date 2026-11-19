@@ -8,6 +8,7 @@ const { validateBody, propertyCreateSchema } = require('../validators');
 // Public listing searches
 router.get('/', optionalAuth, propertyController.getProperties);
 router.get('/details/:slug', optionalAuth, propertyController.getPropertyBySlug);
+router.get('/:id', optionalAuth, propertyController.getPropertyById);
 router.get('/:id/similar', propertyController.getSimilarProperties);
 
 // Protected property creation and updates

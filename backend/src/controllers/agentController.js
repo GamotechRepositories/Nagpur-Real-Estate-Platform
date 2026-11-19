@@ -1,6 +1,7 @@
 const AgentProfile = require('../models/AgentProfile');
 const Property = require('../models/Property');
 const User = require('../models/User');
+const Builder = require('../models/Builder');
 const Enquiry = require('../models/Enquiry');
 const { sendSuccess, sendError } = require('../utils/response');
 const { PROPERTY_STATUS } = require('../constants');
@@ -256,16 +257,26 @@ const createAgentByAdmin = async (req, res, next) => {
         phone: phone.trim(),
         email: email ? email.trim().toLowerCase() : undefined,
         password: password ? password.trim() : 'Nagpur@Agent2026!',
+        agentPassword: password ? password.trim() : 'Nagpur@Agent2026!',
         avatar: avatar ? avatar.trim() : '',
         role: 'AGENT',
+        roles: ['AGENT'],
         status: 'ACTIVE',
         isPhoneVerified: true,
       });
     } else {
-      user.role = 'AGENT';
+      if (!Array.isArray(user.roles)) user.roles = [];
+      if (!user.roles.includes('AGENT')) user.roles.push('AGENT');
+      if (!user.role || user.role === 'USER') {
+        user.role = 'AGENT';
+      }
       if (email && !user.email) user.email = email.trim().toLowerCase();
-      if (avatar) user.avatar = avatar.trim();
-      if (password && password.trim()) user.password = password.trim();
+      if (avatar && !user.avatar) user.avatar = avatar.trim();
+      if (password && password.trim()) {
+        user.agentPassword = password.trim();
+        if (!user.password) user.password = password.trim();
+      }
+      user.status = 'ACTIVE';
       await user.save();
     }
 
@@ -292,6 +303,9 @@ const createAgentByAdmin = async (req, res, next) => {
     }
 
     await profile.save();
+
+    user.agentProfile = profile._id;
+    await user.save();
 
     const populated = await AgentProfile.findById(profile._id).populate('user', 'name phone email avatar status');
     return sendSuccess(res, 'Agent registered and verified successfully', populated, null, 201);
@@ -381,9 +395,13 @@ const updateAgentByAdmin = async (req, res, next) => {
 
         if (avatar !== undefined) user.avatar = avatar.trim();
         if (status) user.status = status;
+        if (!Array.isArray(user.roles)) user.roles = [];
+        if (!user.roles.includes('AGENT')) user.roles.push('AGENT');
         if (password && password.trim()) {
-          user.password = password.trim();
+          user.agentPassword = password.trim();
+          if (!user.password) user.password = password.trim();
         }
+        user.agentProfile = profile._id;
 
         await user.save();
       }
@@ -690,7 +708,23 @@ const deleteAgentByAdmin = async (req, res, next) => {
     await AgentProfile.findByIdAndDelete(id);
 
     if (userId) {
-      await User.findByIdAndDelete(userId);
+      const user = await User.findById(userId);
+      if (user) {
+        if (Array.isArray(user.roles)) {
+          user.roles = user.roles.filter((r) => r !== 'AGENT');
+        }
+        user.agentProfile = undefined;
+
+        const hasBuilder = (user.roles && user.roles.includes('BUILDER')) || (await Builder.exists({ user: userId }));
+        if (hasBuilder) {
+          if (user.role === 'AGENT') user.role = 'BUILDER';
+          await user.save();
+        } else if (user.role === 'AGENT' && (!user.roles || user.roles.length === 0)) {
+          await User.findByIdAndDelete(userId);
+        } else {
+          await user.save();
+        }
+      }
     }
 
     return sendSuccess(res, 'Agent deleted successfully');

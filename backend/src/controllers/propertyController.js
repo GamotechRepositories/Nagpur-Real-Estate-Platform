@@ -230,6 +230,46 @@ const getPropertyBySlug = async (req, res, next) => {
 };
 
 /**
+ * Get Property by ID (for Admin & Partner Portal Edit/View)
+ */
+const getPropertyById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return sendError(res, 'Invalid property ID', 'INVALID_ID', {}, 400);
+    }
+
+    const property = await Property.findById(id)
+      .populate('project', 'name slug reraId localityName location')
+      .populate('assignedAgent', 'name phone email avatar')
+      .populate('assignedAgents', 'name phone email avatar')
+      .populate('owner', 'name phone email role avatar');
+
+    if (!property) {
+      return sendError(res, 'Property not found', 'NOT_FOUND', {}, 404);
+    }
+
+    const propertyObj = property.toObject();
+
+    // Check if user has permission to view confidential details
+    const isPrivileged =
+      req.user &&
+      (['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'CRM_MANAGER', 'CONTENT_EDITOR', 'STAFF'].includes(req.user.role) ||
+        (property.assignedAgent && property.assignedAgent._id?.toString() === req.user._id.toString()) ||
+        (Array.isArray(property.assignedAgents) && property.assignedAgents.some((a) => a._id?.toString() === req.user._id.toString())) ||
+        (property.owner && property.owner._id?.toString() === req.user._id.toString()));
+
+    if (!isPrivileged && req.user?.role !== 'AGENT' && req.user?.role !== 'BUILDER') {
+      delete propertyObj.clientSellerDetails;
+    }
+
+    return sendSuccess(res, 'Property details fetched successfully', propertyObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Get Similar Properties in Nagpur
  */
 const getSimilarProperties = async (req, res, next) => {
@@ -285,27 +325,54 @@ const createProperty = async (req, res, next) => {
 
     const isAgent = req.user && req.user.role === 'AGENT';
 
+    const incomingImages = body.images || body.photos || [];
+    const normalizedImages = (Array.isArray(incomingImages) ? incomingImages : [])
+      .map((item, idx) => {
+        if (typeof item === 'string') {
+          return { url: item, caption: '', isCover: idx === 0 };
+        }
+        return {
+          url: item.url || '',
+          caption: item.caption || '',
+          isCover: !!item.isCover,
+        };
+      })
+      .filter((img) => Boolean(img.url));
+
+    if (normalizedImages.length > 0 && !normalizedImages.some((p) => p.isCover)) {
+      normalizedImages[0].isCover = true;
+    }
+
+    const cover = normalizedImages.find((p) => p.isCover) || normalizedImages[0];
+    const coverImage = cover ? cover.url : body.coverImage || '';
+
+    const clientSellerDetails = {
+      name: body.clientSellerDetails?.name || body.sellerName || '',
+      phone: body.clientSellerDetails?.phone || body.sellerPhone || '',
+      email: body.clientSellerDetails?.email || body.sellerEmail || '',
+      notes: body.clientSellerDetails?.notes || body.sellerNotes || '',
+    };
+
+    const assignedAgents = Array.isArray(body.assignedAgents) && body.assignedAgents.length > 0
+      ? body.assignedAgents
+      : (body.assignedAgent ? [body.assignedAgent] : (isAgent ? [req.user._id] : []));
+
     const property = await Property.create({
       ...body,
+      images: normalizedImages,
       slug,
       locality: localityDoc ? localityDoc._id : undefined,
       project: projectId,
       owner: req.user._id,
-      assignedAgent: isAgent ? req.user._id : body.assignedAgent,
+      assignedAgent: assignedAgents[0] || (isAgent ? req.user._id : undefined),
+      assignedAgents,
       status,
       location: {
         type: 'Point',
-        coordinates: [body.longitude, body.latitude], // [longitude, latitude]
+        coordinates: [Number(body.longitude) || 79.0882, Number(body.latitude) || 21.1458], // [longitude, latitude]
       },
-      coverImage: body.images && body.images.length > 0 ? body.images[0].url : '',
-      clientSellerDetails: body.clientSellerDetails
-        ? {
-            name: body.clientSellerDetails.name || '',
-            phone: body.clientSellerDetails.phone || '',
-            email: body.clientSellerDetails.email || '',
-            notes: body.clientSellerDetails.notes || '',
-          }
-        : undefined,
+      coverImage,
+      clientSellerDetails,
     });
 
     // If submitted for review, create verification entry for moderators
@@ -350,10 +417,13 @@ const updateProperty = async (req, res, next) => {
       return sendError(res, 'Property not found', 'NOT_FOUND', {}, 404);
     }
 
-    const isOwner = property.owner.toString() === req.user._id.toString();
-    const isStaff = [ROLES.SUPER_ADMIN, ROLES.MODERATOR].includes(req.user.role);
+    const isOwner = property.owner && property.owner.toString() === req.user._id.toString();
+    const isStaff = [ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CONTENT_EDITOR, ROLES.CRM_MANAGER].includes(req.user.role);
+    const isAssigned =
+      (property.assignedAgent && property.assignedAgent.toString() === req.user._id.toString()) ||
+      (Array.isArray(property.assignedAgents) && property.assignedAgents.some((a) => a.toString() === req.user._id.toString()));
 
-    if (!isOwner && !isStaff) {
+    if (!isOwner && !isStaff && !isAssigned) {
       return sendError(res, 'Unauthorized to edit this property listing', 'FORBIDDEN', {}, 403);
     }
 
@@ -373,7 +443,7 @@ const updateProperty = async (req, res, next) => {
     if (req.body.longitude && req.body.latitude) {
       property.location = {
         type: 'Point',
-        coordinates: [req.body.longitude, req.body.latitude],
+        coordinates: [Number(req.body.longitude), Number(req.body.latitude)],
       };
     }
 
@@ -382,8 +452,80 @@ const updateProperty = async (req, res, next) => {
       delete req.body.project;
     }
 
+    // Handle Client / Seller Details
+    if (
+      req.body.sellerName !== undefined ||
+      req.body.sellerPhone !== undefined ||
+      req.body.sellerEmail !== undefined ||
+      req.body.sellerNotes !== undefined ||
+      req.body.clientSellerDetails !== undefined
+    ) {
+      property.clientSellerDetails = {
+        name: req.body.sellerName !== undefined ? req.body.sellerName : (req.body.clientSellerDetails?.name ?? property.clientSellerDetails?.name ?? ''),
+        phone: req.body.sellerPhone !== undefined ? req.body.sellerPhone : (req.body.clientSellerDetails?.phone ?? property.clientSellerDetails?.phone ?? ''),
+        email: req.body.sellerEmail !== undefined ? req.body.sellerEmail : (req.body.clientSellerDetails?.email ?? property.clientSellerDetails?.email ?? ''),
+        notes: req.body.sellerNotes !== undefined ? req.body.sellerNotes : (req.body.clientSellerDetails?.notes ?? property.clientSellerDetails?.notes ?? ''),
+      };
+      delete req.body.sellerName;
+      delete req.body.sellerPhone;
+      delete req.body.sellerEmail;
+      delete req.body.sellerNotes;
+      delete req.body.clientSellerDetails;
+    }
+
+    // Handle Assigned Representatives (Multi-Agent Support)
+    if (req.body.assignedAgents !== undefined) {
+      const agents = Array.isArray(req.body.assignedAgents) ? req.body.assignedAgents.filter(Boolean) : [];
+      property.assignedAgents = agents;
+      property.assignedAgent = agents.length > 0 ? agents[0] : null;
+      delete req.body.assignedAgents;
+      delete req.body.assignedAgent;
+    }
+
+    // Handle Photos & Images
+    if (req.body.photos !== undefined || req.body.images !== undefined) {
+      const incoming = req.body.photos !== undefined ? req.body.photos : req.body.images;
+      const normalizedImages = (Array.isArray(incoming) ? incoming : [])
+        .map((item, idx) => {
+          if (typeof item === 'string') {
+            return { url: item, caption: '', isCover: idx === 0 };
+          }
+          return {
+            url: item.url || '',
+            caption: item.caption || '',
+            isCover: !!item.isCover,
+          };
+        })
+        .filter((img) => Boolean(img.url));
+
+      if (normalizedImages.length > 0 && !normalizedImages.some((p) => p.isCover)) {
+        normalizedImages[0].isCover = true;
+      }
+
+      property.images = normalizedImages;
+      if (normalizedImages.length > 0) {
+        const cover = normalizedImages.find((p) => p.isCover) || normalizedImages[0];
+        property.coverImage = cover.url;
+      } else {
+        property.coverImage = '';
+      }
+      delete req.body.photos;
+      delete req.body.images;
+    }
+
+    // Allow changing status by Admin / Staff or owner
+    if (req.body.status && !isStaff && !['SOLD', 'RENTED', 'ARCHIVED'].includes(req.body.status)) {
+      delete req.body.status;
+    }
+
     Object.assign(property, req.body);
     await property.save();
+
+    const populated = await Property.findById(property._id)
+      .populate('project', 'name slug')
+      .populate('assignedAgent', 'name phone email avatar')
+      .populate('assignedAgents', 'name phone email avatar')
+      .populate('owner', 'name phone email role avatar');
 
     await logAudit({
       req,
@@ -393,7 +535,7 @@ const updateProperty = async (req, res, next) => {
       notes: `Property ID ${property._id} updated by ${req.user.name}`,
     });
 
-    return sendSuccess(res, 'Property listing updated successfully', property);
+    return sendSuccess(res, 'Property listing updated successfully', populated);
   } catch (error) {
     next(error);
   }
@@ -535,6 +677,7 @@ const deleteProperty = async (req, res, next) => {
 module.exports = {
   getProperties,
   getPropertyBySlug,
+  getPropertyById,
   getSimilarProperties,
   createProperty,
   updateProperty,

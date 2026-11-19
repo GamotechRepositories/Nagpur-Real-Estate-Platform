@@ -11,6 +11,7 @@ import {
   Layers,
   AlertCircle,
   Eye,
+  Edit2,
   CheckCircle,
   Phone,
   MessageSquare,
@@ -262,9 +263,12 @@ export const AgentListingsPage = () => {
                         </span>
                       </div>
 
-                      <h3 className="text-sm font-bold text-slate-900 hover:text-teal-700 transition">
+                      <Link
+                        to={`/listings/view/${prop._id}`}
+                        className="text-sm font-bold text-slate-900 hover:text-teal-700 transition block"
+                      >
                         {prop.title}
-                      </h3>
+                      </Link>
 
                       <div className="flex items-center gap-2.5 text-xs text-slate-500 flex-wrap">
                         <span className="text-slate-900 font-bold font-mono text-sm">
@@ -287,13 +291,23 @@ export const AgentListingsPage = () => {
 
                   {/* Actions & Metrics */}
                   <div className="flex items-center gap-2.5 self-end lg:self-center flex-wrap">
-                    <button
-                      onClick={() => setInspectProperty(prop)}
-                      className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                    <Link
+                      to={`/listings/view/${prop._id}`}
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                      title="View Details"
                     >
                       <Eye size={13} />
-                      <span>Details</span>
-                    </button>
+                      <span>View</span>
+                    </Link>
+
+                    <Link
+                      to={`/listings/edit/${prop._id}`}
+                      className="px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-semibold flex items-center gap-1.5 transition"
+                      title="Edit Listing"
+                    >
+                      <Edit2 size={13} />
+                      <span>Edit</span>
+                    </Link>
 
                     {/* Mark Sold Button */}
                     {isLive && (
@@ -391,8 +405,8 @@ export const AgentListingsPage = () => {
         </div>
       )}
 
-      {/* Inspect Property Details Modal */}
-      {inspectProperty && (
+      {/* Inspect Property Details Modal (Disabled in favor of dedicated edit page) */}
+      {false && (
         <Modal
           isOpen={Boolean(inspectProperty)}
           onClose={() => setInspectProperty(null)}

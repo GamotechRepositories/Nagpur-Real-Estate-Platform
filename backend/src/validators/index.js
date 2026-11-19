@@ -68,7 +68,7 @@ const propertyCreateSchema = z.object({
   videoUrl: z.string().optional(),
   floorPlanUrl: z.string().optional(),
   brochureUrl: z.string().optional(),
-});
+}).passthrough();
 
 const enquiryCreateSchema = z.object({
   customerName: z.string().min(2, 'Name is required'),

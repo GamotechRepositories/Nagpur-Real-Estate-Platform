@@ -4,12 +4,12 @@ const crypto = require('crypto');
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'fallback_dev_access_secret_nagpur_2026';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback_dev_refresh_secret_nagpur_2026';
 
-const generateAccessToken = (user) => {
+const generateAccessToken = (user, explicitRole = null) => {
   return jwt.sign(
     {
       userId: user._id,
       phone: user.phone,
-      role: user.role,
+      role: explicitRole || user.role,
       status: user.status,
     },
     ACCESS_SECRET,
@@ -17,11 +17,11 @@ const generateAccessToken = (user) => {
   );
 };
 
-const generateRefreshToken = (user) => {
+const generateRefreshToken = (user, explicitRole = null) => {
   return jwt.sign(
     {
       userId: user._id,
-      role: user.role,
+      role: explicitRole || user.role,
     },
     REFRESH_SECRET,
     { expiresIn: process.env.JWT_REFRESH_EXPIRY || '7d' }

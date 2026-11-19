@@ -339,13 +339,13 @@ export const ListingsManagementPage = () => {
                           )}
                         </div>
                         <div className="min-w-0 max-w-xs">
-                          <p
-                            onClick={() => handleOpenInspect(prop)}
-                            className="font-semibold text-slate-900 truncate hover:text-teal-700 cursor-pointer"
-                            title="Click to view full details and manage representatives"
+                          <Link
+                            to={`/listings/view/${prop._id}`}
+                            className="font-semibold text-slate-900 truncate hover:text-teal-700 block transition"
+                            title="View Property Details"
                           >
                             {prop.title}
-                          </p>
+                          </Link>
                           <div className="flex items-center space-x-1 text-[11px] text-slate-500">
                             <span>{prop.purpose}</span>
                             <span>&bull;</span>
@@ -459,13 +459,21 @@ export const ListingsManagementPage = () => {
                     {/* Actions */}
                     <td className="py-2.5 px-3 sm:px-4 text-right">
                       <div className="flex items-center justify-end space-x-1">
-                        <button
-                          onClick={() => handleOpenInspect(prop)}
+                        <Link
+                          to={`/listings/view/${prop._id}`}
                           className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition"
-                          title="View Details & Manage Allocation"
+                          title="View Details"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                        </button>
+                        </Link>
+
+                        <Link
+                          to={`/listings/edit/${prop._id}`}
+                          className="p-1 rounded hover:bg-teal-50 text-slate-500 hover:text-teal-700 transition"
+                          title="Edit Listing"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Link>
 
                         <button
                           onClick={() => setDeleteModal({ isOpen: true, item: prop })}
@@ -534,8 +542,8 @@ export const ListingsManagementPage = () => {
         )}
       </div>
 
-      {/* Inspect Property Details Modal */}
-      {inspectProperty && (
+      {/* Inspect Property Details Modal (Disabled in favor of /listings/edit/:id) */}
+      {false && (
         <Modal
           isOpen={Boolean(inspectProperty)}
           onClose={() => setInspectProperty(null)}

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const Builder = require('../models/Builder');
+const AgentProfile = require('../models/AgentProfile');
 const Project = require('../models/Project');
 const Property = require('../models/Property');
 const User = require('../models/User');
@@ -284,17 +285,26 @@ const createBuilderByAdmin = async (req, res, next) => {
         phone: cleanPhone,
         email: cleanEmail,
         password: password ? password.trim() : 'Nagpur@Builder2026!',
+        builderPassword: password ? password.trim() : 'Nagpur@Builder2026!',
         avatar: avatar ? avatar.trim() : (logo ? logo.trim() : ''),
         role: ROLES.BUILDER,
+        roles: [ROLES.BUILDER],
         status: 'ACTIVE',
         isPhoneVerified: true,
       });
     } else {
-      user.role = ROLES.BUILDER;
-      if (contactPerson) user.name = contactPerson.trim();
+      if (!Array.isArray(user.roles)) user.roles = [];
+      if (!user.roles.includes(ROLES.BUILDER)) user.roles.push(ROLES.BUILDER);
+      if (!user.role || user.role === ROLES.USER) {
+        user.role = ROLES.BUILDER;
+      }
+      if (contactPerson && !user.name) user.name = contactPerson.trim();
       if (cleanEmail && !user.email) user.email = cleanEmail;
-      if (password && password.trim()) user.password = password.trim();
-      if (avatar || logo) user.avatar = (avatar || logo).trim();
+      if (password && password.trim()) {
+        user.builderPassword = password.trim();
+        if (!user.password) user.password = password.trim();
+      }
+      if ((avatar || logo) && !user.avatar) user.avatar = (avatar || logo).trim();
       user.status = 'ACTIVE';
       await user.save();
     }
@@ -445,8 +455,11 @@ const updateBuilderByAdmin = async (req, res, next) => {
           }
         }
 
+        if (!Array.isArray(user.roles)) user.roles = [];
+        if (!user.roles.includes(ROLES.BUILDER)) user.roles.push(ROLES.BUILDER);
         if (password && password.trim()) {
-          user.password = password.trim();
+          user.builderPassword = password.trim();
+          if (!user.password) user.password = password.trim();
         }
 
         if (avatar && avatar.trim()) user.avatar = avatar.trim();
@@ -456,6 +469,7 @@ const updateBuilderByAdmin = async (req, res, next) => {
           user.status = status;
         }
 
+        user.builderProfile = builder._id;
         await user.save();
       }
     }
@@ -779,7 +793,23 @@ const deleteBuilderByAdmin = async (req, res, next) => {
     await Builder.findByIdAndDelete(id);
 
     if (userId) {
-      await User.findByIdAndDelete(userId);
+      const user = await User.findById(userId);
+      if (user) {
+        if (Array.isArray(user.roles)) {
+          user.roles = user.roles.filter((r) => r !== ROLES.BUILDER);
+        }
+        user.builderProfile = undefined;
+
+        const hasAgent = (user.roles && user.roles.includes(ROLES.AGENT)) || (await AgentProfile.exists({ user: userId }));
+        if (hasAgent) {
+          if (user.role === ROLES.BUILDER) user.role = ROLES.AGENT;
+          await user.save();
+        } else if (user.role === ROLES.BUILDER && (!user.roles || user.roles.length === 0)) {
+          await User.findByIdAndDelete(userId);
+        } else {
+          await user.save();
+        }
+      }
     }
 
     await logAudit({

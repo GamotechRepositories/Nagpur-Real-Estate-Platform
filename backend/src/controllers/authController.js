@@ -200,18 +200,12 @@ const handleAgentLogin = async (req, res, next) => {
     }
 
     // 1. Find User by email or phone
-    const userQuery = {
+    let user = await User.findOne({
       $or: [
         { email: loginIdentifier.toLowerCase() },
         { phone: loginIdentifier },
       ],
-    };
-
-    if (role && (role === ROLES.AGENT || role === ROLES.BUILDER)) {
-      userQuery.role = role;
-    }
-
-    let user = await User.findOne(userQuery).select('+password');
+    }).select('+password +agentPassword +builderPassword');
 
     // 2. Fallback: If not found directly, check Builder Profile contactEmail / contactPhone
     if (!user && (!role || role === ROLES.BUILDER)) {
@@ -220,10 +214,10 @@ const handleAgentLogin = async (req, res, next) => {
           { contactEmail: loginIdentifier.toLowerCase() },
           { contactPhone: loginIdentifier },
         ],
-      }).populate({ path: 'user', select: '+password' });
+      });
 
       if (builderDoc?.user) {
-        user = builderDoc.user;
+        user = await User.findById(builderDoc.user).select('+password +agentPassword +builderPassword');
       }
     }
 
@@ -232,17 +226,19 @@ const handleAgentLogin = async (req, res, next) => {
       const agentDoc = await AgentProfile.findOne({
         $or: [
           { agencyEmail: loginIdentifier.toLowerCase() },
+          { contactPhone: loginIdentifier },
           { phone: loginIdentifier },
         ],
-      }).populate({ path: 'user', select: '+password' });
+      });
 
       if (agentDoc?.user) {
-        user = agentDoc.user;
+        user = await User.findById(agentDoc.user).select('+password +agentPassword +builderPassword');
       }
     }
 
+    const targetLabel = role === ROLES.BUILDER ? 'Builder / Developer' : role === ROLES.AGENT ? 'Certified Agent' : 'Partner';
+
     if (!user) {
-      const targetLabel = role === ROLES.BUILDER ? 'Builder / Developer' : role === ROLES.AGENT ? 'Certified Agent' : 'Partner';
       return sendError(
         res,
         `No registered ${targetLabel} account found with '${loginIdentifier}'. Please check your email/mobile or select the correct role above.`,
@@ -252,27 +248,61 @@ const handleAgentLogin = async (req, res, next) => {
       );
     }
 
-    // Role check - must have role AGENT or BUILDER
-    if (user.role !== ROLES.AGENT && user.role !== ROLES.BUILDER) {
-      return sendError(res, 'Access restricted to registered partners (Agents & Builders). Please use the appropriate portal.', 'FORBIDDEN', {}, 403);
-    }
-
-    if (role && user.role !== role) {
-      const actualRole = user.role === ROLES.BUILDER ? 'Builder / Developer' : 'Certified Agent';
-      return sendError(
-        res,
-        `This account is registered as a ${actualRole}. Please select the '${actualRole}' tab above to sign in.`,
-        'ROLE_MISMATCH',
-        {},
-        403
-      );
-    }
-
     if (user.status !== 'ACTIVE') {
       return sendError(res, 'Your partner account is currently suspended. Please contact platform administration.', 'ACCOUNT_SUSPENDED', {}, 403);
     }
 
-    const isMatch = await user.comparePassword(password);
+    // Check Role Access & Profiles
+    const userRoles = Array.isArray(user.roles) ? user.roles : [];
+    const agentProfile = await AgentProfile.findOne({ user: user._id });
+    const builderProfile = await Builder.findOne({ user: user._id });
+
+    const hasAgentAccess = user.role === ROLES.AGENT || userRoles.includes(ROLES.AGENT) || !!agentProfile;
+    const hasBuilderAccess = user.role === ROLES.BUILDER || userRoles.includes(ROLES.BUILDER) || !!builderProfile;
+
+    if (!hasAgentAccess && !hasBuilderAccess) {
+      return sendError(res, 'Access restricted to registered partners (Agents & Builders). Please use the appropriate portal.', 'FORBIDDEN', {}, 403);
+    }
+
+    if (role === ROLES.BUILDER && !hasBuilderAccess) {
+      if (hasAgentAccess) {
+        return sendError(
+          res,
+          `This account is registered as a Certified Agent. Please select the 'Certified Agent' tab above to sign in.`,
+          'ROLE_MISMATCH',
+          {},
+          403
+        );
+      }
+      return sendError(
+        res,
+        `No registered Builder / Developer account found with '${loginIdentifier}'. Please check your credentials or select Certified Agent above.`,
+        'ROLE_NOT_FOUND',
+        {},
+        401
+      );
+    }
+
+    if (role === ROLES.AGENT && !hasAgentAccess) {
+      if (hasBuilderAccess) {
+        return sendError(
+          res,
+          `This account is registered as a Builder / Developer. Please select the 'Builder / Developer' tab above to sign in.`,
+          'ROLE_MISMATCH',
+          {},
+          403
+        );
+      }
+      return sendError(
+        res,
+        `No registered Certified Agent account found with '${loginIdentifier}'. Please check your credentials or select Builder / Developer above.`,
+        'ROLE_NOT_FOUND',
+        {},
+        401
+      );
+    }
+
+    const isMatch = await user.compareRolePassword(password, role);
     if (!isMatch) {
       return sendError(
         res,
@@ -283,14 +313,19 @@ const handleAgentLogin = async (req, res, next) => {
       );
     }
 
+    const activeRole = role || (hasBuilderAccess ? ROLES.BUILDER : ROLES.AGENT);
+
+    // Sync roles array
+    if (!userRoles.includes(activeRole)) {
+      user.roles = [...userRoles, activeRole];
+    }
     user.lastLoginAt = new Date();
     await user.save();
 
-    const agentProfile = user.role === ROLES.AGENT ? await AgentProfile.findOne({ user: user._id }) : null;
-    const builderProfile = user.role === ROLES.BUILDER ? await Builder.findOne({ user: user._id }) : null;
+    const activeProfile = activeRole === ROLES.BUILDER ? builderProfile : agentProfile;
 
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(user, activeRole);
+    const refreshToken = generateRefreshToken(user, activeRole);
 
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     await RefreshToken.create({
@@ -308,19 +343,21 @@ const handleAgentLogin = async (req, res, next) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    return sendSuccess(res, `${user.role === ROLES.BUILDER ? 'Builder' : 'Agent'} logged in successfully`, {
+    return sendSuccess(res, `${activeRole === ROLES.BUILDER ? 'Builder' : 'Agent'} logged in successfully`, {
       user: {
         _id: user._id,
         id: user._id,
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role,
+        role: activeRole,
+        roles: user.roles,
         avatar: user.avatar,
         status: user.status,
-        agentProfile: agentProfile || null,
-        builderProfile: builderProfile || null,
+        agentProfile: activeRole === ROLES.AGENT ? activeProfile : null,
+        builderProfile: activeRole === ROLES.BUILDER ? activeProfile : null,
       },
+      profile: activeProfile,
       accessToken,
       refreshToken,
     });
@@ -361,8 +398,9 @@ const handleRefreshToken = async (req, res, next) => {
     storedToken.isRevoked = true;
     await storedToken.save();
 
-    const newAccessToken = generateAccessToken(user);
-    const newRefreshToken = generateRefreshToken(user);
+    const sessionRole = decoded.role || user.role;
+    const newAccessToken = generateAccessToken(user, sessionRole);
+    const newRefreshToken = generateRefreshToken(user, sessionRole);
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await RefreshToken.create({
@@ -415,7 +453,11 @@ const handleGetMe = async (req, res, next) => {
     const user = await User.findById(req.user._id)
       .populate('agentProfile')
       .populate('builderProfile');
-    return sendSuccess(res, 'User profile fetched', user);
+    const userObj = user.toObject();
+    if (req.user.role) {
+      userObj.role = req.user.role;
+    }
+    return sendSuccess(res, 'User profile fetched', userObj);
   } catch (error) {
     next(error);
   }

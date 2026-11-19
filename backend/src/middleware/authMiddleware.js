@@ -28,6 +28,10 @@ const authenticate = async (req, res, next) => {
       return sendError(res, 'Your account has been suspended. Please contact support.', 'ACCOUNT_SUSPENDED', {}, 403);
     }
 
+    if (decoded.role) {
+      user.role = decoded.role;
+    }
+
     req.user = user;
     next();
   } catch (error) {
@@ -52,6 +56,9 @@ const optionalAuth = async (req, res, next) => {
       const decoded = verifyAccessToken(token);
       const user = await User.findById(decoded.userId);
       if (user && user.status === 'ACTIVE') {
+        if (decoded.role) {
+          user.role = decoded.role;
+        }
         req.user = user;
       }
     }
