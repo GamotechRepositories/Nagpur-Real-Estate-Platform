@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import {
   Building2,
-  AlertCircle,
   ArrowRight,
   ShieldCheck,
   Compass,
-  Shield,
   Eye,
   EyeOff,
   UserCheck,
@@ -15,7 +13,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 
 export const AgentLoginPage = () => {
   const navigate = useNavigate();
-  const { token, user, login, isLoading, error } = useAuthStore();
+  const { token, user, login, isLoading } = useAuthStore();
 
   const [selectedRole, setSelectedRole] = useState(() => {
     return localStorage.getItem('partner_portal_last_role') || 'BUILDER';
@@ -23,7 +21,6 @@ export const AgentLoginPage = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [localError, setLocalError] = useState('');
 
   // If already authenticated as agent or builder, redirect to dashboard
   if (token && (user?.role === 'AGENT' || user?.role === 'BUILDER')) {
@@ -32,7 +29,6 @@ export const AgentLoginPage = () => {
 
   const handleRoleChange = (role) => {
     setSelectedRole(role);
-    setLocalError('');
     try {
       localStorage.setItem('partner_portal_last_role', role);
     } catch {
@@ -42,10 +38,9 @@ export const AgentLoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLocalError('');
 
     if (!identifier.trim() || !password.trim()) {
-      setLocalError('Please enter your mobile number/email and password.');
+      alert('Please enter your mobile number/email and password.');
       return;
     }
 
@@ -58,7 +53,8 @@ export const AgentLoginPage = () => {
     if (result.success) {
       navigate('/');
     } else {
-      setLocalError(result.message || 'Login failed. Please verify your credentials.');
+      const msg = result.message || 'Login failed. Please verify your credentials.';
+      alert(msg);
     }
   };
 
@@ -67,16 +63,9 @@ export const AgentLoginPage = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-10">
       <div className="w-full max-w-md">
-        {/* Top Portal Switch Link */}
-        <div className="flex items-center justify-between mb-4 px-1 text-xs text-slate-500">
-          <span className="font-semibold text-slate-600">Partner Access Portal</span>
-          <a
-            href="http://localhost:5174/login"
-            className="text-teal-700 hover:text-teal-900 font-semibold inline-flex items-center gap-1 transition"
-          >
-            <Shield size={12} />
-            <span>Admin Console (:5174) &rarr;</span>
-          </a>
+        {/* Top Portal Title */}
+        <div className="text-center mb-4 px-1 text-xs">
+          <span className="font-semibold text-slate-500">Partner Access Portal</span>
         </div>
 
         {/* Brand Header */}
@@ -101,7 +90,7 @@ export const AgentLoginPage = () => {
               <button
                 type="button"
                 onClick={() => handleRoleChange('BUILDER')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition ${
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition cursor-pointer ${
                   isBuilder
                     ? 'bg-white text-teal-800 shadow-2xs border border-slate-200'
                     : 'text-slate-600 hover:text-slate-900'
@@ -114,7 +103,7 @@ export const AgentLoginPage = () => {
               <button
                 type="button"
                 onClick={() => handleRoleChange('AGENT')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition ${
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition cursor-pointer ${
                   !isBuilder
                     ? 'bg-white text-teal-800 shadow-2xs border border-slate-200'
                     : 'text-slate-600 hover:text-slate-900'
@@ -136,13 +125,6 @@ export const AgentLoginPage = () => {
                 : 'Login with your certified agent mobile number or email to manage listings.'}
             </p>
           </div>
-
-          {(localError || error) && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
-              <AlertCircle size={15} className="mt-0.5 flex-shrink-0 text-rose-600" />
-              <span className="font-medium leading-relaxed">{localError || error}</span>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
