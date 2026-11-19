@@ -164,12 +164,12 @@ const getModerationQueue = async (req, res, next) => {
 };
 
 /**
- * Approve Property Listing
+ * Approve Property Listing & Allocate Agent / Staff
  */
 const approveProperty = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { reviewNotes = 'Property details and documents verified' } = req.body;
+    const { reviewNotes = 'Property details and documents verified', assignedAgent } = req.body;
 
     const property = await Property.findById(id).populate('owner');
     if (!property) {
@@ -187,7 +187,16 @@ const approveProperty = async (req, res, next) => {
     property.expiresAt = expiresAt;
     property.reviewNotes = reviewNotes;
     property.rejectionReason = '';
+
+    // Allocate Agent or Staff to handle buyer calls & inquiries
+    if (assignedAgent) {
+      property.assignedAgent = assignedAgent;
+    }
+
     await property.save();
+
+    // Populate assignedAgent for response
+    await property.populate('assignedAgent', 'name phone email avatar role');
 
     // Update Verification ticket
     await Verification.findOneAndUpdate(
@@ -214,10 +223,10 @@ const approveProperty = async (req, res, next) => {
       action: 'APPROVE_PROPERTY',
       targetType: 'PROPERTY',
       targetId: property._id,
-      notes: `Listing approved by ${req.user.name}. Valid until ${expiresAt.toLocaleDateString()}`,
+      notes: `Listing approved by ${req.user.name}. Assigned contact: ${property.assignedAgent?.name || 'In-house Desk'} (${property.assignedAgent?.phone || 'N/A'}). Valid until ${expiresAt.toLocaleDateString()}`,
     });
 
-    return sendSuccess(res, 'Property approved and live on marketplace', property);
+    return sendSuccess(res, 'Property approved and live on marketplace with allocated agent', property);
   } catch (error) {
     next(error);
   }

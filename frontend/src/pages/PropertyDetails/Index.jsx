@@ -123,9 +123,13 @@ const PropertyDetailsPage = () => {
         { url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80', caption: 'Kitchen' },
       ];
 
-  const contactPhone = property.assignedAgent?.phone || property.owner?.phone || '9823000000';
-  const agentName = property.assignedAgent?.name || property.owner?.name || 'Prime Estate';
-  const reraNum = property.reraNumber || 'A51800012345';
+  // Agent / Representative details:
+  // If an agent is allocated (or owner is certified broker/builder), show that partner.
+  // If the listing was added by a public regular user, keep their phone & name strictly PRIVATE!
+  const isPublicUser = !property.owner?.role || property.owner?.role === 'USER';
+  const contactPhone = property.assignedAgent?.phone || (!isPublicUser ? property.owner?.phone : '9823012345');
+  const agentName = property.assignedAgent?.name || (!isPublicUser ? property.owner?.name : 'Nagpur Certified Broker Desk');
+  const reraNum = property.assignedAgent?.agentProfile?.reraNumber || property.reraNumber || 'A50500001234';
 
   const handleDirectEnquiry = async (e) => {
     e.preventDefault();

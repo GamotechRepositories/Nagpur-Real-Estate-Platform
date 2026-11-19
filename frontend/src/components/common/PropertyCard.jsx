@@ -33,17 +33,19 @@ const PropertyCard = ({ property, onOpenAuth, layout = 'horizontal' }) => {
     }
   };
 
+  const isPublicUser = !property.owner?.role || property.owner?.role === 'USER';
+
   const handleCallClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const phone = property.assignedAgent?.phone || property.owner?.phone || '9823000000';
+    const phone = property.assignedAgent?.phone || (!isPublicUser ? property.owner?.phone : '9823012345');
     window.location.href = `tel:+91${phone}`;
   };
 
   const handleWhatsAppClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const phone = property.assignedAgent?.phone || property.owner?.phone || '9823000000';
+    const phone = property.assignedAgent?.phone || (!isPublicUser ? property.owner?.phone : '9823012345');
     const text = encodeURIComponent(
       `Hello, I am interested in "${property.title}" in ${property.localityName || 'Nagpur'}.`
     );

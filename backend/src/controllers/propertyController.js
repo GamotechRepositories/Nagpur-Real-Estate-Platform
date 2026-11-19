@@ -4,6 +4,7 @@ const PropertyMedia = require('../models/PropertyMedia');
 const Locality = require('../models/Locality');
 const Verification = require('../models/Verification');
 const SavedProperty = require('../models/SavedProperty');
+const AgentProfile = require('../models/AgentProfile');
 const slugify = require('slugify');
 const { sendSuccess, sendError } = require('../utils/response');
 const { PROPERTY_STATUS, ROLES } = require('../constants');
@@ -125,7 +126,7 @@ const getProperties = async (req, res, next) => {
     // Execute query with pagination
     const [properties, totalCount] = await Promise.all([
       Property.find(filter)
-        .populate('owner', 'name phone avatar')
+        .populate('owner', 'name phone avatar role')
         .populate('assignedAgent', 'name phone avatar')
         .populate('project', 'name slug reraNumber projectStatus images priceRange localityName')
         .sort(sortOption)
@@ -199,8 +200,16 @@ const getPropertyBySlug = async (req, res, next) => {
       isSaved = Boolean(saved);
     }
 
+    const propertyObj = property.toObject();
+    if (property.assignedAgent) {
+      const profile = await AgentProfile.findOne({ user: property.assignedAgent._id });
+      if (profile) {
+        propertyObj.assignedAgent.agentProfile = profile;
+      }
+    }
+
     return sendSuccess(res, 'Property details retrieved', {
-      ...property.toObject(),
+      ...propertyObj,
       isSaved,
     });
   } catch (error) {

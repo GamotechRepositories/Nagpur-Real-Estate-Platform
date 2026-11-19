@@ -10,6 +10,9 @@ import {
   Home,
   Shield,
   User,
+  UserCheck,
+  Building2,
+  AlertCircle,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -36,6 +39,12 @@ export const ModerationQueuePage = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [reviewNotes, setReviewNotes] = useState('');
 
+  // Approve & Agent Allocation State
+  const [approveModalOpen, setApproveModalOpen] = useState(false);
+  const [ticketToApprove, setTicketToApprove] = useState(null);
+  const [selectedAgentId, setSelectedAgentId] = useState('');
+  const [approveReviewNotes, setApproveReviewNotes] = useState('Property documents and details verified.');
+
   // Fetch Verification tickets
   const { data: response, isLoading } = useQuery({
     queryKey: ['admin-moderation-queue', activeTab],
@@ -47,15 +56,38 @@ export const ModerationQueuePage = () => {
 
   const tickets = response || [];
 
-  // Approve Mutation
+  // Fetch Available Certified Agents for Allocation
+  const { data: agents = [] } = useQuery({
+    queryKey: ['admin-agents-available'],
+    queryFn: async () => {
+      const res = await apiClient.get('/agents');
+      return res.data?.data || [];
+    },
+  });
+
+  // Fetch Available Staff Members
+  const { data: staffMembers = [] } = useQuery({
+    queryKey: ['admin-staff-available'],
+    queryFn: async () => {
+      const res = await apiClient.get('/admin/staff?limit=100');
+      return res.data?.data || [];
+    },
+  });
+
+  // Approve Mutation with Agent Allocation
   const approveMutation = useMutation({
-    mutationFn: async ({ id, notes }) => {
-      return apiClient.post(`/admin/moderation/${id}/approve`, { reviewNotes: notes });
+    mutationFn: async ({ id, notes, assignedAgent }) => {
+      return apiClient.post(`/admin/moderation/${id}/approve`, {
+        reviewNotes: notes,
+        assignedAgent: assignedAgent || undefined,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-moderation-queue']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
       queryClient.invalidateQueries(['admin-stats-badge-sync']);
+      setApproveModalOpen(false);
+      setTicketToApprove(null);
       setSelectedTicket(null);
     },
   });
@@ -80,13 +112,28 @@ export const ModerationQueuePage = () => {
     },
   });
 
-  const handleApprove = (propId) => {
-    if (window.confirm('Approve this listing to go LIVE on the marketplace?')) {
-      approveMutation.mutate({
-        id: propId,
-        notes: 'Verified by administrator.',
-      });
-    }
+  const handleOpenApprove = (ticket) => {
+    setTicketToApprove(ticket);
+    const existingAgent = ticket.property?.assignedAgent?._id || ticket.property?.assignedAgent || '';
+    const defaultAgent =
+      existingAgent ||
+      (agents.length > 0 ? (agents[0].user?._id || agents[0].user) : '') ||
+      (staffMembers.length > 0 ? staffMembers[0]._id : '');
+
+    setSelectedAgentId(defaultAgent);
+    setApproveReviewNotes('Property documents and details verified. Assigned to partner.');
+    setApproveModalOpen(true);
+  };
+
+  const handleApproveSubmit = (e) => {
+    e.preventDefault();
+    if (!ticketToApprove?.property?._id && !ticketToApprove?.property) return;
+    const propId = ticketToApprove.property?._id || ticketToApprove.property;
+    approveMutation.mutate({
+      id: propId,
+      notes: approveReviewNotes.trim() || 'Verified by administrator.',
+      assignedAgent: selectedAgentId,
+    });
   };
 
   const handleOpenReject = (ticket) => {
@@ -242,7 +289,7 @@ export const ModerationQueuePage = () => {
                   {ticket.status === 'PENDING' && (
                     <>
                       <button
-                        onClick={() => handleApprove(prop._id)}
+                        onClick={() => handleOpenApprove(ticket)}
                         disabled={approveMutation.isPending}
                         className="flex-1 lg:w-full inline-flex items-center justify-center space-x-1 py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
                       >
@@ -375,15 +422,155 @@ export const ModerationQueuePage = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleApprove(selectedTicket.property?._id)}
+                  onClick={() => {
+                    const t = selectedTicket;
+                    setSelectedTicket(null);
+                    handleOpenApprove(t);
+                  }}
                   disabled={approveMutation.isPending}
                   className="py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs"
                 >
-                  Approve
+                  Approve & Allocate Agent
                 </button>
               </div>
             )}
           </div>
+        </Modal>
+      )}
+
+      {/* Approve & Allocate Agent / Staff Modal */}
+      {approveModalOpen && ticketToApprove && (
+        <Modal
+          isOpen={approveModalOpen}
+          onClose={() => {
+            setApproveModalOpen(false);
+            setTicketToApprove(null);
+          }}
+          title="Approve & Allocate Agent to Listing"
+          subtitle="Assign a verified broker or staff member to handle buyer calls & inquiries"
+          maxWidth="max-w-lg"
+        >
+          <form onSubmit={handleApproveSubmit} className="space-y-4 text-xs">
+            {/* Target Property Summary */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider">
+                  Target Property
+                </span>
+                <span className="font-bold text-slate-900 font-mono text-xs">
+                  {formatIndianPrice(ticketToApprove.property?.price)}
+                </span>
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm truncate">
+                {ticketToApprove.property?.title}
+              </h4>
+              <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                <span>{ticketToApprove.property?.localityName || 'Nagpur'}</span>
+                <span>&bull;</span>
+                <span>{ticketToApprove.property?.areaSqFt} Sq.Ft</span>
+                {ticketToApprove.property?.bedrooms > 0 && (
+                  <>
+                    <span>&bull;</span>
+                    <span>{ticketToApprove.property?.bedrooms} BHK</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Owner Privacy Shield Notice */}
+            <div className="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900">
+              <div className="flex items-center gap-2 font-bold text-xs mb-1 text-amber-950">
+                <UserCheck className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                <span>Submitted by End-User (Owner Details Kept Private)</span>
+              </div>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Owner: <strong>{ticketToApprove.property?.owner?.name || 'User'}</strong> (+91 {ticketToApprove.property?.owner?.phone || 'N/A'}).
+                The public website will <strong>NOT</strong> expose this user's phone number. All incoming buyer calls and WhatsApp inquiries will route directly to the allocated agent below.
+              </p>
+            </div>
+
+            {/* Agent / Staff Allocation Field */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                <span>Allocate Certified Agent or Staff Member *</span>
+                <span className="text-[10px] text-teal-700 font-semibold font-mono">
+                  Public Contact on Website
+                </span>
+              </label>
+              <select
+                value={selectedAgentId}
+                onChange={(e) => setSelectedAgentId(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-medium bg-white focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+                required
+              >
+                <option value="">-- Choose Agent or Staff Member --</option>
+                <optgroup label="🏢 Certified Real Estate Agents">
+                  {agents.map((agent) => {
+                    const userId = agent.user?._id || agent.user;
+                    const userName = agent.user?.name || agent.agencyName || 'Agent';
+                    const userPhone = agent.user?.phone || agent.contactPhone || '';
+                    return (
+                      <option key={agent._id} value={userId}>
+                        {userName} {agent.agencyName ? `(${agent.agencyName})` : ''} — {userPhone}
+                      </option>
+                    );
+                  })}
+                </optgroup>
+                <optgroup label="🛡️ Administrative Staff Members">
+                  {staffMembers.map((staff) => (
+                    <option key={staff._id} value={staff._id}>
+                      {staff.name} ({staff.designation || staff.role}) — {staff.phone || staff.email}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Selected agent's name, phone number, and WhatsApp link will be displayed on the public property page.
+              </p>
+            </div>
+
+            {/* Review Notes */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Moderation Verification Notes
+              </label>
+              <input
+                type="text"
+                value={approveReviewNotes}
+                onChange={(e) => setApproveReviewNotes(e.target.value)}
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:border-teal-600"
+                placeholder="e.g. 7/12 extract verified, documents compliant."
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setApproveModalOpen(false);
+                  setTicketToApprove(null);
+                }}
+                className="py-2 px-3 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={approveMutation.isPending || !selectedAgentId}
+                className="py-2 px-4 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+              >
+                {approveMutation.isPending ? (
+                  <span>Publishing Listing...</span>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Approve & Publish Live</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </Modal>
       )}
 
