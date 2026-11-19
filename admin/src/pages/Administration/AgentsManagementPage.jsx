@@ -224,184 +224,193 @@ export const AgentsManagementPage = () => {
         </span>
       </div>
 
-      {/* Agents Cards Grid */}
+      {/* Agents Row-based Table */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-6 space-y-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-56 bg-white rounded-xl border border-slate-200 animate-pulse" />
+            <div key={n} className="h-14 bg-slate-100 rounded-lg animate-pulse" />
           ))}
         </div>
       ) : filteredAgents.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAgents.map((agent) => (
-            <div
-              key={agent._id}
-              onClick={() => navigate(`/agents/${agent._id}`)}
-              className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md hover:border-teal-500/60 transition-all flex flex-col justify-between space-y-3 cursor-pointer group"
-            >
-              <div className="space-y-3">
-                {/* Header Profile */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center space-x-3 min-w-0">
-                    {agent.user?.avatar ? (
-                      <img
-                        src={getFullImageUrl(agent.user.avatar)}
-                        alt={agent.user.name || 'Agent'}
-                        className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-2xs">
-                        {agent.user?.name?.[0]?.toUpperCase() || 'A'}
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-bold text-slate-900 truncate group-hover:text-teal-700 transition-colors">
-                        {agent.user?.name || 'Agent'}
-                      </h3>
-                      <p className="text-xs text-slate-500 truncate font-medium">
-                        {agent.agencyName || 'Independent Consultant'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-1.5 flex-shrink-0">
-                    <span
-                      className={`inline-flex items-center space-x-1 py-0.5 px-2 rounded-md text-[10px] font-bold ${
-                        agent.verificationStatus === 'VERIFIED'
-                          ? 'bg-teal-50 border border-teal-200 text-teal-800'
-                          : 'bg-amber-50 border border-amber-200 text-amber-800'
-                      }`}
+        <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4">Certified Agent & Agency</th>
+                  <th className="py-3 px-3">MahaRERA No.</th>
+                  <th className="py-3 px-3">Coverage Areas</th>
+                  <th className="py-3 px-3">Rating & Experience</th>
+                  <th className="py-3 px-3">Contact & WhatsApp</th>
+                  <th className="py-3 px-3">Lead Routing</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredAgents.map((agent) => {
+                  const avatarUrl = getFullImageUrl(agent.user?.avatar);
+                  return (
+                    <tr
+                      key={agent._id}
+                      onClick={() => navigate(`/agents/${agent._id}`)}
+                      className="hover:bg-slate-50/80 transition cursor-pointer group"
                     >
-                      <Shield className="w-3 h-3 text-teal-600" />
-                      <span>{agent.verificationStatus || 'VERIFIED'}</span>
-                    </span>
+                      {/* Agent Name & Agency */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-3">
+                          {avatarUrl ? (
+                            <img
+                              src={avatarUrl}
+                              alt={agent.user?.name || 'Agent'}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-2xs">
+                              {agent.user?.name?.[0]?.toUpperCase() || 'A'}
+                            </div>
+                          )}
+                          <div className="min-w-0 max-w-xs">
+                            <h3 className="font-bold text-slate-900 group-hover:text-teal-700 transition truncate">
+                              {agent.user?.name || 'Agent'}
+                            </h3>
+                            <p className="text-[11px] text-slate-500 truncate font-medium">
+                              {agent.agencyName || 'Independent Consultant'}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditModal(agent);
-                      }}
-                      className="p-1 rounded-md border border-slate-200 text-slate-500 hover:text-teal-700 hover:bg-slate-50 transition"
-                      title="Edit Profile & Password"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
+                      {/* MahaRERA Number */}
+                      <td className="py-3 px-3 font-mono">
+                        {agent.reraNumber ? (
+                          <span className="font-semibold text-slate-800 bg-slate-100 py-0.5 px-2 rounded text-[11px] border border-slate-200">
+                            {agent.reraNumber}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 italic">Not set</span>
+                        )}
+                      </td>
 
-                {/* Key Metrics */}
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase block">Rating</span>
-                    <span className="font-bold text-amber-600 inline-flex items-center">
-                      <Star className="w-3.5 h-3.5 fill-amber-500 mr-1" />
-                      {agent.rating || 4.8} / 5.0
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase block">Experience</span>
-                    <span className="font-bold text-slate-800">{agent.experienceYears || 5} Years</span>
-                  </div>
-                  {agent.reraNumber && (
-                    <div className="col-span-2 pt-1 border-t border-slate-200/60 font-mono text-[11px] text-slate-700">
-                      RERA: <span className="font-semibold text-slate-900">{agent.reraNumber}</span>
-                    </div>
-                  )}
-                </div>
+                      {/* Coverage Areas */}
+                      <td className="py-3 px-3">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {agent.areasServed && agent.areasServed.length > 0 ? (
+                            agent.areasServed.slice(0, 3).map((area, idx) => (
+                              <span
+                                key={idx}
+                                className="py-0.5 px-1.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium"
+                              >
+                                {area}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-slate-400 text-[11px]">Nagpur</span>
+                          )}
+                          {agent.areasServed && agent.areasServed.length > 3 && (
+                            <span className="text-[10px] text-slate-400 font-semibold">
+                              +{agent.areasServed.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </td>
 
-                {/* Localities Served */}
-                <div className="text-xs text-slate-600">
-                  <span className="text-slate-400 text-[10px] font-semibold uppercase block mb-1">
-                    Coverage Areas:
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {agent.areasServed?.map((area, idx) => (
-                      <span
-                        key={idx}
-                        className="py-0.5 px-1.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium"
-                      >
-                        {area}
-                      </span>
-                    )) || <span className="text-slate-400">Nagpur</span>}
-                  </div>
-                </div>
-              </div>
+                      {/* Rating & Experience */}
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-amber-600 inline-flex items-center text-[11px]">
+                          <Star className="w-3.5 h-3.5 fill-amber-500 mr-1" />
+                          <span>{agent.rating || 4.8} / 5.0</span>
+                        </div>
+                        <span className="text-[11px] text-slate-500 block font-medium">
+                          {agent.experienceYears || 5} Years Exp.
+                        </span>
+                      </td>
 
-              {/* Action Buttons: WhatsApp + Call + Status Toggle */}
-              <div className="pt-3 border-t border-slate-100 space-y-2">
-                <div className="flex items-center space-x-1.5 text-xs">
-                  {/* WhatsApp */}
-                  <a
-                    href={`https://wa.me/91${agent.contactPhone || agent.user?.phone}?text=${encodeURIComponent(
-                      `Hello ${agent.user?.name || 'Agent'}, regarding Nagpur Real Estate client routing:`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-1 inline-flex items-center justify-center space-x-1 py-1.5 px-2.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold transition-colors"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </a>
+                      {/* Contact & WhatsApp */}
+                      <td className="py-3 px-3" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center space-x-1.5">
+                          <a
+                            href={`https://wa.me/91${agent.contactPhone || agent.user?.phone}?text=${encodeURIComponent(
+                              `Hello ${agent.user?.name || 'Agent'}, regarding Nagpur Real Estate client routing:`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center space-x-1 py-1 px-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold text-[11px] transition-colors"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </a>
 
-                  {/* Phone Call */}
-                  <a
-                    href={`tel:+91${agent.contactPhone || agent.user?.phone}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors"
-                    title="Call Agent"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                  </a>
+                          <a
+                            href={`tel:+91${agent.contactPhone || agent.user?.phone}`}
+                            className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
+                            title="Call Agent"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </a>
 
-                  {agent.user?.email && (
-                    <a
-                      href={`mailto:${agent.user.email}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors"
-                      title="Send Email"
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                </div>
+                          {agent.user?.email && (
+                            <a
+                              href={`mailto:${agent.user.email}`}
+                              className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 transition"
+                              title="Send Email"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+                        </div>
+                        <span className="font-mono text-[10px] text-slate-500 block mt-1">
+                          +91 {agent.contactPhone || agent.user?.phone}
+                        </span>
+                      </td>
 
-                <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500">
-                  <span>Routing status:</span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      verifyMutation.mutate({
-                        id: agent._id,
-                        isAvailable: !agent.isAvailable,
-                      });
-                    }}
-                    className={`font-semibold transition-colors ${
-                      agent.isAvailable !== false
-                        ? 'text-emerald-700 hover:underline'
-                        : 'text-slate-400 hover:underline'
-                    }`}
-                  >
-                    {agent.isAvailable !== false ? '● Available for Leads' : '○ Paused'}
-                  </button>
-                </div>
+                      {/* Routing Status */}
+                      <td className="py-3 px-3" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            verifyMutation.mutate({
+                              id: agent._id,
+                              isAvailable: !agent.isAvailable,
+                            });
+                          }}
+                          className={`text-[11px] font-semibold py-1 px-2 rounded-md border transition ${
+                            agent.isAvailable !== false
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+                          }`}
+                        >
+                          {agent.isAvailable !== false ? '● Active' : '○ Paused'}
+                        </button>
+                      </td>
 
-                {/* View Full Details Button */}
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/agents/${agent._id}`)}
-                    className="w-full text-center py-1.5 px-2.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 text-[11px] font-bold border border-teal-200/70 transition flex items-center justify-center gap-1.5"
-                  >
-                    <span>View Full Details & Inventory</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+                      {/* Actions */}
+                      <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end space-x-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(agent)}
+                            className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-teal-700 hover:bg-slate-50 transition"
+                            title="Edit Profile & Password"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/agents/${agent._id}`)}
+                            className="py-1 px-2.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-[11px] border border-teal-200 transition inline-flex items-center gap-1"
+                          >
+                            <span>Details</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <EmptyState

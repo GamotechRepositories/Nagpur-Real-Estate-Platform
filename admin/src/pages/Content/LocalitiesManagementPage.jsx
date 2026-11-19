@@ -126,68 +126,97 @@ export const LocalitiesManagementPage = () => {
         </div>
       </div>
 
-      {/* Localities Grid */}
+      {/* Localities Row-based Table */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-6 space-y-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-40 bg-white rounded-xl border border-slate-200 animate-pulse" />
+            <div key={n} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
           ))}
         </div>
       ) : localities.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {localities.map((loc) => (
-            <div
-              key={loc._id}
-              className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
-            >
-              {loc.heroImage && (
-                <div className="h-32 w-full overflow-hidden bg-slate-100 relative">
-                  <img
-                    src={getFullImageUrl(loc.heroImage)}
-                    alt={loc.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  {loc.isFeatured && (
-                    <span className="absolute top-2 right-2 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500 text-white shadow-xs">
-                      Featured
-                    </span>
-                  )}
-                </div>
-              )}
+        <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4">Locality Name</th>
+                  <th className="py-3 px-3">Pincode</th>
+                  <th className="py-3 px-3">Avg. Price / Sq.Ft</th>
+                  <th className="py-3 px-3">Prominence</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {localities.map((loc) => {
+                  const heroUrl = getFullImageUrl(loc.heroImage);
+                  return (
+                    <tr key={loc._id} className="hover:bg-slate-50/80 transition group">
+                      {/* Locality Name & Thumbnail */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-3">
+                          {heroUrl ? (
+                            <img
+                              src={heroUrl}
+                              alt={loc.name}
+                              className="w-12 h-10 rounded-lg object-cover border border-slate-200 shadow-2xs flex-shrink-0 bg-slate-100"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-12 h-10 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              <MapPin className="w-5 h-5 text-teal-600" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-slate-900 group-hover:text-teal-700 transition truncate text-xs">
+                              {loc.name}
+                            </h3>
+                            <span className="text-[11px] text-slate-400">Nagpur, Maharashtra</span>
+                          </div>
+                        </div>
+                      </td>
 
-              <div className="p-4 sm:p-5 flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">{loc.name}</h3>
-                    <span className="text-xs text-slate-400 font-mono">Pincode: {loc.pincode || '440010'}</span>
-                  </div>
-                  {!loc.heroImage && loc.isFeatured && (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                      Featured
-                    </span>
-                  )}
-                </div>
+                      {/* Pincode */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-slate-700 text-xs font-semibold">
+                          {loc.pincode || '440010'}
+                        </span>
+                      </td>
 
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Avg. Price / Sq.Ft:</span>
-                  <span className="font-bold text-slate-900">
-                    ₹{loc.avgPriceSqFt?.toLocaleString('en-IN') || '5,500'}
-                  </span>
-                </div>
-              </div>
+                      {/* Avg. Price / Sq.Ft */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span className="font-bold text-slate-900 font-mono text-xs">
+                          ₹{loc.avgPriceSqFt?.toLocaleString('en-IN') || '5,500'}
+                        </span>
+                        <span className="text-[10px] text-slate-400 ml-1">/ sq.ft</span>
+                      </td>
 
-              <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
-                <button
-                  onClick={() => handleOpenEdit(loc)}
-                  className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-white text-xs font-semibold transition-colors"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                  <span>Edit</span>
-                </button>
-              </div>
-            </div>
-          ))}
+                      {/* Prominence / Featured */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        {loc.isFeatured ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            ★ Featured Locality
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-[11px]">Standard</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => handleOpenEdit(loc)}
+                          className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <EmptyState

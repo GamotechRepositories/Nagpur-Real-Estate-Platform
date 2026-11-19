@@ -173,91 +173,113 @@ export const ProjectsManagementPage = () => {
         </div>
       </div>
 
-      {/* Projects Grid */}
+      {/* Projects Row-based Table */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-6 space-y-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-44 bg-white rounded-xl border border-slate-200 animate-pulse" />
+            <div key={n} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
           ))}
         </div>
       ) : filteredProjects.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProjects.map((proj) => {
-            const coverImage = proj.images?.find((i) => i.isCover)?.url || proj.images?.[0]?.url;
-            return (
-              <div
-                key={proj._id}
-                className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
-              >
-                {coverImage && (
-                  <div className="h-36 w-full overflow-hidden bg-slate-100 relative">
-                    <img
-                      src={getFullImageUrl(coverImage)}
-                      alt={proj.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-2 left-2">
-                      <Badge status={proj.projectStatus} size="xs" />
-                    </div>
-                    {proj.isFeatured && (
-                      <span className="absolute top-2 right-2 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500 text-white shadow-xs">
-                        Featured
-                      </span>
-                    )}
-                  </div>
-                )}
+        <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4">Project & Locality</th>
+                  <th className="py-3 px-3">MahaRERA No.</th>
+                  <th className="py-3 px-3">Starting Price</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3">Media</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredProjects.map((proj) => {
+                  const coverImage = proj.images?.find((i) => i.isCover)?.url || proj.images?.[0]?.url;
+                  return (
+                    <tr key={proj._id} className="hover:bg-slate-50/80 transition group">
+                      {/* Project Name & Thumbnail */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-3">
+                          {coverImage ? (
+                            <img
+                              src={getFullImageUrl(coverImage)}
+                              alt={proj.name}
+                              className="w-12 h-10 rounded-lg object-cover border border-slate-200 shadow-2xs flex-shrink-0 bg-slate-100"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-12 h-10 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              <Compass className="w-5 h-5 text-teal-600" />
+                            </div>
+                          )}
+                          <div className="min-w-0 max-w-sm">
+                            <div className="flex items-center space-x-2">
+                              <h3 className="font-bold text-slate-900 group-hover:text-teal-700 transition truncate text-xs">
+                                {proj.name}
+                              </h3>
+                              {proj.isFeatured && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 flex-shrink-0">
+                                  Featured
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-1 text-[11px] text-slate-500 mt-0.5">
+                              <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                              <span className="truncate">{proj.localityName || 'Nagpur'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
 
-                <div className="p-4 sm:p-5 space-y-2 flex-1">
-                  {!coverImage && (
-                    <div className="flex items-start justify-between">
-                      <Badge status={proj.projectStatus} size="xs" />
-                      {proj.isFeatured && (
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                          Featured
+                      {/* MahaRERA No. */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        {proj.reraNumber ? (
+                          <div className="inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-teal-700 font-mono text-[11px] font-medium">
+                            <Shield className="w-3 h-3 flex-shrink-0" />
+                            <span>{proj.reraNumber}</span>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-[11px] italic">Not Registered</span>
+                        )}
+                      </td>
+
+                      {/* Starting Price */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span className="font-bold text-slate-900 font-mono text-xs">
+                          {formatIndianPrice(proj.startingPrice)}
                         </span>
-                      )}
-                    </div>
-                  )}
+                      </td>
 
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 truncate">{proj.name}</h3>
-                    <div className="flex items-center space-x-1 text-xs text-slate-500 mt-0.5">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                      <span>{proj.localityName || 'Nagpur'}</span>
-                    </div>
-                  </div>
+                      {/* Status */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <Badge status={proj.projectStatus} size="xs" />
+                      </td>
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Starting Price:</span>
-                    <span className="font-bold text-slate-900">
-                      {formatIndianPrice(proj.startingPrice)}
-                    </span>
-                  </div>
+                      {/* Media */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">
+                          {proj.images?.length || 0} Photos
+                        </span>
+                      </td>
 
-                  {proj.reraNumber && (
-                    <div className="text-[11px] text-teal-700 font-mono font-medium flex items-center space-x-1">
-                      <Shield className="w-3 h-3 flex-shrink-0" />
-                      <span>RERA: {proj.reraNumber}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-slate-400">
-                    {proj.images?.length || 0} Photos uploaded
-                  </span>
-                  <button
-                    onClick={() => handleOpenEdit(proj)}
-                    className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-white text-xs font-semibold transition-colors"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                    <span>Edit</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+                      {/* Actions */}
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => handleOpenEdit(proj)}
+                          className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <EmptyState

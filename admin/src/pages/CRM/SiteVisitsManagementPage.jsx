@@ -85,123 +85,146 @@ export const SiteVisitsManagementPage = () => {
         }
       />
 
-      {/* Grid of Visits */}
+      {/* Site Visits Row-based Table */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-6 space-y-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-44 bg-white rounded-xl border border-slate-200 animate-pulse" />
+            <div key={n} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
           ))}
         </div>
       ) : visits && visits.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {visits.map((visit) => (
-            <div
-              key={visit._id}
-              className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between space-y-3"
-            >
-              <div className="space-y-2.5">
-                {/* Status + Date */}
-                <div className="flex items-center justify-between">
-                  <Badge status={visit.status} />
-                  <span className="text-[11px] text-slate-400">
-                    {formatDate(visit.createdAt)}
-                  </span>
-                </div>
+        <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4">Property & Locality</th>
+                  <th className="py-3 px-3">Preferred Date & Slot</th>
+                  <th className="py-3 px-3">Buyer Details</th>
+                  <th className="py-3 px-3">Assigned Agent</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3">Notes / Feedback</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {visits.map((visit) => (
+                  <tr key={visit._id} className="hover:bg-slate-50/80 transition group">
+                    {/* Property */}
+                    <td className="py-3 px-4">
+                      <div className="min-w-0 max-w-xs">
+                        <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition truncate text-xs">
+                          {visit.property?.title || 'Property'}
+                        </h4>
+                        <div className="flex items-center space-x-1 text-[11px] text-slate-500 mt-0.5">
+                          <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                          <span className="truncate">{visit.property?.localityName || 'Nagpur'}</span>
+                        </div>
+                      </div>
+                    </td>
 
-                {/* Property Title */}
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 line-clamp-1">
-                    {visit.property?.title || 'Property'}
-                  </h3>
-                  <div className="flex items-center space-x-1 text-xs text-slate-500 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                    <span>{visit.property?.localityName || 'Nagpur'}</span>
-                  </div>
-                </div>
+                    {/* Preferred Slot */}
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-100/80 border border-slate-200/60 font-medium text-slate-800">
+                        <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
+                        <span>{formatDate(visit.preferredDate)} &bull; {visit.preferredTimeSlot}</span>
+                      </div>
+                    </td>
 
-                {/* Visit Preferred Slot Card */}
-                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center space-x-2.5 text-xs">
-                  <Clock className="w-4 h-4 text-teal-700 flex-shrink-0" />
-                  <div>
-                    <span className="font-semibold text-slate-900 block">
-                      {formatDate(visit.preferredDate)} &bull; {visit.preferredTimeSlot}
-                    </span>
-                  </div>
-                </div>
+                    {/* Buyer */}
+                    <td className="py-3 px-3">
+                      <div className="font-medium text-slate-900">
+                        {visit.buyer?.name || 'Buyer'}
+                      </div>
+                      {visit.buyer?.phone && (
+                        <div className="text-[11px] text-slate-500 font-mono">
+                          {visit.buyer.phone}
+                        </div>
+                      )}
+                    </td>
 
-                {/* Contacts */}
-                <div className="space-y-1 text-xs text-slate-600 pt-1 border-t border-slate-100">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Buyer:</span>
-                    <span className="font-medium text-slate-800">
-                      {visit.buyer?.name || 'Buyer'} {visit.buyer?.phone ? `(${visit.buyer.phone})` : ''}
-                    </span>
-                  </div>
+                    {/* Agent */}
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      {visit.assignedAgent ? (
+                        <div className="font-medium text-slate-800">
+                          {visit.assignedAgent.name}
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 text-[11px] italic">Unassigned</span>
+                      )}
+                    </td>
 
-                  {visit.assignedAgent && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Agent:</span>
-                      <span className="font-medium text-slate-800">
-                        {visit.assignedAgent.name}
-                      </span>
-                    </div>
-                  )}
+                    {/* Status */}
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <Badge status={visit.status} size="xs" />
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        {formatDate(visit.createdAt)}
+                      </div>
+                    </td>
 
-                  {visit.feedbackNotes && (
-                    <div className="pt-1 text-[11px] text-slate-500 italic">
-                      Notes: {visit.feedbackNotes}
-                    </div>
-                  )}
-                </div>
-              </div>
+                    {/* Feedback / Notes */}
+                    <td className="py-3 px-3 max-w-[200px]">
+                      {visit.feedbackNotes ? (
+                        <span className="text-[11px] text-slate-600 line-clamp-2 italic" title={visit.feedbackNotes}>
+                          "{visit.feedbackNotes}"
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-[11px]">-</span>
+                      )}
+                    </td>
 
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-1.5 pt-2 border-t border-slate-100">
-                {visit.status === 'REQUESTED' && (
-                  <>
-                    <button
-                      onClick={() => handleOpenUpdate(visit, 'CONFIRMED')}
-                      className="flex-1 py-1 px-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
-                      className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
+                    {/* Actions */}
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end space-x-1.5">
+                        {visit.status === 'REQUESTED' && (
+                          <>
+                            <button
+                              onClick={() => handleOpenUpdate(visit, 'CONFIRMED')}
+                              className="py-1 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition-colors"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
+                              className="py-1 px-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
 
-                {visit.status === 'CONFIRMED' && (
-                  <>
-                    <button
-                      onClick={() => handleOpenUpdate(visit, 'COMPLETED')}
-                      className="flex-1 py-1 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors"
-                    >
-                      Mark Completed
-                    </button>
-                    <button
-                      onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
-                      className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
+                        {visit.status === 'CONFIRMED' && (
+                          <>
+                            <button
+                              onClick={() => handleOpenUpdate(visit, 'COMPLETED')}
+                              className="py-1 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition-colors"
+                            >
+                              Complete
+                            </button>
+                            <button
+                              onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
+                              className="py-1 px-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
 
-                {(visit.status === 'COMPLETED' || visit.status === 'CANCELLED') && (
-                  <button
-                    onClick={() => handleOpenUpdate(visit, visit.status)}
-                    className="w-full py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
-                  >
-                    Edit Feedback
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+                        {(visit.status === 'COMPLETED' || visit.status === 'CANCELLED') && (
+                          <button
+                            onClick={() => handleOpenUpdate(visit, visit.status)}
+                            className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-medium"
+                          >
+                            Edit Feedback
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <EmptyState
