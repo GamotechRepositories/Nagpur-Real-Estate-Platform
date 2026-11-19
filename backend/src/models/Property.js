@@ -271,6 +271,12 @@ const propertySchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    clientSellerDetails: {
+      name: { type: String, trim: true, default: '' },
+      phone: { type: String, trim: true, default: '' },
+      email: { type: String, trim: true, default: '' },
+      notes: { type: String, trim: true, default: '' },
+    },
   },
   {
     timestamps: true,

@@ -13,6 +13,11 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Phone,
+  MessageSquare,
+  Lock,
+  UserCheck,
+  User,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -164,6 +169,7 @@ export const ListingsManagementPage = () => {
                 <th className="py-3 px-3 sm:px-4">Property</th>
                 <th className="py-3 px-3">Locality</th>
                 <th className="py-3 px-3">Price</th>
+                <th className="py-3 px-3">Owner / Client</th>
                 <th className="py-3 px-3">Status</th>
                 <th className="py-3 px-3 text-center">Badges</th>
                 <th className="py-3 px-3">Expires</th>
@@ -185,6 +191,7 @@ export const ListingsManagementPage = () => {
                     </td>
                     <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-20" /></td>
                     <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-16" /></td>
+                    <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-24" /></td>
                     <td className="py-2.5 px-3"><div className="h-4 bg-slate-200 rounded-md w-14" /></td>
                     <td className="py-2.5 px-3"><div className="h-4 bg-slate-200 rounded w-12 mx-auto" /></td>
                     <td className="py-2.5 px-3"><div className="h-3 bg-slate-200 rounded w-16" /></td>
@@ -239,6 +246,37 @@ export const ListingsManagementPage = () => {
                     {/* Price */}
                     <td className="py-2.5 px-3 font-semibold text-slate-900 whitespace-nowrap">
                       {formatIndianPrice(prop.price)}
+                    </td>
+
+                    {/* Owner / Client (Confidential) */}
+                    <td className="py-2.5 px-3">
+                      {prop.clientSellerDetails?.name ? (
+                        <div className="max-w-[140px]">
+                          <p className="font-semibold text-slate-900 truncate">
+                            {prop.clientSellerDetails.name}
+                          </p>
+                          <p className="text-[11px] font-mono text-slate-500">
+                            {prop.clientSellerDetails.phone || 'No phone'}
+                          </p>
+                          <span className="inline-block text-[9px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-1 rounded">
+                            Client Info
+                          </span>
+                        </div>
+                      ) : prop.owner ? (
+                        <div className="max-w-[140px]">
+                          <p className="font-semibold text-slate-900 truncate">
+                            {prop.owner.name}
+                          </p>
+                          <p className="text-[11px] font-mono text-slate-500">
+                            {prop.owner.phone || 'No phone'}
+                          </p>
+                          <span className="inline-block text-[9px] font-semibold text-slate-600 bg-slate-100 px-1 rounded">
+                            {prop.owner.role === 'USER' ? 'Citizen/Owner' : prop.owner.role || 'Owner'}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px]">System / Admin</span>
+                      )}
                     </td>
 
                     {/* Status */}
@@ -436,6 +474,95 @@ export const ListingsManagementPage = () => {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Confidential Homeowner / Client Details */}
+            <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5 text-amber-900 font-bold text-xs">
+                  <UserCheck className="w-4 h-4 text-amber-700" />
+                  <span>Property Owner / Client Details (Confidential)</span>
+                </div>
+                <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded flex items-center space-x-1">
+                  <Lock className="w-3 h-3 text-amber-700" />
+                  <span>Hidden from Public</span>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                <div>
+                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Seller / Owner Name</span>
+                  <span className="font-semibold text-slate-900">
+                    {inspectProperty.clientSellerDetails?.name || inspectProperty.owner?.name || 'Homeowner'}
+                  </span>
+                  {inspectProperty.owner?.role && (
+                    <span className="text-[10px] text-slate-500 block">
+                      Account Type: {inspectProperty.owner.role}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Contact Number</span>
+                  <div className="flex items-center space-x-2 mt-0.5">
+                    <span className="font-mono font-semibold text-slate-900">
+                      {inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone || 'N/A'}
+                    </span>
+                    {(inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone) && (
+                      <div className="flex items-center space-x-1">
+                        <a
+                          href={`tel:+91${inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone}`}
+                          className="p-1 rounded bg-teal-100 hover:bg-teal-200 text-teal-800"
+                          title="Call Owner"
+                        >
+                          <Phone className="w-3 h-3" />
+                        </a>
+                        <a
+                          href={`https://wa.me/91${inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1 rounded bg-green-100 hover:bg-green-200 text-green-800"
+                          title="WhatsApp Owner"
+                        >
+                          <MessageSquare className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {inspectProperty.clientSellerDetails?.email && (
+                  <div>
+                    <span className="text-slate-500 text-[10px] uppercase font-semibold block">Owner Email</span>
+                    <span className="text-slate-800">{inspectProperty.clientSellerDetails.email}</span>
+                  </div>
+                )}
+
+                {inspectProperty.clientSellerDetails?.notes && (
+                  <div className="sm:col-span-2 bg-white/80 p-2 rounded border border-amber-200/60">
+                    <span className="text-slate-500 text-[10px] uppercase font-semibold block">Internal Seller Notes</span>
+                    <p className="text-slate-700 italic text-xs">{inspectProperty.clientSellerDetails.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Allocated Agent / Representative */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs">
+              <div>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Allocated Representative</span>
+                <span className="font-semibold text-slate-900">
+                  {inspectProperty.assignedAgent?.name || 'Desk Team (Default)'}
+                </span>
+                {inspectProperty.assignedAgent?.phone && (
+                  <span className="text-slate-500 font-mono text-[11px] block">
+                    Phone: {inspectProperty.assignedAgent.phone}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-semibold text-teal-800 bg-teal-100/70 border border-teal-200 px-2.5 py-1 rounded-full">
+                Active Contact for Public
+              </span>
             </div>
 
             {/* Quick Status Change */}

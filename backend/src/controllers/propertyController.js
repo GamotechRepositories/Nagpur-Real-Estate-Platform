@@ -126,6 +126,7 @@ const getProperties = async (req, res, next) => {
     // Execute query with pagination
     const [properties, totalCount] = await Promise.all([
       Property.find(filter)
+        .select('-clientSellerDetails')
         .populate('owner', 'name phone avatar role')
         .populate('assignedAgent', 'name phone avatar')
         .populate('project', 'name slug reraNumber projectStatus images priceRange localityName')
@@ -208,6 +209,17 @@ const getPropertyBySlug = async (req, res, next) => {
       }
     }
 
+    // Never leak clientSellerDetails or private owner contact to the public
+    const isPrivileged =
+      req.user &&
+      (['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'CRM_MANAGER', 'STAFF'].includes(req.user.role) ||
+        (property.assignedAgent && property.assignedAgent._id?.toString() === req.user._id.toString()) ||
+        (property.owner && property.owner._id?.toString() === req.user._id.toString()));
+
+    if (!isPrivileged) {
+      delete propertyObj.clientSellerDetails;
+    }
+
     return sendSuccess(res, 'Property details retrieved', {
       ...propertyObj,
       isSaved,
@@ -286,6 +298,14 @@ const createProperty = async (req, res, next) => {
         coordinates: [body.longitude, body.latitude], // [longitude, latitude]
       },
       coverImage: body.images && body.images.length > 0 ? body.images[0].url : '',
+      clientSellerDetails: body.clientSellerDetails
+        ? {
+            name: body.clientSellerDetails.name || '',
+            phone: body.clientSellerDetails.phone || '',
+            email: body.clientSellerDetails.email || '',
+            notes: body.clientSellerDetails.notes || '',
+          }
+        : undefined,
     });
 
     // If submitted for review, create verification entry for moderators

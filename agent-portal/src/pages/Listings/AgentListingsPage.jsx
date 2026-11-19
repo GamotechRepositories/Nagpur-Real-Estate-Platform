@@ -12,6 +12,10 @@ import {
   AlertCircle,
   Eye,
   CheckCircle,
+  Phone,
+  MessageSquare,
+  UserCheck,
+  Lock,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { Badge } from '../../components/common/Badge';
@@ -37,6 +41,7 @@ export const AgentListingsPage = () => {
   // Selected property for Mark Sold modal
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isSoldModalOpen, setIsSoldModalOpen] = useState(false);
+  const [inspectProperty, setInspectProperty] = useState(null);
 
   const { user } = useAuthStore();
   const isBuilder = user?.role === 'BUILDER';
@@ -230,6 +235,14 @@ export const AgentListingsPage = () => {
 
                   {/* Actions & Metrics */}
                   <div className="flex items-center gap-2.5 self-end lg:self-center flex-wrap">
+                    <button
+                      onClick={() => setInspectProperty(prop)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                    >
+                      <Eye size={13} />
+                      <span>Details</span>
+                    </button>
+
                     {/* Mark Sold Button */}
                     {isLive && (
                       <button
@@ -244,6 +257,56 @@ export const AgentListingsPage = () => {
                     )}
                   </div>
                 </div>
+
+                {/* Homeowner / Client Details Box (Confidential) */}
+                {(prop.clientSellerDetails?.name || prop.owner) && (
+                  <div className="bg-slate-50 border border-slate-200/90 rounded-lg p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center flex-shrink-0">
+                        <UserCheck size={14} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-900">
+                            {prop.clientSellerDetails?.name || prop.owner?.name || 'Homeowner'}
+                          </span>
+                          <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded font-semibold">
+                            {prop.clientSellerDetails?.name ? 'Private Client' : (prop.owner?.role === 'USER' ? 'Direct User Listing' : 'Partner')}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                          <span>Phone: {prop.clientSellerDetails?.phone || prop.owner?.phone || 'N/A'}</span>
+                          {prop.clientSellerDetails?.notes && (
+                            <span className="text-slate-600 italic truncate max-w-xs">
+                              • Note: {prop.clientSellerDetails.notes}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {(prop.clientSellerDetails?.phone || prop.owner?.phone) && (
+                      <div className="flex items-center gap-1.5 self-end sm:self-center">
+                        <a
+                          href={`tel:+91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition"
+                        >
+                          <Phone size={12} className="text-teal-600" />
+                          <span>Call Owner</span>
+                        </a>
+                        <a
+                          href={`https://wa.me/91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-semibold transition"
+                        >
+                          <MessageSquare size={12} className="text-emerald-600" />
+                          <span>WhatsApp</span>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Rejection Feedback Alert */}
                 {isRejected && (
@@ -274,6 +337,143 @@ export const AgentListingsPage = () => {
             );
           })}
         </div>
+      )}
+
+      {/* Inspect Property Details Modal */}
+      {inspectProperty && (
+        <Modal
+          isOpen={Boolean(inspectProperty)}
+          onClose={() => setInspectProperty(null)}
+          title={inspectProperty.title}
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
+              <div>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Price</span>
+                <span className="font-bold text-slate-900 font-mono">
+                  {formatCurrency(inspectProperty.price)}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Area</span>
+                <span className="font-semibold text-slate-800">
+                  {inspectProperty.areaSqFt} Sq.Ft
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Config</span>
+                <span className="font-semibold text-slate-800">
+                  {inspectProperty.bedrooms ? `${inspectProperty.bedrooms} BHK` : inspectProperty.subtype}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Status</span>
+                <Badge status={inspectProperty.status} size="sm" />
+              </div>
+            </div>
+
+            {/* Confidential Homeowner / Client Card for Agent */}
+            <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+                  <UserCheck size={16} className="text-amber-700" />
+                  <span>Property Owner / Client Contact (Confidential)</span>
+                </div>
+                <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded flex items-center gap-1">
+                  <Lock size={10} className="text-amber-700" />
+                  <span>Internal to You</span>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                <div>
+                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Client / Owner Name</span>
+                  <span className="font-bold text-slate-900">
+                    {inspectProperty.clientSellerDetails?.name || inspectProperty.owner?.name || 'Homeowner'}
+                  </span>
+                  {inspectProperty.owner?.role && (
+                    <span className="text-[10px] text-slate-500 block">
+                      Account Type: {inspectProperty.owner.role}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Mobile Number</span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="font-mono font-bold text-slate-900">
+                      {inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone || 'N/A'}
+                    </span>
+                    {(inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone) && (
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={`tel:+91${inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone}`}
+                          className="p-1 rounded bg-teal-100 hover:bg-teal-200 text-teal-800"
+                          title="Call Client"
+                        >
+                          <Phone size={12} />
+                        </a>
+                        <a
+                          href={`https://wa.me/91${inspectProperty.clientSellerDetails?.phone || inspectProperty.owner?.phone}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1 rounded bg-green-100 hover:bg-green-200 text-green-800"
+                          title="WhatsApp Client"
+                        >
+                          <MessageSquare size={12} />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {inspectProperty.clientSellerDetails?.email && (
+                  <div>
+                    <span className="text-slate-500 text-[10px] uppercase font-semibold block">Email</span>
+                    <span className="text-slate-800">{inspectProperty.clientSellerDetails.email}</span>
+                  </div>
+                )}
+
+                {inspectProperty.clientSellerDetails?.notes && (
+                  <div className="sm:col-span-2 bg-white/80 p-2 rounded border border-amber-200/60">
+                    <span className="text-slate-500 text-[10px] uppercase font-semibold block">Internal Client Terms / Notes</span>
+                    <p className="text-slate-700 italic text-xs">{inspectProperty.clientSellerDetails.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Address & Locality */}
+            <div className="text-xs space-y-1">
+              <div>
+                <span className="font-semibold text-slate-700">Locality: </span>
+                <span className="text-slate-600">{inspectProperty.localityName || 'Nagpur'}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-slate-700">Address: </span>
+                <span className="text-slate-600">{inspectProperty.address || `${inspectProperty.localityName}, Nagpur`}</span>
+              </div>
+              {inspectProperty.description && (
+                <div>
+                  <span className="font-semibold text-slate-700">Description: </span>
+                  <p className="text-slate-600 mt-1 p-2 bg-slate-50 rounded border border-slate-200 leading-relaxed">
+                    {inspectProperty.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setInspectProperty(null)}
+                className="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* Mark Sold Modal */}

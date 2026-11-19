@@ -5,6 +5,8 @@ import {
   Building2,
   AlertCircle,
   CheckCircle2,
+  UserCheck,
+  Lock,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -71,6 +73,10 @@ export const AddPropertyPage = () => {
     photos: [],
     floorPlanUrl: '',
     amenities: ['Power Backup', 'Lift', 'Security Personnel', 'Car Parking'],
+    sellerName: '',
+    sellerPhone: '',
+    sellerEmail: '',
+    sellerNotes: '',
   });
 
   const mutation = useMutation({
@@ -160,6 +166,12 @@ export const AddPropertyPage = () => {
         caption: idx === 0 ? 'Cover Photo' : `Property Photo ${idx + 1}`,
       })),
       floorPlanUrl: formData.floorPlanUrl || '',
+      clientSellerDetails: {
+        name: formData.sellerName.trim(),
+        phone: formData.sellerPhone.trim(),
+        email: formData.sellerEmail.trim(),
+        notes: formData.sellerNotes.trim(),
+      },
     };
 
     mutation.mutate(payload);
@@ -524,6 +536,84 @@ export const AddPropertyPage = () => {
               helperText="Upload approved floor plan or architectural layout image"
               aspect="video"
             />
+          </div>
+        </div>
+
+        {/* Property Owner / Client Information (Confidential & Internal) */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <div className="flex items-center space-x-2">
+              <UserCheck className="w-4 h-4 text-teal-600" />
+              <h2 className="text-sm font-bold text-slate-900">
+                Property Owner / Client Information (Confidential)
+              </h2>
+            </div>
+            <span className="inline-flex items-center space-x-1 text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full w-fit">
+              <Lock className="w-3 h-3 text-amber-600" />
+              <span>Internal Only • Hidden from Public Website</span>
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-500">
+            Enter the details of the homeowner, plot seller, or investor on whose behalf you are listing this property. This contact is strictly private and only visible to Admin, Staff, and the allocated Agent.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Owner / Client Full Name
+              </label>
+              <input
+                type="text"
+                name="sellerName"
+                value={formData.sellerName}
+                onChange={handleChange}
+                placeholder="e.g. Ramesh Deshmukh"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 focus:border-slate-400 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Owner Mobile Number
+              </label>
+              <input
+                type="tel"
+                name="sellerPhone"
+                value={formData.sellerPhone}
+                onChange={handleChange}
+                placeholder="e.g. 9822334455"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 focus:border-slate-400 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Owner Email (Optional)
+              </label>
+              <input
+                type="email"
+                name="sellerEmail"
+                value={formData.sellerEmail}
+                onChange={handleChange}
+                placeholder="e.g. ramesh@gmail.com"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 focus:border-slate-400 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Internal Seller Notes / Terms
+              </label>
+              <input
+                type="text"
+                name="sellerNotes"
+                value={formData.sellerNotes}
+                onChange={handleChange}
+                placeholder="e.g. Minimum expected 65L, keys with watchman, call after 2pm"
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-800 focus:border-slate-400 outline-none"
+              />
+            </div>
           </div>
         </div>
 

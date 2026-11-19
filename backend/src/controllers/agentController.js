@@ -551,6 +551,7 @@ const getMyProperties = async (req, res, next) => {
       Property.find(filter)
         .populate('project', 'name slug reraNumber')
         .populate('locality', 'name slug')
+        .populate('owner', 'name phone email role')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(pageSize)

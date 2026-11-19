@@ -317,7 +317,7 @@ const getAllListings = async (req, res, next) => {
     const [listings, totalCount] = await Promise.all([
       Property.find(filter)
         .select(
-          'title slug price priceUnit areaSqFt areaUnit bedrooms bathrooms subtype purpose status isVerified isFeatured coverImage images localityName reraNumber address pincode description expiresAt createdAt owner assignedAgent project'
+          'title slug price priceUnit areaSqFt areaUnit bedrooms bathrooms subtype purpose status isVerified isFeatured coverImage images localityName reraNumber address pincode description expiresAt createdAt owner assignedAgent project clientSellerDetails'
         )
         .populate('owner', 'name phone email role')
         .populate('assignedAgent', 'name phone')
