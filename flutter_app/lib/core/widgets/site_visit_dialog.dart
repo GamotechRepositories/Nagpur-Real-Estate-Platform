@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -79,7 +80,11 @@ class _SiteVisitDialogState extends State<SiteVisitDialog> {
 
   Future<void> _handleSubmit() async {
     setState(() => _error = '');
-    final cleanPhone = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    String cleanPhone = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanPhone.length > 10 && cleanPhone.startsWith('91')) {
+      cleanPhone = cleanPhone.substring(cleanPhone.length - 10);
+    }
     if (cleanPhone.length != 10) {
       setState(() => _error = 'Please enter a valid 10-digit mobile number');
       return;
@@ -87,6 +92,7 @@ class _SiteVisitDialogState extends State<SiteVisitDialog> {
 
     setState(() => _loading = true);
     try {
+      final emailText = _emailController.text.trim();
       await ApiClient().dio.post(
         '/site-visits',
         data: {
@@ -95,9 +101,7 @@ class _SiteVisitDialogState extends State<SiteVisitDialog> {
               ? _nameController.text.trim()
               : 'Valued Visitor',
           'phoneNumber': cleanPhone,
-          'email': _emailController.text.trim().isNotEmpty
-              ? _emailController.text.trim()
-              : null,
+          'email': emailText.isNotEmpty ? emailText : '',
           'preferredDate': DateFormat('yyyy-MM-dd').format(_selectedDate),
           'preferredTimeSlot': _selectedSlot,
         },
@@ -110,10 +114,24 @@ class _SiteVisitDialogState extends State<SiteVisitDialog> {
 
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) Navigator.pop(context);
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      String msg = 'Failed to schedule site visit. Please try again.';
+      if (data != null && data['details'] is List) {
+        msg = (data['details'] as List)
+            .map((d) => '${d['field'] ?? d['path']}: ${d['message']}')
+            .join(' • ');
+      } else if (data != null && data['message'] != null) {
+        msg = data['message'].toString();
+      }
+      setState(() {
+        _loading = false;
+        _error = msg;
+      });
     } catch (e) {
       setState(() {
         _loading = false;
-        _error = 'Failed to schedule site visit. Please try again.';
+        _error = 'Failed to schedule site visit: $e';
       });
     }
   }

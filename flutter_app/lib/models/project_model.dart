@@ -5,6 +5,7 @@ class ProjectModel {
   final String builderName;
   final String localityName;
   final String address;
+  final String pincode;
   final String projectStatus;
   final String reraNumber;
   final String priceStarting;
@@ -21,6 +22,7 @@ class ProjectModel {
     this.builderName = 'Reputed Developer',
     this.localityName = 'Nagpur',
     this.address = '',
+    this.pincode = '440010',
     this.projectStatus = 'Ready Possession',
     this.reraNumber = 'P50500012345',
     this.priceStarting = '₹80 Lakh Onwards',
@@ -50,6 +52,7 @@ class ProjectModel {
       builderName: json['builderName']?.toString() ?? 'Reputed Developer',
       localityName: json['localityName']?.toString() ?? 'Nagpur',
       address: json['address']?.toString() ?? '',
+      pincode: json['pincode']?.toString() ?? '440010',
       projectStatus: json['projectStatus']?.toString() ?? 'Ready Possession',
       reraNumber: json['reraNumber']?.toString() ?? 'P50500012345',
       priceStarting: json['priceStarting']?.toString() ?? '₹80 Lakh Onwards',

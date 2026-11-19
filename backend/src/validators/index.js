@@ -73,7 +73,7 @@ const propertyCreateSchema = z.object({
 const enquiryCreateSchema = z.object({
   customerName: z.string().min(2, 'Name is required'),
   phoneNumber: z.string().regex(phoneRegex, 'Valid Indian phone number is required'),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().email().optional().nullable().or(z.literal('')).or(z.null()),
   propertyId: z.string().optional(),
   message: z.string().max(1000).optional(),
   leadSource: z.string().optional(),
@@ -85,7 +85,7 @@ const siteVisitCreateSchema = z.object({
   propertyId: z.string().min(1, 'Property ID is required'),
   customerName: z.string().min(2, 'Name is required'),
   phoneNumber: z.string().regex(phoneRegex, 'Valid Indian phone number is required'),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().email().optional().nullable().or(z.literal('')).or(z.null()),
   preferredDate: z.string().min(1, 'Preferred visit date is required'),
   preferredTimeSlot: z.string().min(1, 'Time slot is required'),
 });
