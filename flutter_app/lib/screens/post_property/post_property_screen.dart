@@ -190,7 +190,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
 
       setState(() {
         _isUploadingImage = true;
-        _uploadStatusText = 'Uploading photo to AWS S3 & CloudFront CDN...';
+        _uploadStatusText = 'Uploading photo...';
       });
 
       final url = await UploadService.uploadImage(File(picked.path), folder: 'properties');
@@ -202,7 +202,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Photo uploaded to CloudFront CDN successfully!'),
+            content: Text('Photo uploaded successfully!'),
             backgroundColor: AppColors.primaryGreen,
             behavior: SnackBarBehavior.floating,
             duration: Duration(seconds: 2),
@@ -240,7 +240,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
 
       setState(() {
         _isUploadingImage = true;
-        _uploadStatusText = 'Uploading ${pickedList.length} photos to AWS S3 & CloudFront CDN...';
+        _uploadStatusText = 'Uploading ${pickedList.length} photos...';
       });
 
       final files = pickedList.map((x) => File(x.path)).toList();
@@ -250,7 +250,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
         onProgress: (current, total) {
           if (mounted) {
             setState(() {
-              _uploadStatusText = 'Uploading $current of $total photos to CloudFront CDN...';
+              _uploadStatusText = 'Uploading $current of $total photos...';
             });
           }
         },
@@ -263,7 +263,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${urls.length} photos uploaded to CloudFront CDN successfully!'),
+            content: Text('${urls.length} photos uploaded successfully!'),
             backgroundColor: AppColors.primaryGreen,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
@@ -303,7 +303,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
 
       setState(() {
         _isUploadingImage = true;
-        _uploadStatusText = 'Uploading floor plan to CloudFront CDN...';
+        _uploadStatusText = 'Uploading floor plan...';
       });
 
       final url = await UploadService.uploadImage(File(picked.path), folder: 'floorplans');
@@ -1298,44 +1298,21 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Property Photos & Media',
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryText,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Upload real property photos (Hall, Bedrooms, Kitchen, Elevation)',
-                          style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
-                        ),
-                      ],
+                  Text(
+                    'Property Photos & Media',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryText,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.lightGreen,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'AWS S3 + CDN',
-                      style: GoogleFonts.inter(
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryGreen,
-                      ),
-                    ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Upload real property photos (Hall, Bedrooms, Kitchen, Elevation)',
+                    style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                   ),
                 ],
               ),
@@ -1764,7 +1741,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
           if (_reraController.text.trim().isNotEmpty)
             _buildReviewRow('MahaRERA Number', _reraController.text.trim()),
 
-          _buildReviewRow('Gallery Photos', '${_photos.length} photos uploaded to CloudFront CDN'),
+          _buildReviewRow('Gallery Photos', '${_photos.length} photos uploaded'),
           _buildReviewRow('Floor Plan', _floorPlanUrl.isNotEmpty ? 'Attached' : 'Not provided'),
 
           const SizedBox(height: 12),

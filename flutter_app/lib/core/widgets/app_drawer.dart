@@ -43,7 +43,14 @@ class AppDrawer extends StatelessWidget {
             color: AppColors.primaryGreen,
             child: Row(
               children: [
-                const BrandLogo(light: true, showSubtitle: true),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const BrandLogo(height: 30),
+                ),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white, size: 22),

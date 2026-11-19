@@ -77,191 +77,198 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
   Widget build(BuildContext context) {
     final propProv = Provider.of<PropertyProvider>(context);
     final activeTab = propProv.activeTab;
+    final topInset = MediaQuery.of(context).padding.top + 96;
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.primaryText,
-        image: DecorationImage(
-          image: AssetImage('assets/images/hero-mobile.jpg'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Color(0xBA141E18),
-            BlendMode.darken,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 1. BANNER SECTION (Hero Image with Headline & Tagline)
+        Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            color: AppColors.primaryText,
+            image: DecorationImage(
+              image: AssetImage('assets/images/hero-mobile.jpg'),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                Color(0x65000000), // Clean transparent overlay for contrast
+                BlendMode.darken,
+              ),
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(16, topInset, 16, 26),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Subtitle Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryOrange.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.6), width: 0.8),
+                ),
+                child: Text(
+                  'HAR PROPERTY ZAMEEN PAR',
+                  style: GoogleFonts.inter(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Main Headline
+              Text(
+                'Find Your Next Address in Nagpur',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 5),
+
+              Text(
+                'Verified flats, NMRDA plots & villas across Nagpur',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  color: Colors.white.withOpacity(0.9),
+                  height: 1.3,
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Subtitle Badge
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppColors.primaryGreen.withOpacity(0.22),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primaryGreen.withOpacity(0.5)),
+
+        // 2. SEARCH FORM SECTION (Shown BELOW the banner section, not on top of it)
+        Container(
+          margin: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.borderGrey),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0C000000),
+                blurRadius: 10,
+                offset: Offset(0, 3),
               ),
-              child: Text(
-                'NAGPUR REAL ESTATE MARKETPLACE',
-                style: GoogleFonts.inter(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.lightGreen,
-                  letterSpacing: 1.1,
-                ),
-              ),
-            ),
+            ],
           ),
-          const SizedBox(height: 12),
-
-          // Main Headline (Clean Sans-Serif Modern Zameen Style)
-          Text(
-            'Find Your Next Address in Nagpur',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              height: 1.25,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          Text(
-            'Verified flats, NMRDA plots & luxury villas across Dharampeth, Manish Nagar, Wardha Road & Besa',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: Colors.white.withOpacity(0.85),
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Zameen-Style Floating Search Panel
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.16),
-                  blurRadius: 22,
-                  offset: const Offset(0, 8),
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              // Tabs: Buy / Rent / Plots / Commercial
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: AppColors.borderGrey),
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Tabs: Buy / Rent / Plots / Commercial (Green active tab, grey inactive)
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.lightGrey,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.borderGrey),
-                  ),
-                  padding: const EdgeInsets.all(3),
-                  child: Row(
-                    children: [
-                      _buildTabButton('Buy', activeTab, propProv),
-                      _buildTabButton('Rent', activeTab, propProv),
-                      _buildTabButton('Plots', activeTab, propProv),
-                      _buildTabButton('Commercial', activeTab, propProv),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // Locality Dropdown
-                _buildDropdown<String>(
-                  icon: Icons.location_on_outlined,
-                  value: _locality,
-                  items: kNagpurLocalities
-                      .map((loc) => DropdownMenuItem(value: loc, child: Text(loc)))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setState(() => _locality = val);
-                  },
-                ),
-                const SizedBox(height: 10),
-
-                // Property Type & Bedrooms Row
-                Row(
+                padding: const EdgeInsets.all(2),
+                child: Row(
                   children: [
-                    Expanded(
-                      child: _buildDropdown<String>(
-                        icon: Icons.home_work_outlined,
-                        value: _propertyType,
-                        items: kPropertyTypes
-                            .map((t) => DropdownMenuItem(value: t['value']!, child: Text(t['label']!)))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) setState(() => _propertyType = val);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildDropdown<String>(
-                        icon: Icons.bed_outlined,
-                        value: _bedrooms,
-                        items: kBedroomOptions
-                            .map((b) => DropdownMenuItem(value: b['value']!, child: Text(b['label']!)))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) setState(() => _bedrooms = val);
-                        },
-                      ),
-                    ),
+                    _buildTabButton('Buy', activeTab, propProv),
+                    _buildTabButton('Rent', activeTab, propProv),
+                    _buildTabButton('Plots', activeTab, propProv),
+                    _buildTabButton('Commercial', activeTab, propProv),
                   ],
                 ),
-                const SizedBox(height: 10),
+              ),
+              const SizedBox(height: 7),
 
-                // Budget Dropdown
-                _buildDropdown<String>(
-                  icon: Icons.currency_rupee,
-                  value: _budget,
-                  items: kBudgetOptions
-                      .map((b) => DropdownMenuItem(value: b['value']!, child: Text(b['label']!)))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setState(() => _budget = val);
-                  },
-                ),
-                const SizedBox(height: 14),
+              // Locality Dropdown
+              _buildDropdown<String>(
+                icon: Icons.location_on_outlined,
+                value: _locality,
+                items: kNagpurLocalities
+                    .map((loc) => DropdownMenuItem(value: loc, child: Text(loc)))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _locality = val);
+                },
+              ),
+              const SizedBox(height: 6),
 
-                // Zameen-Style Vibrant Green Search Action Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _onSearchPressed,
-                    icon: const Icon(Icons.search, size: 20),
-                    label: Text(
-                      'Search Properties',
-                      style: GoogleFonts.inter(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
+              // Property Type & Bedrooms Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDropdown<String>(
+                      icon: Icons.home_work_outlined,
+                      value: _propertyType,
+                      items: kPropertyTypes
+                          .map((t) => DropdownMenuItem(value: t['value']!, child: Text(t['label']!)))
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => _propertyType = val);
+                      },
                     ),
                   ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _buildDropdown<String>(
+                      icon: Icons.bed_outlined,
+                      value: _bedrooms,
+                      items: kBedroomOptions
+                          .map((b) => DropdownMenuItem(value: b['value']!, child: Text(b['label']!)))
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => _bedrooms = val);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+
+              // Budget Dropdown
+              _buildDropdown<String>(
+                icon: Icons.currency_rupee,
+                value: _budget,
+                items: kBudgetOptions
+                    .map((b) => DropdownMenuItem(value: b['value']!, child: Text(b['label']!)))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _budget = val);
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // Search Action Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _onSearchPressed,
+                  icon: const Icon(Icons.search, size: 17),
+                  label: Text(
+                    'Search Properties',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryOrange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    elevation: 0,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -271,16 +278,16 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
       child: GestureDetector(
         onTap: () => provider.setActiveTab(tab),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 5.5),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryGreen : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
+            color: isSelected ? AppColors.primaryOrange : Colors.transparent,
+            borderRadius: BorderRadius.circular(5),
           ),
           child: Center(
             child: Text(
               tab,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected ? Colors.white : AppColors.secondaryText,
               ),
@@ -298,25 +305,26 @@ class _HeroSearchWidgetState extends State<HeroSearchWidget> {
     required ValueChanged<T?> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: AppColors.lightGrey,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(7),
         border: Border.all(color: AppColors.borderGrey),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: AppColors.primaryGreen),
-          const SizedBox(width: 8),
+          Icon(icon, size: 16, color: AppColors.primaryOrange),
+          const SizedBox(width: 6),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<T>(
                 value: value,
+                isDense: true,
                 isExpanded: true,
                 items: items,
                 onChanged: onChanged,
                 style: GoogleFonts.inter(
-                  fontSize: 12.5,
+                  fontSize: 12,
                   color: AppColors.primaryText,
                   fontWeight: FontWeight.w500,
                 ),

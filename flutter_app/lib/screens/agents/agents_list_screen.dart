@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/whatsapp_icon.dart';
 import '../../providers/property_provider.dart';
 
 class AgentsListScreen extends StatelessWidget {
@@ -127,10 +128,10 @@ class AgentsListScreen extends StatelessWidget {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                final text = Uri.encodeComponent('Hello ${agent.name}, I am reaching out from Nagpur Realty.');
+                                final text = Uri.encodeComponent('Hello ${agent.name}, I am reaching out from Zameen.');
                                 launchUrl(Uri.parse('https://wa.me/91${agent.phone}?text=$text'), mode: LaunchMode.externalApplication);
                               },
-                              icon: const Icon(Icons.chat_bubble_outline, size: 15),
+                              icon: const WhatsAppIcon.white(size: 15),
                               label: const Text('WhatsApp', style: TextStyle(fontSize: 12)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.whatsappGreen,

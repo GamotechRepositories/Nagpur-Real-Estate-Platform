@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../properties/property_details_screen.dart';
 import '../properties/property_list_screen.dart';
 import '../../core/widgets/auth_dialog.dart';
+import '../../core/widgets/whatsapp_icon.dart';
 
 class MySiteVisitsScreen extends StatefulWidget {
   const MySiteVisitsScreen({Key? key}) : super(key: key);
@@ -588,7 +589,9 @@ class _MySiteVisitsScreenState extends State<MySiteVisitsScreen> {
                         child: const SizedBox(
                           width: 36,
                           height: 36,
-                          child: Icon(Icons.chat_bubble, color: Color(0xFF25D366), size: 18),
+                          child: Center(
+                            child: WhatsAppIcon.green(size: 20),
+                          ),
                         ),
                       ),
                     ),

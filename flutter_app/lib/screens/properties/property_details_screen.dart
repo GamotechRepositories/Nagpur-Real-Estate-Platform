@@ -9,6 +9,7 @@ import '../../core/widgets/property_card.dart';
 import '../../core/widgets/enquiry_dialog.dart';
 import '../../core/widgets/site_visit_dialog.dart';
 import '../../core/widgets/auth_dialog.dart';
+import '../../core/widgets/whatsapp_icon.dart';
 import '../../models/property_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/property_provider.dart';
@@ -757,7 +758,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               const SizedBox(width: 10),
               IconButton(
                 onPressed: () => _openWhatsApp(agentPhone, prop.title, prop.localityName),
-                icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+                icon: const WhatsAppIcon.white(size: 20),
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.whatsappGreen,
                   padding: const EdgeInsets.all(12),

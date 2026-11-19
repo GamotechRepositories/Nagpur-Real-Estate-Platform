@@ -9,20 +9,18 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.mainBackground,
-      primaryColor: AppColors.primaryGreen,
+      primaryColor: AppColors.primaryOrange,
       colorScheme: const ColorScheme.light(
-        primary: AppColors.primaryGreen,
+        primary: AppColors.primaryOrange,       // #FF792B (Primary Brand, Buttons, Headings)
         onPrimary: AppColors.white,
-        secondary: AppColors.darkGreen,
+        secondary: AppColors.secondaryGreen,    // #4B8708 (Secondary Color, Borders, Highlights)
         onSecondary: AppColors.white,
         surface: AppColors.white,
         onSurface: AppColors.primaryText,
-        background: AppColors.mainBackground,
-        onBackground: AppColors.primaryText,
         error: AppColors.errorRed,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primaryGreen,
+        backgroundColor: AppColors.primaryOrange, // #FF792B
         foregroundColor: AppColors.white,
         elevation: 0,
         centerTitle: false,
@@ -43,7 +41,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryGreen,
+          backgroundColor: AppColors.primaryOrange, // #FF792B (Buttons)
           foregroundColor: AppColors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -58,8 +56,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primaryText,
-          side: const BorderSide(color: AppColors.borderGrey),
+          foregroundColor: AppColors.primaryOrange,
+          side: const BorderSide(color: AppColors.secondaryGreen, width: 1.2), // #4B8708 (Borders)
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -84,7 +82,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.secondaryGreen, width: 1.8), // #4B8708 (Highlight border)
         ),
         hintStyle: GoogleFonts.inter(
           color: AppColors.secondaryText,
@@ -93,11 +91,11 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.lightGrey,
-        selectedColor: AppColors.lightGreen,
-        secondarySelectedColor: AppColors.primaryGreen,
+        selectedColor: AppColors.lightOrange,
+        secondarySelectedColor: AppColors.primaryOrange,
         labelStyle: GoogleFonts.inter(fontSize: 12, color: AppColors.primaryText),
-        secondaryLabelStyle: GoogleFonts.inter(fontSize: 12, color: AppColors.primaryGreen, fontWeight: FontWeight.bold),
-        side: const BorderSide(color: AppColors.borderGrey),
+        secondaryLabelStyle: GoogleFonts.inter(fontSize: 12, color: AppColors.primaryOrange, fontWeight: FontWeight.bold),
+        side: const BorderSide(color: AppColors.secondaryGreen), // #4B8708 (Borders)
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dividerTheme: const DividerThemeData(
@@ -109,12 +107,12 @@ class AppTheme {
         displayLarge: GoogleFonts.inter(
           fontSize: 28,
           fontWeight: FontWeight.bold,
-          color: AppColors.primaryText,
+          color: AppColors.primaryOrange, // #FF792B (Headings)
         ),
         displayMedium: GoogleFonts.inter(
           fontSize: 22,
           fontWeight: FontWeight.bold,
-          color: AppColors.primaryText,
+          color: AppColors.primaryOrange, // #FF792B (Headings)
         ),
         displaySmall: GoogleFonts.inter(
           fontSize: 18,
@@ -124,7 +122,7 @@ class AppTheme {
         headlineMedium: GoogleFonts.inter(
           fontSize: 17,
           fontWeight: FontWeight.bold,
-          color: AppColors.primaryText,
+          color: AppColors.primaryOrange, // #FF792B (Headings)
         ),
         titleLarge: GoogleFonts.inter(
           fontSize: 15,

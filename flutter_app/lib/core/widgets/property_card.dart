@@ -9,6 +9,7 @@ import '../../models/property_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../screens/properties/property_details_screen.dart';
 import 'auth_dialog.dart';
+import 'whatsapp_icon.dart';
 
 enum PropertyCardLayout { horizontal, grid }
 
@@ -356,7 +357,7 @@ class PropertyCard extends StatelessWidget {
                             property.title,
                             property.localityName,
                           ),
-                          icon: const Icon(Icons.chat_bubble_outline, size: 13),
+                          icon: const WhatsAppIcon.white(size: 13),
                           label: const Text('WhatsApp', style: TextStyle(fontSize: 11)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.whatsappGreen,
@@ -592,7 +593,7 @@ class PropertyCard extends StatelessWidget {
                             property.title,
                             property.localityName,
                           ),
-                          icon: const Icon(Icons.chat_bubble_outline, size: 14),
+                          icon: const WhatsAppIcon.white(size: 14),
                           label: const Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.whatsappGreen,

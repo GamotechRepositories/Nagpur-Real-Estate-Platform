@@ -57,7 +57,7 @@ class NagpurRealtyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PropertyProvider()),
       ],
       child: MaterialApp(
-        title: 'Nagpur Realty',
+        title: 'Zameen',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         home: const HomeScreen(),

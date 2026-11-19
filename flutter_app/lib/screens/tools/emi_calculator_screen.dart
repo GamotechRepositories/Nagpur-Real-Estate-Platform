@@ -80,14 +80,13 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                   ),
                   Slider(
                     value: _price,
-                    min: 1000000,
-                    max: 50000000,
-                    divisions: 98,
+                    min: 500000,
+                    max: 1000000000, // Up to 100 Cr
                     activeColor: AppColors.primaryGreen,
                     inactiveColor: AppColors.borderGrey,
                     onChanged: (val) {
                       setState(() {
-                        _price = val;
+                        _price = (val / 100000).round() * 100000.0;
                         if (_downPayment > _price) _downPayment = _price * 0.2;
                       });
                     },
@@ -103,13 +102,14 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
                     ],
                   ),
                   Slider(
-                    value: _downPayment,
+                    value: _downPayment.clamp(0.0, _price),
                     min: 0,
-                    max: _price,
-                    divisions: 50,
+                    max: _price > 0 ? _price : 1000000,
                     activeColor: AppColors.darkGreen,
                     inactiveColor: AppColors.borderGrey,
-                    onChanged: (val) => setState(() => _downPayment = val),
+                    onChanged: (val) => setState(() {
+                      _downPayment = (val / 100000).round() * 100000.0;
+                    }),
                   ),
                   const SizedBox(height: 12),
 
