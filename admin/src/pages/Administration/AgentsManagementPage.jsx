@@ -36,6 +36,7 @@ export const AgentsManagementPage = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [passwordWasUpdated, setPasswordWasUpdated] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -358,9 +359,14 @@ export const AgentsManagementPage = () => {
                             </a>
                           )}
                         </div>
-                        <span className="font-mono text-[10px] text-slate-500 block mt-1">
-                          +91 {agent.contactPhone || agent.user?.phone}
-                        </span>
+                        <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                          <div>📞 +91 {agent.contactPhone || agent.user?.phone}</div>
+                          {agent.user?.email && (
+                            <div className="text-teal-700 font-sans truncate max-w-[170px]" title={agent.user.email}>
+                              ✉️ {agent.user.email}
+                            </div>
+                          )}
+                        </div>
                       </td>
 
                       {/* Routing Status */}
@@ -632,19 +638,30 @@ export const AgentsManagementPage = () => {
 
               {/* Password Reset Field */}
               <div>
-                <label className="block text-slate-700 font-semibold mb-1 flex items-center gap-1">
-                  <Lock className="w-3 h-3 text-teal-600" />
-                  <span>Set / Reset Portal Password</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-slate-700 font-semibold flex items-center gap-1">
+                    <Lock className="w-3 h-3 text-teal-600" />
+                    <span>Set / Reset Portal Password</span>
+                  </label>
+                  {editFormData.password && (
+                    <button
+                      type="button"
+                      onClick={() => setShowEditPassword(!showEditPassword)}
+                      className="text-[10px] text-teal-700 font-semibold hover:underline"
+                    >
+                      {showEditPassword ? 'Hide' : 'Show'}
+                    </button>
+                  )}
+                </div>
                 <input
-                  type="password"
+                  type={showEditPassword ? 'text' : 'password'}
                   value={editFormData.password}
                   onChange={(e) => setEditFormData({ ...editFormData, password: e.target.value })}
                   placeholder="Leave blank to keep unchanged"
                   className="w-full p-2 rounded-lg border border-slate-200 font-mono font-medium outline-none focus:border-teal-600"
                 />
                 <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  New password for agent's Profolio portal login
+                  New password for agent portal login (localhost:5175)
                 </span>
               </div>
 

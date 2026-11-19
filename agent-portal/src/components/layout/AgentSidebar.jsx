@@ -30,16 +30,13 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
     ? [
         { label: 'Dashboard', to: '/', icon: LayoutDashboard },
         { label: 'My Projects', to: '/projects', icon: Compass },
-        { label: 'Add New Project', to: '/projects/new', icon: PlusCircle, highlight: true },
         { label: 'Project Inventory', to: '/listings', icon: Building2 },
-        { label: 'Post Property Unit', to: '/listings/new', icon: PlusCircle },
         { label: 'Buyer Leads', to: '/leads', icon: Users2 },
         { label: 'Company Profile', to: '/profile', icon: UserCheck },
       ]
     : [
         { label: 'Dashboard', to: '/', icon: LayoutDashboard },
         { label: 'My Listings', to: '/listings', icon: Building2 },
-        { label: 'Post New Property', to: '/listings/new', icon: PlusCircle, highlight: true },
         { label: 'Buyer Leads', to: '/leads', icon: Users2 },
         { label: 'Agency Profile', to: '/profile', icon: UserCheck },
       ];
@@ -65,41 +62,8 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
         </div>
       </div>
 
-      {/* Identity Card */}
-      <div className="p-3 mx-3 my-3 rounded-xl bg-slate-50 border border-slate-200/80">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-teal-100 text-teal-800 border border-teal-200 flex items-center justify-center font-bold text-xs overflow-hidden flex-shrink-0">
-            {user?.avatar || profile?.logo ? (
-              <img src={user.avatar || profile.logo} alt={profile?.name || user?.name} className="w-full h-full object-cover" />
-            ) : (
-              (profile?.name || user?.name || 'P').charAt(0).toUpperCase()
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h4 className="text-xs font-bold text-slate-900 truncate">
-              {profile?.name || user?.name || (isBuilder ? 'Township Developer' : 'Authorized Broker')}
-            </h4>
-            <p className="text-[11px] text-slate-500 truncate">
-              {isBuilder
-                ? (profile?.contactPerson ? `${profile.contactPerson} • Builder` : 'Nagpur Developer')
-                : (profile?.agencyName || 'Nagpur Real Estate Partner')}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between text-[11px]">
-          <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[10px]">
-            <ShieldCheck size={12} className="text-emerald-600" />
-            {profile?.verificationStatus === 'VERIFIED' ? 'MahaRERA Verified' : 'Registered Partner'}
-          </span>
-          <span className="text-slate-400 font-mono text-[10px]">
-            {profile?.reraNumber ? String(profile.reraNumber).slice(-8) : 'ACTIVE'}
-          </span>
-        </div>
-      </div>
-
       {/* Main Navigation */}
-      <div className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+      <div className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
         <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
           {isBuilder ? 'Developer Workspace' : 'Agent Workspace'}
         </div>
@@ -133,28 +97,50 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
         })}
       </div>
 
-      {/* Bottom Actions */}
-      <div className="p-3 border-t border-slate-200 space-y-1 bg-slate-50/50">
-        <a
-          href="http://localhost:5173"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200 transition"
-        >
-          <span className="inline-flex items-center gap-2">
-            <ExternalLink size={13} className="text-slate-400" />
-            Public Marketplace
-          </span>
-          <span className="text-[10px] text-slate-400 font-mono">:5173</span>
-        </a>
+      {/* Bottom Section: Profile Identity Card & Actions */}
+      <div className="p-3 border-t border-slate-200 space-y-2 bg-slate-50/60">
+        {/* Identity Card */}
+        <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-800 border border-teal-200 flex items-center justify-center font-bold text-xs overflow-hidden flex-shrink-0">
+              {user?.avatar || profile?.logo ? (
+                <img src={user.avatar || profile.logo} alt={profile?.name || user?.name} className="w-full h-full object-cover" />
+              ) : (
+                (profile?.name || user?.name || 'P').charAt(0).toUpperCase()
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-xs font-bold text-slate-900 truncate">
+                {profile?.name || user?.name || (isBuilder ? 'Township Developer' : 'Authorized Broker')}
+              </h4>
+              <p className="text-[10px] text-slate-500 truncate">
+                {isBuilder
+                  ? (profile?.contactPerson ? `${profile.contactPerson} • Builder` : 'Nagpur Developer')
+                  : (profile?.agencyName || 'Nagpur Real Estate Partner')}
+              </p>
+            </div>
+          </div>
 
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-rose-50 hover:text-rose-700 transition"
-        >
-          <LogOut size={14} className="text-slate-400" />
-          Sign Out of Portal
-        </button>
+          <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px]">
+            <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[10px]">
+              <ShieldCheck size={11} className="text-emerald-600" />
+              {profile?.verificationStatus === 'VERIFIED' ? 'MahaRERA Verified' : 'Registered Partner'}
+            </span>
+            <span className="text-slate-400 font-mono text-[10px]">
+              {profile?.reraNumber ? String(profile.reraNumber).slice(-8) : 'ACTIVE'}
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-rose-50 hover:text-rose-700 transition"
+          >
+            <LogOut size={14} className="text-slate-400" />
+            Sign Out of Portal
+          </button>
+        </div>
       </div>
     </div>
   );

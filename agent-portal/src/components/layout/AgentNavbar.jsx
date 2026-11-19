@@ -17,22 +17,20 @@ export const AgentNavbar = ({ onOpenMobile }) => {
         </button>
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-900">Agent Workspace</span>
+            <span className="text-xs font-bold text-slate-900">
+              {user?.role === 'BUILDER' ? 'Developer Workspace' : 'Agent Workspace'}
+            </span>
             <span className="w-1 h-1 rounded-full bg-slate-300" />
             <span className="text-xs text-slate-500 font-medium">
-              {profile?.agencyName || 'Nagpur Real Estate Partner'}
+              {user?.role === 'BUILDER'
+                ? (profile?.name || user?.name || 'Nagpur Developer Partner')
+                : (profile?.agencyName || 'Nagpur Real Estate Partner')}
             </span>
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Availability Pill */}
-        <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-          <span>Active for Buyer Routing</span>
-        </div>
-
         {/* Post Property Quick CTA */}
         <Link
           to="/listings/new"

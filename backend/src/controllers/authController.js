@@ -186,33 +186,86 @@ const handleAdminLogin = async (req, res, next) => {
 };
 
 /**
- * Agent Portal Authentication (Profolio Partner Login)
+ * Agent & Builder Portal Authentication (Profolio Partner Login)
  * Supports login via either Email OR Phone Number + Password
+ * Supports role-based filtering (AGENT or BUILDER) and smart profile fallback
  */
 const handleAgentLogin = async (req, res, next) => {
   try {
-    const { email, phone, identifier, password } = req.body;
+    const { email, phone, identifier, password, role } = req.body;
     const loginIdentifier = (identifier || email || phone || '').trim();
 
     if (!loginIdentifier || !password) {
       return sendError(res, 'Email/phone and password are required', 'VALIDATION_ERROR', {}, 400);
     }
 
-    // Find agent by email or phone (case-insensitive for email, strict for phone)
-    const user = await User.findOne({
+    // 1. Find User by email or phone
+    const userQuery = {
       $or: [
         { email: loginIdentifier.toLowerCase() },
         { phone: loginIdentifier },
       ],
-    }).select('+password');
+    };
+
+    if (role && (role === ROLES.AGENT || role === ROLES.BUILDER)) {
+      userQuery.role = role;
+    }
+
+    let user = await User.findOne(userQuery).select('+password');
+
+    // 2. Fallback: If not found directly, check Builder Profile contactEmail / contactPhone
+    if (!user && (!role || role === ROLES.BUILDER)) {
+      const builderDoc = await Builder.findOne({
+        $or: [
+          { contactEmail: loginIdentifier.toLowerCase() },
+          { contactPhone: loginIdentifier },
+        ],
+      }).populate({ path: 'user', select: '+password' });
+
+      if (builderDoc?.user) {
+        user = builderDoc.user;
+      }
+    }
+
+    // 3. Fallback: Check Agent Profile agencyEmail / phone
+    if (!user && (!role || role === ROLES.AGENT)) {
+      const agentDoc = await AgentProfile.findOne({
+        $or: [
+          { agencyEmail: loginIdentifier.toLowerCase() },
+          { phone: loginIdentifier },
+        ],
+      }).populate({ path: 'user', select: '+password' });
+
+      if (agentDoc?.user) {
+        user = agentDoc.user;
+      }
+    }
 
     if (!user) {
-      return sendError(res, 'Invalid agent credentials or account does not exist', 'INVALID_CREDENTIALS', {}, 401);
+      const targetLabel = role === ROLES.BUILDER ? 'Builder / Developer' : role === ROLES.AGENT ? 'Certified Agent' : 'Partner';
+      return sendError(
+        res,
+        `No registered ${targetLabel} account found with '${loginIdentifier}'. Please check your email/mobile or select the correct role above.`,
+        'INVALID_CREDENTIALS',
+        {},
+        401
+      );
     }
 
     // Role check - must have role AGENT or BUILDER
     if (user.role !== ROLES.AGENT && user.role !== ROLES.BUILDER) {
       return sendError(res, 'Access restricted to registered partners (Agents & Builders). Please use the appropriate portal.', 'FORBIDDEN', {}, 403);
+    }
+
+    if (role && user.role !== role) {
+      const actualRole = user.role === ROLES.BUILDER ? 'Builder / Developer' : 'Certified Agent';
+      return sendError(
+        res,
+        `This account is registered as a ${actualRole}. Please select the '${actualRole}' tab above to sign in.`,
+        'ROLE_MISMATCH',
+        {},
+        403
+      );
     }
 
     if (user.status !== 'ACTIVE') {
@@ -221,7 +274,13 @@ const handleAgentLogin = async (req, res, next) => {
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return sendError(res, 'Invalid login credentials', 'INVALID_CREDENTIALS', {}, 401);
+      return sendError(
+        res,
+        'Incorrect password. Please verify your credentials or reset your password in the Admin Console.',
+        'INVALID_CREDENTIALS',
+        {},
+        401
+      );
     }
 
     user.lastLoginAt = new Date();

@@ -24,10 +24,10 @@ export const useAuthStore = create((set, get) => ({
   isLoading: false,
   error: null,
 
-  login: async ({ identifier, password }) => {
+  login: async ({ identifier, password, role }) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await apiClient.post('/auth/agent/login', { identifier, password });
+      const res = await apiClient.post('/auth/agent/login', { identifier, password, role });
       const payload = res?.data || res || {};
       const { user, accessToken } = payload;
       const profile = payload.profile || user?.builderProfile || user?.agentProfile || null;
