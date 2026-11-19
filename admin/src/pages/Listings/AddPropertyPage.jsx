@@ -86,7 +86,13 @@ export const AddPropertyPage = () => {
       }, 1500);
     },
     onError: (err) => {
-      setError(err.response?.data?.message || 'Failed to create property. Please verify your inputs.');
+      const data = err.response?.data;
+      if (data?.details && Array.isArray(data.details)) {
+        const errorList = data.details.map((d) => `${d.field || d.path}: ${d.message}`).join(' • ');
+        setError(`Validation Error: ${errorList}`);
+      } else {
+        setError(data?.message || err.message || 'Failed to create property. Please verify your inputs.');
+      }
     },
   });
 
@@ -102,13 +108,30 @@ export const AddPropertyPage = () => {
     e.preventDefault();
     setError('');
 
+    const cleanTitle = formData.title.trim();
+    if (!cleanTitle) {
+      setError('Please enter a property title.');
+      return;
+    }
+    if (!formData.price || Number(formData.price) <= 0) {
+      setError('Please enter a valid property price.');
+      return;
+    }
+    if (!formData.areaSqFt || Number(formData.areaSqFt) <= 0) {
+      setError('Please enter built-up area in sq.ft.');
+      return;
+    }
+
+    const cleanAddress = formData.address.trim() || `${formData.localityName}, Nagpur`;
+    const cleanDescription = formData.description.trim() || `${cleanTitle} located in ${formData.localityName}, Nagpur.`;
+
     const payload = {
-      title: formData.title.trim(),
+      title: cleanTitle,
       purpose: formData.purpose,
       category: formData.category,
       subtype: formData.subtype,
       project: formData.project || undefined,
-      description: formData.description.trim(),
+      description: cleanDescription,
       price: Number(formData.price),
       priceUnit: 'Total',
       priceNegotiable: formData.priceNegotiable,
@@ -125,9 +148,9 @@ export const AddPropertyPage = () => {
       facing: 'EAST',
       amenities: formData.amenities,
       reraNumber: formData.reraNumber.trim(),
-      address: formData.address.trim(),
+      address: cleanAddress,
       localityName: formData.localityName,
-      pincode: formData.pincode.trim(),
+      pincode: formData.pincode.trim() || '440010',
       latitude: Number(formData.latitude) || 21.1458,
       longitude: Number(formData.longitude) || 79.0882,
       coverImage: formData.photos[0] || '',

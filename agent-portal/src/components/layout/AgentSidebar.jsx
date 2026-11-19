@@ -10,6 +10,7 @@ import {
   LogOut,
   ShieldCheck,
   Layers,
+  Compass,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import clsx from 'clsx';
@@ -23,13 +24,25 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
     navigate('/login');
   };
 
-  const navItems = [
-    { label: 'Dashboard', to: '/', icon: LayoutDashboard },
-    { label: 'My Listings', to: '/listings', icon: Building2 },
-    { label: 'Post New Property', to: '/listings/new', icon: PlusCircle, highlight: true },
-    { label: 'Buyer Leads', to: '/leads', icon: Users2 },
-    { label: 'Agency Profile', to: '/profile', icon: UserCheck },
-  ];
+  const isBuilder = user?.role === 'BUILDER';
+
+  const navItems = isBuilder
+    ? [
+        { label: 'Dashboard', to: '/', icon: LayoutDashboard },
+        { label: 'My Projects', to: '/projects', icon: Compass },
+        { label: 'Add New Project', to: '/projects/new', icon: PlusCircle, highlight: true },
+        { label: 'Project Inventory', to: '/listings', icon: Building2 },
+        { label: 'Post Property Unit', to: '/listings/new', icon: PlusCircle },
+        { label: 'Buyer Leads', to: '/leads', icon: Users2 },
+        { label: 'Company Profile', to: '/profile', icon: UserCheck },
+      ]
+    : [
+        { label: 'Dashboard', to: '/', icon: LayoutDashboard },
+        { label: 'My Listings', to: '/listings', icon: Building2 },
+        { label: 'Post New Property', to: '/listings/new', icon: PlusCircle, highlight: true },
+        { label: 'Buyer Leads', to: '/leads', icon: Users2 },
+        { label: 'Agency Profile', to: '/profile', icon: UserCheck },
+      ];
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white border-r border-slate-200 text-slate-700 w-64 select-none">
@@ -37,7 +50,7 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
       <div className="p-4 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow-xs flex-shrink-0">
-            <Building2 size={20} />
+            {isBuilder ? <Compass size={20} /> : <Building2 size={20} />}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
@@ -46,28 +59,30 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
               </span>
             </div>
             <p className="text-[11px] text-teal-700 font-semibold uppercase tracking-wider">
-              Agent Partner Portal
+              {isBuilder ? 'Developer Partner Portal' : 'Agent Partner Portal'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Agent Identity Card */}
+      {/* Identity Card */}
       <div className="p-3 mx-3 my-3 rounded-xl bg-slate-50 border border-slate-200/80">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-full bg-teal-100 text-teal-800 border border-teal-200 flex items-center justify-center font-bold text-xs overflow-hidden flex-shrink-0">
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user?.name} className="w-full h-full object-cover" />
+            {user?.avatar || profile?.logo ? (
+              <img src={user.avatar || profile.logo} alt={profile?.name || user?.name} className="w-full h-full object-cover" />
             ) : (
-              (user?.name || 'A').charAt(0).toUpperCase()
+              (profile?.name || user?.name || 'P').charAt(0).toUpperCase()
             )}
           </div>
           <div className="min-w-0 flex-1">
             <h4 className="text-xs font-bold text-slate-900 truncate">
-              {user?.name || 'Authorized Broker'}
+              {profile?.name || user?.name || (isBuilder ? 'Township Developer' : 'Authorized Broker')}
             </h4>
             <p className="text-[11px] text-slate-500 truncate">
-              {profile?.agencyName || 'Nagpur Real Estate Partner'}
+              {isBuilder
+                ? (profile?.contactPerson ? `${profile.contactPerson} • Builder` : 'Nagpur Developer')
+                : (profile?.agencyName || 'Nagpur Real Estate Partner')}
             </p>
           </div>
         </div>
@@ -86,7 +101,7 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
       {/* Main Navigation */}
       <div className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
         <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Agent Workspace
+          {isBuilder ? 'Developer Workspace' : 'Agent Workspace'}
         </div>
         {navItems.map((item) => {
           const Icon = item.icon;

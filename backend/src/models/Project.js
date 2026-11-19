@@ -19,6 +19,11 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Builder',
     },
+    builderUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
     builderName: {
       type: String,
       trim: true,

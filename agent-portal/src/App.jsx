@@ -9,6 +9,8 @@ import { AgentListingsPage } from './pages/Listings/AgentListingsPage';
 import { AgentAddPropertyPage } from './pages/Listings/AgentAddPropertyPage';
 import { AgentLeadsPage } from './pages/Leads/AgentLeadsPage';
 import { AgentProfilePage } from './pages/Profile/AgentProfilePage';
+import { BuilderProjectsPage } from './pages/Projects/BuilderProjectsPage';
+import { BuilderAddProjectPage } from './pages/Projects/BuilderAddProjectPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -32,6 +34,8 @@ export const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<AgentLayout />}>
             <Route path="/" element={<AgentDashboardPage />} />
+            <Route path="/projects" element={<BuilderProjectsPage />} />
+            <Route path="/projects/new" element={<BuilderAddProjectPage />} />
             <Route path="/listings" element={<AgentListingsPage />} />
             <Route path="/listings/new" element={<AgentAddPropertyPage />} />
             <Route path="/leads" element={<AgentLeadsPage />} />

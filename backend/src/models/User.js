@@ -77,6 +77,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'AgentProfile',
     },
+    builderProfile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Builder',
+    },
     lastLoginAt: {
       type: Date,
     },

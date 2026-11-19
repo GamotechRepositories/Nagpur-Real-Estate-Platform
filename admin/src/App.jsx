@@ -22,6 +22,8 @@ const StaffFormPage = lazy(() => import('./pages/Administration/StaffFormPage'))
 const UsersManagementPage = lazy(() => import('./pages/Administration/UsersManagementPage'));
 const AgentsManagementPage = lazy(() => import('./pages/Administration/AgentsManagementPage'));
 const AgentDetailsPage = lazy(() => import('./pages/Administration/AgentDetailsPage'));
+const BuildersManagementPage = lazy(() => import('./pages/Administration/BuildersManagementPage'));
+const BuilderDetailsPage = lazy(() => import('./pages/Administration/BuilderDetailsPage'));
 const NotificationsBroadcastPage = lazy(() => import('./pages/Administration/NotificationsBroadcastPage'));
 const ProfilePage = lazy(() => import('./pages/Administration/ProfilePage'));
 const SettingsManagementPage = lazy(() => import('./pages/System/SettingsManagementPage'));
@@ -149,6 +151,8 @@ function App() {
               <Route path="/leads" element={<LeadManagementPage />} />
               <Route path="/agents" element={<AgentsManagementPage />} />
               <Route path="/agents/:id" element={<AgentDetailsPage />} />
+              <Route path="/builders" element={<BuildersManagementPage />} />
+              <Route path="/builders/:id" element={<BuilderDetailsPage />} />
             </Route>
 
             {/* Site Visits */}

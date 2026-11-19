@@ -46,10 +46,12 @@ const errorHandler = (err, req, res, next) => {
   // Zod Validation Error
   if (err.issues && Array.isArray(err.issues)) {
     statusCode = 400;
-    message = 'Request validation failed.';
+    const issueMessages = err.issues.map((i) => `${i.path.join('.') || 'field'}: ${i.message}`);
+    message = `Validation failed: ${issueMessages.join(' • ')}`;
     code = 'SCHEMA_VALIDATION_ERROR';
     details = err.issues.map((i) => ({
       path: i.path.join('.'),
+      field: i.path.join('.'),
       message: i.message,
     }));
   }

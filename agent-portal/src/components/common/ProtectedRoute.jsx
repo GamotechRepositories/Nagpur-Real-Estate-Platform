@@ -9,7 +9,7 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== 'AGENT') {
+  if (!['AGENT', 'BUILDER'].includes(user.role)) {
     return <Navigate to="/login" replace />;
   }
 

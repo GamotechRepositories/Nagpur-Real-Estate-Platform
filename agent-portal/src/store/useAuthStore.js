@@ -29,7 +29,8 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await apiClient.post('/auth/agent/login', { identifier, password });
       const payload = res?.data || res || {};
-      const { user, profile, accessToken } = payload;
+      const { user, accessToken } = payload;
+      const profile = payload.profile || user?.builderProfile || user?.agentProfile || null;
 
       if (accessToken) {
         localStorage.setItem('agent_token', accessToken);

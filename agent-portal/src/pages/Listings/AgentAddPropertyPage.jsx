@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Building2,
@@ -13,8 +13,11 @@ import {
   Trash2,
   ArrowLeft,
   Info,
+  Shield,
+  Compass,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const AMENITY_OPTIONS = [
   'Lift / Elevator',
@@ -35,13 +38,18 @@ const AMENITY_OPTIONS = [
 
 export const AgentAddPropertyPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const preselectedProjectId = searchParams.get('projectId') || '';
+  const { user } = useAuthStore();
+  const isBuilder = user?.role === 'BUILDER';
+
   const [errorMsg, setErrorMsg] = useState('');
   const [imageUrlInput, setImageUrlInput] = useState('');
 
-  // Fetch Projects for township linkage
+  // Fetch Projects for township linkage (for builder, fetch their own projects)
   const { data: projectsData } = useQuery({
-    queryKey: ['projects-dropdown'],
-    queryFn: () => apiClient.get('/projects'),
+    queryKey: ['projects-dropdown', isBuilder],
+    queryFn: () => apiClient.get(isBuilder ? '/builders/me/projects' : '/projects'),
   });
 
   // Fetch Localities for dropdown
@@ -66,7 +74,7 @@ export const AgentAddPropertyPage = () => {
     balconies: 1,
     areaSqFt: '',
     carpetAreaSqFt: '',
-    project: '',
+    project: preselectedProjectId || '',
     localityName: 'Besa',
     address: '',
     pincode: '440034',
@@ -83,6 +91,14 @@ export const AgentAddPropertyPage = () => {
       },
     ],
   });
+
+  useEffect(() => {
+    if (preselectedProjectId) {
+      setFormData((prev) => ({ ...prev, project: preselectedProjectId }));
+    } else if (isBuilder && projects.length > 0 && !formData.project) {
+      setFormData((prev) => ({ ...prev, project: projects[0]._id }));
+    }
+  }, [preselectedProjectId, projects, isBuilder]);
 
   const handleAddImage = () => {
     if (!imageUrlInput.trim()) return;
@@ -120,7 +136,10 @@ export const AgentAddPropertyPage = () => {
   };
 
   const createMutation = useMutation({
-    mutationFn: (payload) => apiClient.post('/properties', payload),
+    mutationFn: (payload) => {
+      const endpoint = isBuilder ? '/builders/me/properties' : '/properties';
+      return apiClient.post(endpoint, payload);
+    },
     onSuccess: () => {
       navigate('/listings?status=PENDING_REVIEW');
     },
@@ -409,23 +428,46 @@ export const AgentAddPropertyPage = () => {
 
         {/* Township Project & Locality Linkage */}
         <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 space-y-4 shadow-2xs">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2.5 flex items-center gap-2">
-            <Layers size={15} className="text-teal-600" />
-            <span>3. Township Project & Location in Nagpur</span>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2.5 flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Layers size={15} className="text-teal-600" />
+              <span>3. Township Project & Location in Nagpur</span>
+            </span>
+            {isBuilder && (
+              <span className="text-[11px] text-teal-700 font-semibold">
+                Builder Inventory Unit
+              </span>
+            )}
           </h3>
+
+          {isBuilder && projects.length === 0 && (
+            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={16} className="text-amber-600 flex-shrink-0" />
+                <span>You have not created any project yet. As per platform policy, please add your township project first.</span>
+              </div>
+              <Link
+                to="/projects/new"
+                className="py-1.5 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs whitespace-nowrap self-start sm:self-center transition"
+              >
+                + Add Project First
+              </Link>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {/* Project Linkage Dropdown */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Part of a Township / Project? (Optional)
+                {isBuilder ? 'Select Township Project *' : 'Part of a Township / Project? (Optional)'}
               </label>
               <select
                 value={formData.project}
                 onChange={(e) => setFormData({ ...formData, project: e.target.value })}
                 className="w-full bg-white border border-teal-300 rounded-lg px-3 py-2 text-xs text-teal-800 font-semibold outline-none focus:border-teal-600"
+                required={isBuilder}
               >
-                <option value="">-- Standalone / Individual Listing --</option>
+                {!isBuilder && <option value="">-- Standalone / Individual Listing --</option>}
                 {projects.map((proj) => (
                   <option key={proj._id} value={proj._id}>
                     🏢 {proj.name} ({proj.localityName || 'Nagpur'})
@@ -433,7 +475,9 @@ export const AgentAddPropertyPage = () => {
                 ))}
               </select>
               <span className="text-[11px] text-slate-400 mt-1 block">
-                Linking attaches this listing directly to the project's inventory showcase.
+                {isBuilder
+                  ? 'This unit will be added to your chosen township project inventory.'
+                  : 'Linking attaches this listing directly to the project\'s inventory showcase.'}
               </span>
             </div>
 
@@ -553,6 +597,14 @@ export const AgentAddPropertyPage = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Moderation / Verification Alert Notice */}
+        <div className="p-3.5 bg-teal-50 border border-teal-200/90 rounded-xl text-teal-900 text-xs flex items-center gap-2.5">
+          <Shield size={16} className="text-teal-700 flex-shrink-0" />
+          <span>
+            <strong>MahaRERA Quality Assurance:</strong> Submitted property listings are forwarded to the Nagpur Real Estate Platform moderation desk for verification. Once approved by the administrator, your unit goes <strong>LIVE</strong> on the public marketplace.
+          </span>
         </div>
 
         {/* Submit Bar */}

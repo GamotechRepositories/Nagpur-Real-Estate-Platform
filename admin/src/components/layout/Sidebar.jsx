@@ -136,6 +136,13 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           badge: null,
           permissions: [PERMISSIONS.LEADS_VIEW, PERMISSIONS.LEADS_MANAGE],
         },
+        {
+          name: 'Builders',
+          href: '/builders',
+          icon: Building2,
+          badge: null,
+          permissions: [PERMISSIONS.PROJECTS_MANAGE, PERMISSIONS.LEADS_VIEW],
+        },
       ],
     },
     {

@@ -165,30 +165,42 @@ export const AgentDashboardPage = () => {
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'LIVE' | 'PENDING_REVIEW' | 'REJECTED' | 'SOLD'
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Fetch Agent Stats
+  // Check Role
+  const isBuilder = user?.role === 'BUILDER';
+
+  // 1. Fetch Stats
   const { data: statsRes, isLoading: isLoadingStats } = useQuery({
-    queryKey: ['agent-stats'],
-    queryFn: () => apiClient.get('/agents/me/stats'),
+    queryKey: ['workspace-stats', isBuilder],
+    queryFn: () => apiClient.get(isBuilder ? '/builders/me/stats' : '/agents/me/stats'),
   });
 
-  // 2. Fetch All Agent Properties (to display full interactive inventory table)
+  // 2. Fetch All Properties
   const { data: propertiesRes, isLoading: isLoadingProperties } = useQuery({
-    queryKey: ['agent-properties-all'],
-    queryFn: () => apiClient.get('/agents/me/properties?limit=100'),
+    queryKey: ['workspace-properties-all', isBuilder],
+    queryFn: () => apiClient.get(isBuilder ? '/builders/me/properties' : '/agents/me/properties?limit=100'),
   });
 
-  // 3. Fetch Agent Leads
+  // 3. Fetch Leads
   const { data: leadsRes, isLoading: isLoadingLeads } = useQuery({
-    queryKey: ['agent-leads-all'],
+    queryKey: ['workspace-leads-all', isBuilder],
     queryFn: () => apiClient.get('/agents/me/leads?limit=50'),
   });
+
+  // 4. If Builder, fetch projects
+  const { data: projectsRes } = useQuery({
+    queryKey: ['builder-projects-dashboard'],
+    queryFn: () => apiClient.get('/builders/me/projects'),
+    enabled: isBuilder,
+  });
+
+  const builderProjects = projectsRes?.data || [];
 
   // Mutation to update lead status
   const updateLeadMutation = useMutation({
     mutationFn: ({ id, status }) => apiClient.patch(`/agents/me/leads/${id}/status`, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['agent-leads-all']);
-      queryClient.invalidateQueries(['agent-stats']);
+      queryClient.invalidateQueries(['workspace-leads-all']);
+      queryClient.invalidateQueries(['workspace-stats']);
     },
   });
 
@@ -357,6 +369,16 @@ export const AgentDashboardPage = () => {
 
           {/* Quick Action Buttons */}
           <div className="flex items-center space-x-2.5 self-start lg:self-center flex-wrap gap-y-2">
+            {isBuilder && (
+              <Link
+                to="/projects/new"
+                className="inline-flex items-center space-x-1.5 py-2 px-3 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold shadow-2xs transition"
+              >
+                <Compass className="w-3.5 h-3.5 text-teal-700" />
+                <span>+ Add New Project</span>
+              </Link>
+            )}
+
             <Link
               to="/profile"
               className="inline-flex items-center space-x-1.5 py-2 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition"
@@ -370,17 +392,21 @@ export const AgentDashboardPage = () => {
               className="inline-flex items-center space-x-1.5 py-2 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Post New Property</span>
+              <span>{isBuilder ? '+ Post Unit Listing' : '+ Post New Property'}</span>
             </Link>
           </div>
         </div>
 
-        {/* 2. AGENT INVENTORY BREAKDOWN (PLOT / BUY / RENT) */}
+        {/* 2. INVENTORY BREAKDOWN */}
         <div className="mt-5 pt-5 border-t border-slate-100">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-teal-600" />
-              <span>Agent Inventory Breakdown (Plot / Buy / Rent)</span>
+              <span>
+                {isBuilder
+                  ? 'Developer Township & Unit Inventory Breakdown'
+                  : 'Agent Inventory Breakdown (Plot / Buy / Rent)'}
+              </span>
             </span>
             <div className="flex items-center gap-4 text-xs">
               <span className="text-slate-500 font-mono">

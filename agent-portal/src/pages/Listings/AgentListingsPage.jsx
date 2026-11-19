@@ -17,6 +17,7 @@ import { apiClient } from '../../api/client';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const STATUS_TABS = [
   { key: 'ALL', label: 'All Listings' },
@@ -37,13 +38,19 @@ export const AgentListingsPage = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isSoldModalOpen, setIsSoldModalOpen] = useState(false);
 
+  const { user } = useAuthStore();
+  const isBuilder = user?.role === 'BUILDER';
+
   const { data, isLoading } = useQuery({
-    queryKey: ['agent-properties', activeStatus, searchTerm],
+    queryKey: ['agent-properties', isBuilder, activeStatus, searchTerm],
     queryFn: () => {
       const params = new URLSearchParams();
       if (activeStatus !== 'ALL') params.set('status', activeStatus);
       if (searchTerm) params.set('search', searchTerm);
-      return apiClient.get(`/agents/me/properties?${params.toString()}`);
+      const url = isBuilder
+        ? `/builders/me/properties?${params.toString()}`
+        : `/agents/me/properties?${params.toString()}`;
+      return apiClient.get(url);
     },
   });
 

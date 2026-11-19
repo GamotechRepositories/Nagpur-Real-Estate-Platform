@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const AgentProfile = require('../models/AgentProfile');
+const Builder = require('../models/Builder');
 const { requestOtp, verifyOtp } = require('../services/otpService');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken, hashToken } = require('../utils/jwt');
 const { sendSuccess, sendError } = require('../utils/response');
@@ -209,24 +210,25 @@ const handleAgentLogin = async (req, res, next) => {
       return sendError(res, 'Invalid agent credentials or account does not exist', 'INVALID_CREDENTIALS', {}, 401);
     }
 
-    // Role check - must have role AGENT
-    if (user.role !== ROLES.AGENT) {
-      return sendError(res, 'Access restricted to registered agency partners. Please use the appropriate portal.', 'FORBIDDEN', {}, 403);
+    // Role check - must have role AGENT or BUILDER
+    if (user.role !== ROLES.AGENT && user.role !== ROLES.BUILDER) {
+      return sendError(res, 'Access restricted to registered partners (Agents & Builders). Please use the appropriate portal.', 'FORBIDDEN', {}, 403);
     }
 
     if (user.status !== 'ACTIVE') {
-      return sendError(res, 'Your agent account is currently suspended. Please contact platform administration.', 'ACCOUNT_SUSPENDED', {}, 403);
+      return sendError(res, 'Your partner account is currently suspended. Please contact platform administration.', 'ACCOUNT_SUSPENDED', {}, 403);
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return sendError(res, 'Invalid agent credentials', 'INVALID_CREDENTIALS', {}, 401);
+      return sendError(res, 'Invalid login credentials', 'INVALID_CREDENTIALS', {}, 401);
     }
 
     user.lastLoginAt = new Date();
     await user.save();
 
-    const agentProfile = await AgentProfile.findOne({ user: user._id });
+    const agentProfile = user.role === ROLES.AGENT ? await AgentProfile.findOne({ user: user._id }) : null;
+    const builderProfile = user.role === ROLES.BUILDER ? await Builder.findOne({ user: user._id }) : null;
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
@@ -235,7 +237,7 @@ const handleAgentLogin = async (req, res, next) => {
     await RefreshToken.create({
       user: user._id,
       tokenHash: hashToken(refreshToken),
-      deviceInfo: req.headers['user-agent'] || 'Profolio Agent Console',
+      deviceInfo: req.headers['user-agent'] || 'Nagpur Partner Portal',
       ipAddress: req.ip || '',
       expiresAt,
     });
@@ -247,7 +249,7 @@ const handleAgentLogin = async (req, res, next) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    return sendSuccess(res, 'Agent logged in successfully', {
+    return sendSuccess(res, `${user.role === ROLES.BUILDER ? 'Builder' : 'Agent'} logged in successfully`, {
       user: {
         _id: user._id,
         id: user._id,
@@ -258,6 +260,7 @@ const handleAgentLogin = async (req, res, next) => {
         avatar: user.avatar,
         status: user.status,
         agentProfile: agentProfile || null,
+        builderProfile: builderProfile || null,
       },
       accessToken,
       refreshToken,
@@ -350,7 +353,9 @@ const handleLogout = async (req, res, next) => {
  */
 const handleGetMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).populate('agentProfile');
+    const user = await User.findById(req.user._id)
+      .populate('agentProfile')
+      .populate('builderProfile');
     return sendSuccess(res, 'User profile fetched', user);
   } catch (error) {
     next(error);
