@@ -189,6 +189,13 @@ const propertySchema = new mongoose.Schema(
       ref: 'User',
       index: true,
     },
+    assignedAgents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        index: true,
+      },
+    ],
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Project',

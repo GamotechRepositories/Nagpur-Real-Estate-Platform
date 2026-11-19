@@ -91,6 +91,12 @@ router.post(
   adminController.renewListing
 );
 
+router.patch(
+  '/listings/:id/representatives',
+  requirePermission(PERMISSIONS.LISTINGS_EDIT),
+  adminController.updateAllocatedRepresentatives
+);
+
 // User Management (Super Admin only)
 router.get(
   '/users',

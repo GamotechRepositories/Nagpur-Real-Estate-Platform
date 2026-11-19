@@ -189,14 +189,19 @@ const approveProperty = async (req, res, next) => {
     property.rejectionReason = '';
 
     // Allocate Agent or Staff to handle buyer calls & inquiries
-    if (assignedAgent) {
+    if (req.body.assignedAgents && Array.isArray(req.body.assignedAgents) && req.body.assignedAgents.length > 0) {
+      property.assignedAgents = req.body.assignedAgents;
+      property.assignedAgent = req.body.assignedAgents[0];
+    } else if (assignedAgent) {
       property.assignedAgent = assignedAgent;
+      property.assignedAgents = [assignedAgent];
     }
 
     await property.save();
 
-    // Populate assignedAgent for response
+    // Populate assignedAgent and assignedAgents for response
     await property.populate('assignedAgent', 'name phone email avatar role');
+    await property.populate('assignedAgents', 'name phone email avatar role');
 
     // Update Verification ticket
     await Verification.findOneAndUpdate(
@@ -317,10 +322,11 @@ const getAllListings = async (req, res, next) => {
     const [listings, totalCount] = await Promise.all([
       Property.find(filter)
         .select(
-          'title slug price priceUnit areaSqFt areaUnit bedrooms bathrooms subtype purpose status isVerified isFeatured coverImage images localityName reraNumber address pincode description expiresAt createdAt owner assignedAgent project clientSellerDetails'
+          'title slug price priceUnit areaSqFt areaUnit bedrooms bathrooms subtype purpose status isVerified isFeatured coverImage images localityName reraNumber address pincode description expiresAt createdAt owner assignedAgent assignedAgents project clientSellerDetails'
         )
         .populate('owner', 'name phone email role')
-        .populate('assignedAgent', 'name phone')
+        .populate('assignedAgent', 'name phone role email')
+        .populate('assignedAgents', 'name phone role email avatar')
         .populate('project', 'name slug reraNumber projectStatus')
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -769,6 +775,49 @@ const deleteStaffMember = async (req, res, next) => {
   }
 };
 
+/**
+ * Update Allocated Representatives (Multi-Agent / Staff Allocation & Reallocation)
+ */
+const updateAllocatedRepresentatives = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { assignedAgents = [], assignedAgent } = req.body;
+
+    const property = await Property.findById(id);
+    if (!property) {
+      return sendError(res, 'Property listing not found', 'NOT_FOUND', {}, 404);
+    }
+
+    let finalAgents = [];
+    if (Array.isArray(assignedAgents)) {
+      finalAgents = assignedAgents.filter(Boolean);
+    } else if (assignedAgent) {
+      finalAgents = [assignedAgent];
+    }
+
+    property.assignedAgents = finalAgents;
+    property.assignedAgent = finalAgents.length > 0 ? finalAgents[0] : null;
+
+    await property.save();
+
+    await property.populate('assignedAgents', 'name phone role email avatar');
+    await property.populate('assignedAgent', 'name phone role email avatar');
+    await property.populate('owner', 'name phone email role');
+
+    await logAudit({
+      user: req.user._id,
+      action: 'UPDATE_PROPERTY',
+      targetType: 'PROPERTY',
+      targetId: property._id,
+      notes: `Updated allocated representatives by ${req.user.name}. ${finalAgents.length} representative(s) assigned.`,
+    });
+
+    return sendSuccess(res, 'Allocated representatives updated successfully', property);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getModerationQueue,
@@ -777,6 +826,7 @@ module.exports = {
   getAllListings,
   togglePropertyBadges,
   renewListing,
+  updateAllocatedRepresentatives,
   getUsers,
   updateUserRoleStatus,
   getSettings,

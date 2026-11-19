@@ -13,6 +13,8 @@ import {
   UserCheck,
   Building2,
   AlertCircle,
+  Users,
+  Trash2,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -42,7 +44,7 @@ export const ModerationQueuePage = () => {
   // Approve & Agent Allocation State
   const [approveModalOpen, setApproveModalOpen] = useState(false);
   const [ticketToApprove, setTicketToApprove] = useState(null);
-  const [selectedAgentId, setSelectedAgentId] = useState('');
+  const [selectedAgentIds, setSelectedAgentIds] = useState([]);
   const [approveReviewNotes, setApproveReviewNotes] = useState('Property documents and details verified.');
 
   // Fetch Verification tickets
@@ -74,12 +76,41 @@ export const ModerationQueuePage = () => {
     },
   });
 
+  const getRepDetails = (repId) => {
+    const id = repId?.toString();
+    const agentMatch = agents.find((a) => (a.user?._id || a.user)?.toString() === id);
+    if (agentMatch) {
+      return {
+        id,
+        name: agentMatch.user?.name || agentMatch.agencyName || 'Certified Agent',
+        phone: agentMatch.user?.phone || agentMatch.contactPhone || '',
+        label: agentMatch.agencyName ? `Agent • ${agentMatch.agencyName}` : 'Certified Broker',
+      };
+    }
+    const staffMatch = staffMembers.find((s) => s._id?.toString() === id);
+    if (staffMatch) {
+      return {
+        id,
+        name: staffMatch.name || 'Staff Member',
+        phone: staffMatch.phone || '',
+        label: staffMatch.designation || staffMatch.role || 'Staff',
+      };
+    }
+    return {
+      id,
+      name: 'Representative',
+      phone: '',
+      label: 'Staff Member',
+    };
+  };
+
   // Approve Mutation with Agent Allocation
   const approveMutation = useMutation({
-    mutationFn: async ({ id, notes, assignedAgent }) => {
+    mutationFn: async ({ id, notes, assignedAgents, assignedAgent }) => {
       return apiClient.post(`/admin/moderation/${id}/approve`, {
         reviewNotes: notes,
-        assignedAgent: assignedAgent || undefined,
+        assignedAgents: assignedAgents || undefined,
+        assignedAgent: assignedAgent || (assignedAgents && assignedAgents[0]) || undefined,
       });
     },
     onSuccess: () => {
@@ -114,13 +145,17 @@ export const ModerationQueuePage = () => {
 
   const handleOpenApprove = (ticket) => {
     setTicketToApprove(ticket);
-    const existingAgent = ticket.property?.assignedAgent?._id || ticket.property?.assignedAgent || '';
-    const defaultAgent =
-      existingAgent ||
-      (agents.length > 0 ? (agents[0].user?._id || agents[0].user) : '') ||
-      (staffMembers.length > 0 ? staffMembers[0]._id : '');
+    const existingAgents = ticket.property?.assignedAgents?.map((a) => (a._id || a)?.toString()) || [];
+    const existingAgent = (ticket.property?.assignedAgent?._id || ticket.property?.assignedAgent)?.toString() || '';
+    let initial = existingAgents.length > 0 ? existingAgents : existingAgent ? [existingAgent] : [];
+    if (!initial.length) {
+      const defaultAgent =
+        (agents.length > 0 ? (agents[0].user?._id || agents[0].user)?.toString() : '') ||
+        (staffMembers.length > 0 ? staffMembers[0]._id?.toString() : '');
+      if (defaultAgent) initial = [defaultAgent];
+    }
 
-    setSelectedAgentId(defaultAgent);
+    setSelectedAgentIds(initial);
     setApproveReviewNotes('Property documents and details verified. Assigned to partner.');
     setApproveModalOpen(true);
   };
@@ -132,7 +167,8 @@ export const ModerationQueuePage = () => {
     approveMutation.mutate({
       id: propId,
       notes: approveReviewNotes.trim() || 'Verified by administrator.',
-      assignedAgent: selectedAgentId,
+      assignedAgents: selectedAgentIds,
+      assignedAgent: selectedAgentIds[0],
     });
   };
 
@@ -489,44 +525,113 @@ export const ModerationQueuePage = () => {
               </p>
             </div>
 
-            {/* Agent / Staff Allocation Field */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                <span>Allocate Certified Agent or Staff Member *</span>
+            {/* Agent / Staff Allocation Field (Multi-Rep Supported) */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span>Allocate Representatives (Agents / Staff) *</span>
                 <span className="text-[10px] text-teal-700 font-semibold font-mono">
-                  Public Contact on Website
+                  Primary shows on Public Marketplace
                 </span>
               </label>
-              <select
-                value={selectedAgentId}
-                onChange={(e) => setSelectedAgentId(e.target.value)}
-                className="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-medium bg-white focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
-                required
-              >
-                <option value="">-- Choose Agent or Staff Member --</option>
-                <optgroup label="🏢 Certified Real Estate Agents">
-                  {agents.map((agent) => {
-                    const userId = agent.user?._id || agent.user;
-                    const userName = agent.user?.name || agent.agencyName || 'Agent';
-                    const userPhone = agent.user?.phone || agent.contactPhone || '';
-                    return (
-                      <option key={agent._id} value={userId}>
-                        {userName} {agent.agencyName ? `(${agent.agencyName})` : ''} — {userPhone}
-                      </option>
-                    );
-                  })}
-                </optgroup>
-                <optgroup label="🛡️ Administrative Staff Members">
-                  {staffMembers.map((staff) => (
-                    <option key={staff._id} value={staff._id}>
-                      {staff.name} ({staff.designation || staff.role}) — {staff.phone || staff.email}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Selected agent's name, phone number, and WhatsApp link will be displayed on the public property page.
-              </p>
+
+              {/* Selected List */}
+              <div className="space-y-1.5">
+                {selectedAgentIds.map((repId, idx) => {
+                  const details = getRepDetails(repId);
+                  const isPrimary = idx === 0;
+                  return (
+                    <div
+                      key={repId}
+                      className={`p-2 rounded-lg flex items-center justify-between border ${
+                        isPrimary ? 'bg-teal-50/80 border-teal-300' : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2 min-w-0">
+                        <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                          {idx + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <span className="font-semibold text-slate-900 truncate block">{details.name}</span>
+                          <span className="text-[10px] text-slate-500">
+                            {details.label} {details.phone ? `• +91 ${details.phone}` : ''}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-1.5 flex-shrink-0">
+                        {isPrimary ? (
+                          <span className="text-[9px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded">
+                            PRIMARY
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedAgentIds((prev) => [repId, ...prev.filter((id) => id !== repId)]);
+                            }}
+                            className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 hover:underline"
+                          >
+                            Set Primary
+                          </button>
+                        )}
+                        {selectedAgentIds.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedAgentIds((prev) => prev.filter((id) => id !== repId));
+                            }}
+                            className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Add Co-assigned Rep Dropdown */}
+              <div className="pt-1">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    const newId = e.target.value;
+                    if (newId && !selectedAgentIds.includes(newId)) {
+                      setSelectedAgentIds((prev) => [...prev, newId]);
+                    }
+                  }}
+                  className="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50 focus:bg-white focus:border-teal-600 outline-none"
+                >
+                  <option value="">-- Add another representative (Agent or Staff) --</option>
+                  <optgroup label="🏢 Certified Real Estate Agents">
+                    {agents
+                      .filter((agent) => {
+                        const uId = (agent.user?._id || agent.user)?.toString();
+                        return !selectedAgentIds.includes(uId);
+                      })
+                      .map((agent) => {
+                        const userId = (agent.user?._id || agent.user)?.toString();
+                        const userName = agent.user?.name || agent.agencyName || 'Agent';
+                        const userPhone = agent.user?.phone || agent.contactPhone || '';
+                        return (
+                          <option key={agent._id} value={userId}>
+                            {userName} {agent.agencyName ? `(${agent.agencyName})` : ''} — {userPhone}
+                          </option>
+                        );
+                      })}
+                  </optgroup>
+                  <optgroup label="🛡️ Administrative Staff Members">
+                    {staffMembers
+                      .filter((staff) => !selectedAgentIds.includes(staff._id?.toString()))
+                      .map((staff) => (
+                        <option key={staff._id} value={staff._id}>
+                          {staff.name} ({staff.designation || staff.role}) — {staff.phone || staff.email}
+                        </option>
+                      ))}
+                  </optgroup>
+                </select>
+              </div>
             </div>
 
             {/* Review Notes */}

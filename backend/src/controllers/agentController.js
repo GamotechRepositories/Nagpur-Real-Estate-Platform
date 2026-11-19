@@ -124,7 +124,7 @@ const getAgentById = async (req, res, next) => {
 
     // Fetch all listings for this agent
     const listings = await Property.find({
-      $or: [{ assignedAgent: userId }, { owner: userId }],
+      $or: [{ assignedAgent: userId }, { assignedAgents: userId }, { owner: userId }],
     })
       .select(
         'title slug price pricePerSqFt coverImage localityName purpose category subtype bedrooms bathrooms areaSqFt status viewsCount createdAt'
@@ -426,7 +426,7 @@ const getMyAgentStats = async (req, res, next) => {
 
     // Filter properties owned or assigned to this agent
     const propertyFilter = {
-      $or: [{ owner: agentUserId }, { assignedAgent: agentUserId }],
+      $or: [{ owner: agentUserId }, { assignedAgent: agentUserId }, { assignedAgents: agentUserId }],
     };
 
     const properties = await Property.find(propertyFilter)
@@ -528,7 +528,7 @@ const getMyProperties = async (req, res, next) => {
     const skip = (pageNumber - 1) * pageSize;
 
     const filter = {
-      $or: [{ owner: agentUserId }, { assignedAgent: agentUserId }],
+      $or: [{ owner: agentUserId }, { assignedAgent: agentUserId }, { assignedAgents: agentUserId }],
     };
 
     if (status && status !== 'ALL') {
@@ -589,7 +589,7 @@ const getMyLeads = async (req, res, next) => {
 
     // Find agent's properties
     const agentProperties = await Property.find({
-      $or: [{ owner: agentUserId }, { assignedAgent: agentUserId }],
+      $or: [{ owner: agentUserId }, { assignedAgent: agentUserId }, { assignedAgents: agentUserId }],
     }).select('_id');
     const propertyIds = agentProperties.map((p) => p._id);
 

@@ -18,6 +18,10 @@ import {
   Lock,
   UserCheck,
   User,
+  Users,
+  Edit2,
+  Trash2,
+  Check,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -34,6 +38,94 @@ export const ListingsManagementPage = () => {
   const [purposeFilter, setPurposeFilter] = useState('');
   const [page, setPage] = useState(1);
   const [inspectProperty, setInspectProperty] = useState(null);
+  const [isEditingReps, setIsEditingReps] = useState(false);
+  const [selectedRepIds, setSelectedRepIds] = useState([]);
+
+  // Fetch Available Certified Agents for Allocation
+  const { data: agents = [] } = useQuery({
+    queryKey: ['admin-agents-reps-dropdown'],
+    queryFn: async () => {
+      const res = await apiClient.get('/agents');
+      return res.data?.data || [];
+    },
+  });
+
+  // Fetch Available Staff Members
+  const { data: staffMembers = [] } = useQuery({
+    queryKey: ['admin-staff-reps-dropdown'],
+    queryFn: async () => {
+      const res = await apiClient.get('/admin/staff?limit=100');
+      return res.data?.data || [];
+    },
+  });
+
+  const handleOpenInspect = (prop) => {
+    setInspectProperty(prop);
+    setIsEditingReps(false);
+    const repIds = [];
+    if (prop.assignedAgents && prop.assignedAgents.length > 0) {
+      prop.assignedAgents.forEach((a) => {
+        const id = (a._id || a)?.toString();
+        if (id && !repIds.includes(id)) repIds.push(id);
+      });
+    } else if (prop.assignedAgent) {
+      const id = (prop.assignedAgent._id || prop.assignedAgent)?.toString();
+      if (id) repIds.push(id);
+    }
+    setSelectedRepIds(repIds);
+  };
+
+  const getRepDetails = (rep) => {
+    const id = (rep?._id || rep)?.toString();
+    const agentMatch = agents.find((a) => (a.user?._id || a.user)?.toString() === id);
+    if (agentMatch) {
+      return {
+        id,
+        name: agentMatch.user?.name || agentMatch.agencyName || 'Certified Agent',
+        phone: agentMatch.user?.phone || agentMatch.contactPhone || '',
+        role: 'AGENT',
+        label: agentMatch.agencyName ? `Agent • ${agentMatch.agencyName}` : 'Certified Broker',
+      };
+    }
+    const staffMatch = staffMembers.find((s) => s._id?.toString() === id);
+    if (staffMatch) {
+      return {
+        id,
+        name: staffMatch.name || 'Operations Staff',
+        phone: staffMatch.phone || '',
+        role: 'STAFF',
+        label: staffMatch.designation || staffMatch.role || 'Staff Member',
+      };
+    }
+    if (typeof rep === 'object' && rep?.name) {
+      return {
+        id,
+        name: rep.name,
+        phone: rep.phone || '',
+        role: rep.role || 'REPRESENTATIVE',
+        label: rep.role === 'AGENT' ? 'Certified Agent' : (rep.role || 'Staff Member'),
+      };
+    }
+    return {
+      id,
+      name: 'Operations Representative',
+      phone: '',
+      role: 'STAFF',
+      label: 'Staff Member',
+    };
+  };
+
+  const updateRepsMutation = useMutation({
+    mutationFn: async ({ id, assignedAgents }) => {
+      const res = await apiClient.patch(`/admin/listings/${id}/representatives`, { assignedAgents });
+      return res.data?.data;
+    },
+    onSuccess: (updatedProperty) => {
+      queryClient.invalidateQueries(['admin-listings']);
+      setInspectProperty(updatedProperty);
+      setIsEditingReps(false);
+    },
+  });
 
   // 300ms Debounce search to prevent excessive API calls
   useEffect(() => {
@@ -219,7 +311,13 @@ export const ListingsManagementPage = () => {
                           )}
                         </div>
                         <div className="min-w-0 max-w-xs">
-                          <p className="font-semibold text-slate-900 truncate">{prop.title}</p>
+                          <p
+                            onClick={() => handleOpenInspect(prop)}
+                            className="font-semibold text-slate-900 truncate hover:text-teal-700 cursor-pointer"
+                            title="Click to view full details and manage representatives"
+                          >
+                            {prop.title}
+                          </p>
                           <div className="flex items-center space-x-1 text-[11px] text-slate-500">
                             <span>{prop.purpose}</span>
                             <span>&bull;</span>
@@ -334,9 +432,9 @@ export const ListingsManagementPage = () => {
                     <td className="py-2.5 px-3 sm:px-4 text-right">
                       <div className="flex items-center justify-end space-x-1">
                         <button
-                          onClick={() => setInspectProperty(prop)}
+                          onClick={() => handleOpenInspect(prop)}
                           className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900"
-                          title="View Details"
+                          title="View Details & Manage Allocation"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -547,22 +645,247 @@ export const ListingsManagementPage = () => {
               </div>
             </div>
 
-            {/* Allocated Agent / Representative */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs">
-              <div>
-                <span className="text-slate-500 text-[10px] uppercase font-semibold block">Allocated Representative</span>
-                <span className="font-semibold text-slate-900">
-                  {inspectProperty.assignedAgent?.name || 'Desk Team (Default)'}
-                </span>
-                {inspectProperty.assignedAgent?.phone && (
-                  <span className="text-slate-500 font-mono text-[11px] block">
-                    Phone: {inspectProperty.assignedAgent.phone}
+            {/* Allocated Representatives (Multi-Agent Support & Reallocation) */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5">
+                  <Users className="w-4 h-4 text-teal-700" />
+                  <span className="font-bold text-slate-900">
+                    Allocated Representatives ({selectedRepIds.length || (inspectProperty.assignedAgents?.length || (inspectProperty.assignedAgent ? 1 : 0))})
                   </span>
+                </div>
+                {!isEditingReps ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const repIds = [];
+                      if (inspectProperty.assignedAgents?.length > 0) {
+                        inspectProperty.assignedAgents.forEach((a) => {
+                          const id = (a._id || a)?.toString();
+                          if (id && !repIds.includes(id)) repIds.push(id);
+                        });
+                      } else if (inspectProperty.assignedAgent) {
+                        const id = (inspectProperty.assignedAgent._id || inspectProperty.assignedAgent)?.toString();
+                        if (id) repIds.push(id);
+                      }
+                      setSelectedRepIds(repIds);
+                      setIsEditingReps(true);
+                    }}
+                    className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-semibold transition shadow-xs cursor-pointer"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                    <span>Change / Add Multiple</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingReps(false)}
+                      className="px-2 py-1 rounded text-[11px] font-semibold text-slate-600 hover:bg-slate-200/70"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={updateRepsMutation.isPending}
+                      onClick={() => {
+                        updateRepsMutation.mutate({
+                          id: inspectProperty._id,
+                          assignedAgents: selectedRepIds,
+                        });
+                      }}
+                      className="inline-flex items-center space-x-1 px-3 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-semibold shadow-xs transition disabled:opacity-50 cursor-pointer"
+                    >
+                      <Check className="w-3 h-3" />
+                      <span>{updateRepsMutation.isPending ? 'Saving...' : 'Save Allocation'}</span>
+                    </button>
+                  </div>
                 )}
               </div>
-              <span className="text-[10px] font-semibold text-teal-800 bg-teal-100/70 border border-teal-200 px-2.5 py-1 rounded-full">
-                Active Contact for Public
-              </span>
+
+              {!isEditingReps ? (
+                // View Mode
+                <div className="space-y-2">
+                  {(() => {
+                    const activeReps =
+                      inspectProperty.assignedAgents && inspectProperty.assignedAgents.length > 0
+                        ? inspectProperty.assignedAgents
+                        : inspectProperty.assignedAgent
+                        ? [inspectProperty.assignedAgent]
+                        : [];
+
+                    if (!activeReps.length) {
+                      return (
+                        <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-500 text-[11px] flex items-center justify-between">
+                          <span>Desk Team (Default) — No specific partner allocated yet.</span>
+                          <span className="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                            Unallocated
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    return activeReps.map((rep, idx) => {
+                      const details = getRepDetails(rep);
+                      const isPrimary = idx === 0;
+                      return (
+                        <div
+                          key={details.id || idx}
+                          className={`p-2.5 rounded-lg flex items-center justify-between ${
+                            isPrimary
+                              ? 'bg-teal-50/80 border border-teal-200/90'
+                              : 'bg-white border border-slate-200'
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center space-x-1.5">
+                              <span className="font-bold text-slate-900 truncate">{details.name}</span>
+                              <span className="text-[10px] text-slate-500">({details.label})</span>
+                            </div>
+                            {details.phone && (
+                              <div className="text-[11px] font-mono text-slate-600">
+                                📞 +91 {details.phone}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            {isPrimary ? (
+                              <span className="text-[10px] font-semibold text-teal-800 bg-teal-100 border border-teal-300 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                                Primary • Public Contact
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                                Co-assigned Partner
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              ) : (
+                // Edit Mode (Add Multiple, Reorder Primary, Remove)
+                <div className="space-y-3 bg-white p-3 rounded-lg border border-teal-200">
+                  <p className="text-[11px] text-slate-500">
+                    Assign one or more certified agents and staff members to handle leads and site visits. The <strong>first representative</strong> is displayed as the primary public contact on the marketplace and WhatsApp.
+                  </p>
+
+                  {/* List of currently selected representatives */}
+                  <div className="space-y-1.5">
+                    {selectedRepIds.length === 0 ? (
+                      <p className="text-[11px] text-slate-400 italic py-1">No representatives selected. Add one below.</p>
+                    ) : (
+                      selectedRepIds.map((repId, idx) => {
+                        const details = getRepDetails(repId);
+                        const isPrimary = idx === 0;
+                        return (
+                          <div
+                            key={repId}
+                            className={`p-2 rounded-lg flex items-center justify-between border ${
+                              isPrimary
+                                ? 'bg-teal-50/80 border-teal-300'
+                                : 'bg-slate-50 border-slate-200'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2 min-w-0">
+                              <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                                {idx + 1}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="font-semibold text-slate-900 truncate">
+                                  {details.name}
+                                </div>
+                                <div className="text-[10px] text-slate-500">
+                                  {details.label} {details.phone ? `• +91 ${details.phone}` : ''}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-1.5 flex-shrink-0">
+                              {isPrimary ? (
+                                <span className="text-[9px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded">
+                                  PRIMARY
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    // Move this rep to index 0
+                                    setSelectedRepIds((prev) => [
+                                      repId,
+                                      ...prev.filter((id) => id !== repId),
+                                    ]);
+                                  }}
+                                  className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 hover:underline cursor-pointer"
+                                  title="Make this representative primary"
+                                >
+                                  Make Primary
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedRepIds((prev) => prev.filter((id) => id !== repId));
+                                }}
+                                className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                title="Remove representative"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Add New Representative Dropdown */}
+                  <div className="pt-2 border-t border-slate-100">
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      + Add Representative (Choose Agent or Staff)
+                    </label>
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        const newId = e.target.value;
+                        if (newId && !selectedRepIds.includes(newId)) {
+                          setSelectedRepIds((prev) => [...prev, newId]);
+                        }
+                      }}
+                      className="w-full p-2 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:border-teal-600 outline-none"
+                    >
+                      <option value="">-- Choose to add an agent or staff member --</option>
+                      <optgroup label="🏢 Certified Real Estate Agents">
+                        {agents
+                          .filter((agent) => {
+                            const uId = (agent.user?._id || agent.user)?.toString();
+                            return !selectedRepIds.includes(uId);
+                          })
+                          .map((agent) => {
+                            const userId = (agent.user?._id || agent.user)?.toString();
+                            const userName = agent.user?.name || agent.agencyName || 'Agent';
+                            const userPhone = agent.user?.phone || agent.contactPhone || '';
+                            return (
+                              <option key={agent._id} value={userId}>
+                                {userName} {agent.agencyName ? `(${agent.agencyName})` : ''} — {userPhone}
+                              </option>
+                            );
+                          })}
+                      </optgroup>
+                      <optgroup label="🛡️ Administrative Staff Members">
+                        {staffMembers
+                          .filter((staff) => !selectedRepIds.includes(staff._id?.toString()))
+                          .map((staff) => (
+                            <option key={staff._id} value={staff._id}>
+                              {staff.name} ({staff.designation || staff.role}) — {staff.phone || staff.email}
+                            </option>
+                          ))}
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Quick Status Change */}
