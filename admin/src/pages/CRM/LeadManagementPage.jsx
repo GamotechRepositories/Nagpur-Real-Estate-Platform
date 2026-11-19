@@ -38,8 +38,19 @@ const STATUS_TABS = [
 export const LeadManagementPage = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('ALL');
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('admin_crm_view_mode') || 'table';
+  }); // 'table' (default) | 'cards'
   const [selectedLead, setSelectedLead] = useState(null);
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('admin_crm_view_mode', mode);
+    } catch {
+      // ignore storage error
+    }
+  };
   const [activityNote, setActivityNote] = useState('');
   const [reassignAgentId, setReassignAgentId] = useState('');
   const [search, setSearch] = useState('');
@@ -182,18 +193,7 @@ export const LeadManagementPage = () => {
 
             <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 text-xs font-medium shadow-2xs">
               <button
-                onClick={() => setViewMode('cards')}
-                className={`flex items-center space-x-1 py-1 px-3 rounded-md transition-colors ${
-                  viewMode === 'cards'
-                    ? 'bg-slate-900 text-white font-semibold'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-                <span>Cards</span>
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
+                onClick={() => handleViewModeChange('table')}
                 className={`flex items-center space-x-1 py-1 px-3 rounded-md transition-colors ${
                   viewMode === 'table'
                     ? 'bg-slate-900 text-white font-semibold'
@@ -202,6 +202,17 @@ export const LeadManagementPage = () => {
               >
                 <TableIcon className="w-3.5 h-3.5" />
                 <span>Table</span>
+              </button>
+              <button
+                onClick={() => handleViewModeChange('cards')}
+                className={`flex items-center space-x-1 py-1 px-3 rounded-md transition-colors ${
+                  viewMode === 'cards'
+                    ? 'bg-slate-900 text-white font-semibold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Cards</span>
               </button>
             </div>
           </div>
