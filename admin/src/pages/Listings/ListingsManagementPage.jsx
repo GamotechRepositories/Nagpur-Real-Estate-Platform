@@ -124,6 +124,10 @@ export const ListingsManagementPage = () => {
       queryClient.invalidateQueries(['admin-listings']);
       setInspectProperty(updatedProperty);
       setIsEditingReps(false);
+      alert('Allocated representatives updated successfully!');
+    },
+    onError: (err) => {
+      alert(err.response?.data?.message || err.message || 'Failed to update allocated representatives.');
     },
   });
 
@@ -448,16 +452,6 @@ export const ListingsManagementPage = () => {
                             <RefreshCw className="w-3.5 h-3.5" />
                           </button>
                         )}
-
-                        <a
-                          href={`${publicUrl}/property/${prop.slug || prop._id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700"
-                          title="View on site"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
                       </div>
                     </td>
                   </tr>
@@ -767,10 +761,6 @@ export const ListingsManagementPage = () => {
               ) : (
                 // Edit Mode (Add Multiple, Reorder Primary, Remove)
                 <div className="space-y-3 bg-white p-3 rounded-lg border border-teal-200">
-                  <p className="text-[11px] text-slate-500">
-                    Assign one or more certified agents and staff members to handle leads and site visits. The <strong>first representative</strong> is displayed as the primary public contact on the marketplace and WhatsApp.
-                  </p>
-
                   {/* List of currently selected representatives */}
                   <div className="space-y-1.5">
                     {selectedRepIds.length === 0 ? (
