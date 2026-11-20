@@ -99,9 +99,8 @@ const PropertyCard = ({ property, onOpenAuth, layout = 'horizontal' }) => {
             aria-label="Save Property"
           >
             <Heart
-              className={`w-4 h-4 ${
-                isSaved ? 'text-red-500 fill-red-500' : 'text-gray-600 hover:text-red-500'
-              }`}
+              className={`w-4 h-4 ${isSaved ? 'text-red-500 fill-red-500' : 'text-gray-600 hover:text-red-500'
+                }`}
             />
           </button>
         </div>
@@ -218,9 +217,8 @@ const PropertyCard = ({ property, onOpenAuth, layout = 'horizontal' }) => {
             aria-label="Save Property"
           >
             <Heart
-              className={`w-4 h-4 ${
-                isSaved ? 'text-red-500 fill-red-500' : 'text-gray-600 hover:text-red-500'
-              }`}
+              className={`w-4 h-4 ${isSaved ? 'text-red-500 fill-red-500' : 'text-gray-600 hover:text-red-500'
+                }`}
             />
           </button>
         </div>
