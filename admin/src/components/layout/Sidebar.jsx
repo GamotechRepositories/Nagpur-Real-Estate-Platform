@@ -73,7 +73,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       group: 'Marketplace',
       items: [
         {
-          name: 'Moderation Queue',
+          name: 'Pending',
           href: '/moderation',
           icon: ShieldCheck,
           badge: pendingCount > 0 ? pendingCount : null,
