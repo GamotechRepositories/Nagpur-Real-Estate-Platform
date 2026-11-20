@@ -23,6 +23,7 @@ import {
   Loader2,
   FileCheck,
   FileText,
+  Sparkles,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -132,6 +133,7 @@ export const AgentAddPropertyPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [imageUrlInput, setImageUrlInput] = useState('');
+  const [customAmenityInput, setCustomAmenityInput] = useState('');
 
   // Fetch Projects for township linkage
   const { data: projectsData } = useQuery({
@@ -208,6 +210,9 @@ export const AgentAddPropertyPage = () => {
     sellerEmail: '',
     sellerNotes: '',
     listedBy: isBuilder ? 'Builder' : 'Agent',
+    customFields: [
+      { label: '', value: '' },
+    ],
   });
 
   const mutation = useMutation({
@@ -272,6 +277,40 @@ export const AgentAddPropertyPage = () => {
           : [...prev.suitableFor, item],
       };
     });
+  };
+
+  const handleAddCustomAmenity = () => {
+    const val = customAmenityInput.trim();
+    if (!val) return;
+    if (!formData.amenities.includes(val)) {
+      setFormData((prev) => ({
+        ...prev,
+        amenities: [...prev.amenities, val],
+      }));
+    }
+    setCustomAmenityInput('');
+  };
+
+  const handleAddCustomField = () => {
+    setFormData((prev) => ({
+      ...prev,
+      customFields: [...(prev.customFields || []), { label: '', value: '' }],
+    }));
+  };
+
+  const handleCustomFieldChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...(prev.customFields || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, customFields: updated };
+    });
+  };
+
+  const handleRemoveCustomField = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      customFields: prev.customFields.filter((_, i) => i !== index),
+    }));
   };
 
   const handleFileUpload = async (files) => {
@@ -369,8 +408,11 @@ export const AgentAddPropertyPage = () => {
       return;
     }
 
+    const customFields = (formData.customFields || []).filter((f) => f.label && f.label.trim());
+
     const payload = {
       ...formData,
+      customFields,
       price: Number(formData.price),
       areaSqFt: Number(formData.areaSqFt) || 0,
       carpetAreaSqFt: Number(formData.carpetAreaSqFt) || 0,
@@ -1194,6 +1236,35 @@ export const AgentAddPropertyPage = () => {
             </div>
           </div>
 
+          {/* Custom Amenity Interactive Tag Adder */}
+          <div className="pt-2 border-t border-slate-100">
+            <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+              + Add Custom Amenity Tag
+            </label>
+            <div className="flex items-center gap-2 max-w-md">
+              <input
+                type="text"
+                placeholder="e.g. Electric Vehicle Charging, Private Jacuzzi"
+                value={customAmenityInput}
+                onChange={(e) => setCustomAmenityInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomAmenity();
+                  }
+                }}
+                className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:border-teal-600 outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomAmenity}
+                className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs transition cursor-pointer"
+              >
+                + Add Amenity
+              </button>
+            </div>
+          </div>
+
           <div className="pt-2 border-t border-slate-100">
             <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
               Other Custom Amenities (Comma Separated)
@@ -1573,6 +1644,67 @@ export const AgentAddPropertyPage = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* SECTION: CUSTOM SPECIFICATIONS & ATTRIBUTES */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-slate-900">
+              <Sparkles className="text-teal-600" size={18} />
+              <h2 className="text-sm font-bold">Custom Specifications & Key-Value Attributes</h2>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddCustomField}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+            >
+              <Plus size={13} />
+              <span>+ Add Custom Field</span>
+            </button>
+          </div>
+
+          <p className="text-xs text-slate-500">
+            Add any unique specifications or custom attributes for this property (e.g. Flooring Material, Water Source, Distance to Metro, Power Load, Ceiling Height).
+          </p>
+
+          {(!formData.customFields || formData.customFields.length === 0) ? (
+            <div className="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-500">
+              No custom fields added yet. Click &ldquo;+ Add Custom Field&rdquo; to add custom specifications.
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {formData.customFields.map((cf, idx) => (
+                <div key={idx} className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  <div className="w-1/3 min-w-[150px]">
+                    <input
+                      type="text"
+                      value={cf.label}
+                      onChange={(e) => handleCustomFieldChange(idx, 'label', e.target.value)}
+                      placeholder="Field Name (e.g. Flooring)"
+                      className="w-full p-2 rounded-lg bg-white border border-slate-200 focus:border-teal-600 focus:outline-none text-xs font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={cf.value}
+                      onChange={(e) => handleCustomFieldChange(idx, 'value', e.target.value)}
+                      placeholder="Field Value (e.g. Italian Vitrified Tiles)"
+                      className="w-full p-2 rounded-lg bg-white border border-slate-200 focus:border-teal-600 focus:outline-none text-xs text-slate-700"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCustomField(idx)}
+                    className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                    title="Remove field"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* SECTION 9: CLIENT / HOMEOWNER DETAILS (CONFIDENTIAL) */}

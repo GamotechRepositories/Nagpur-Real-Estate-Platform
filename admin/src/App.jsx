@@ -14,6 +14,8 @@ const AddPropertyPage = lazy(() => import('./pages/Listings/AddPropertyPage'));
 const PropertyViewPage = lazy(() => import('./pages/Listings/PropertyViewPage'));
 const PropertyEditPage = lazy(() => import('./pages/Listings/PropertyEditPage'));
 const ProjectsManagementPage = lazy(() => import('./pages/Content/ProjectsManagementPage'));
+const AddProjectPage = lazy(() => import('./pages/Content/AddProjectPage'));
+const ProjectDetailsPage = lazy(() => import('./pages/Content/ProjectDetailsPage'));
 const LocalitiesManagementPage = lazy(() => import('./pages/Content/LocalitiesManagementPage'));
 const LeadManagementPage = lazy(() => import('./pages/CRM/LeadManagementPage'));
 const LeadDossierPage = lazy(() => import('./pages/CRM/LeadDossierPage'));
@@ -144,6 +146,10 @@ function App() {
               }
             >
               <Route path="/projects" element={<ProjectsManagementPage />} />
+              <Route path="/projects/new" element={<AddProjectPage />} />
+              <Route path="/projects/edit/:id" element={<AddProjectPage />} />
+              <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+              <Route path="/projects/view/:id" element={<ProjectDetailsPage />} />
               <Route path="/localities" element={<LocalitiesManagementPage />} />
             </Route>
 

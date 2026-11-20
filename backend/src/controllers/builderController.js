@@ -663,6 +663,70 @@ const createMyProject = async (req, res, next) => {
 };
 
 /**
+ * Partner Portal (Builder): Get Specific Project Details and Units
+ */
+const getMyProjectById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const isId = mongoose.Types.ObjectId.isValid(id);
+    const query = isId ? { $or: [{ _id: id }, { slug: id }] } : { slug: id };
+
+    const project = await Project.findOne(query).populate('builder');
+    if (!project) {
+      return sendError(res, 'Project not found', 'NOT_FOUND', {}, 404);
+    }
+
+    const properties = await Property.find({ project: project._id })
+      .populate('owner', 'name phone email role')
+      .populate('assignedAgent', 'name phone email avatar')
+      .populate('assignedAgents', 'name phone email avatar')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const projectObj = project.toObject();
+    projectObj.properties = properties;
+    projectObj.totalUnitsPosted = properties.length;
+    projectObj.liveUnitsPosted = properties.filter((p) => p.status === 'LIVE').length;
+    projectObj.pendingUnitsPosted = properties.filter((p) => p.status === 'PENDING_REVIEW').length;
+    projectObj.soldUnitsPosted = properties.filter((p) => p.status === 'SOLD').length;
+
+    return sendSuccess(res, 'Builder project details and properties retrieved', projectObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Partner Portal (Builder): Update Project Details
+ */
+const updateMyProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const builder = await Builder.findOne({ user: req.user._id });
+    const isId = mongoose.Types.ObjectId.isValid(id);
+    const query = isId ? { $or: [{ _id: id }, { slug: id }] } : { slug: id };
+
+    const project = await Project.findOne(query);
+    if (!project) {
+      return sendError(res, 'Project not found', 'NOT_FOUND', {}, 404);
+    }
+
+    const isOwner =
+      (project.builderUser && project.builderUser.toString() === req.user._id.toString()) ||
+      (builder && project.builder && project.builder.toString() === builder._id.toString());
+
+    if (!isOwner && req.user.role !== 'SUPER_ADMIN') {
+      return sendError(res, 'Unauthorized to update this project', 'FORBIDDEN', {}, 403);
+    }
+
+    const updated = await Project.findByIdAndUpdate(project._id, { $set: req.body }, { new: true, runValidators: true });
+    return sendSuccess(res, 'Project updated successfully', updated);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Partner Portal (Builder): Get My Listings / Units
  */
 const getMyProperties = async (req, res, next) => {
@@ -838,7 +902,9 @@ module.exports = {
   deleteBuilderByAdmin,
   getMyBuilderStats,
   getMyProjects,
+  getMyProjectById,
   createMyProject,
+  updateMyProject,
   getMyProperties,
   createMyPropertyUnit,
 };

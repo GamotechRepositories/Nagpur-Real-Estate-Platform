@@ -499,6 +499,23 @@ const PropertyDetailsPage = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Custom Specifications & Key Attributes */}
+                  {Array.isArray(property.customFields) && property.customFields.length > 0 && (
+                    <div className="pt-4 border-t border-gray-100">
+                      <h4 className="font-serif text-lg font-bold text-[#172C3B] mb-4">
+                        Custom Specifications & Additional Highlights
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                        {property.customFields.map((cf, idx) => (
+                          <div key={idx} className="bg-[#F7F4ED] p-3 rounded-lg">
+                            <span className="text-gray-500 block text-[11px] truncate">{cf.label}</span>
+                            <span className="font-bold text-[#172C3B] text-sm">{cf.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

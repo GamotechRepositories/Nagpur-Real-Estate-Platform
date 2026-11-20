@@ -31,14 +31,14 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
     ? [
         { label: 'Dashboard', to: '/', icon: LayoutDashboard },
         { label: 'My Projects', to: '/projects', icon: Compass },
-        { label: 'Project Inventory', to: '/listings', icon: Building2 },
+        { label: 'Listing', to: '/listings', icon: Building2 },
         { label: 'Buyer Leads', to: '/leads', icon: Users2 },
         { label: 'Site Visits', to: '/site-visits', icon: CalendarDays },
         { label: 'Company Profile', to: '/profile', icon: UserCheck },
       ]
     : [
         { label: 'Dashboard', to: '/', icon: LayoutDashboard },
-        { label: 'My Listings', to: '/listings', icon: Building2 },
+        { label: 'Listing', to: '/listings', icon: Building2 },
         { label: 'Buyer Leads', to: '/leads', icon: Users2 },
         { label: 'Site Visits', to: '/site-visits', icon: CalendarDays },
         { label: 'Agency Profile', to: '/profile', icon: UserCheck },

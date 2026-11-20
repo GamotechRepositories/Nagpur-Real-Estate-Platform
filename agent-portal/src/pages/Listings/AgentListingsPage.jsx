@@ -176,7 +176,7 @@ export const AgentListingsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            My Property Inventory
+            Listings
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             Track approval status, moderation notes, self-added listings, and direct homeowner properties allocated to you by Admin.

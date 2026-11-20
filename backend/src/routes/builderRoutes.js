@@ -11,7 +11,9 @@ router.get('/', builderController.getBuilders);
 // Builder Self-Management in Partner Portal
 router.get('/me/stats', authenticate, authorize(ROLES.BUILDER), builderController.getMyBuilderStats);
 router.get('/me/projects', authenticate, authorize(ROLES.BUILDER), builderController.getMyProjects);
+router.get('/me/projects/:id', authenticate, authorize(ROLES.BUILDER), builderController.getMyProjectById);
 router.post('/me/projects', authenticate, authorize(ROLES.BUILDER), builderController.createMyProject);
+router.patch('/me/projects/:id', authenticate, authorize(ROLES.BUILDER), builderController.updateMyProject);
 router.get('/me/properties', authenticate, authorize(ROLES.BUILDER), builderController.getMyProperties);
 router.post('/me/properties', authenticate, authorize(ROLES.BUILDER), builderController.createMyPropertyUnit);
 

@@ -14,6 +14,7 @@ import { AgentSiteVisitsPage } from './pages/SiteVisits/AgentSiteVisitsPage';
 import { AgentProfilePage } from './pages/Profile/AgentProfilePage';
 import { BuilderProjectsPage } from './pages/Projects/BuilderProjectsPage';
 import { BuilderAddProjectPage } from './pages/Projects/BuilderAddProjectPage';
+import { BuilderProjectDetailsPage } from './pages/Projects/BuilderProjectDetailsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -39,6 +40,8 @@ export const App = () => {
             <Route path="/" element={<AgentDashboardPage />} />
             <Route path="/projects" element={<BuilderProjectsPage />} />
             <Route path="/projects/new" element={<BuilderAddProjectPage />} />
+            <Route path="/projects/:id" element={<BuilderProjectDetailsPage />} />
+            <Route path="/projects/view/:id" element={<BuilderProjectDetailsPage />} />
             <Route path="/listings" element={<AgentListingsPage />} />
             <Route path="/listings/new" element={<AgentAddPropertyPage />} />
             <Route path="/listings/:id" element={<AgentViewPropertyPage />} />

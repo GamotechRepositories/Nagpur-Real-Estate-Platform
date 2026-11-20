@@ -416,6 +416,13 @@ const propertySchema = new mongoose.Schema(
       email: { type: String, trim: true, default: '' },
       notes: { type: String, trim: true, default: '' },
     },
+    // Dynamic Custom Specifications & Key-Value Attributes
+    customFields: [
+      {
+        label: { type: String, trim: true },
+        value: { type: String, trim: true },
+      },
+    ],
   },
   {
     timestamps: true,

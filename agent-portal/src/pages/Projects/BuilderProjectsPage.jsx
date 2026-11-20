@@ -13,6 +13,7 @@ import {
   ArrowRight,
   ExternalLink,
   Layers,
+  Eye,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { Badge } from '../../components/common/Badge';
@@ -177,14 +178,17 @@ export const BuilderProjectsPage = () => {
             return (
               <div
                 key={project._id}
-                className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between"
+                className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between group"
               >
-                <div>
+                <div
+                  onClick={() => navigate(`/projects/${project._id}`)}
+                  className="cursor-pointer"
+                >
                   <div className="h-40 w-full overflow-hidden bg-slate-100 relative">
                     <img
                       src={coverImage}
                       alt={project.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     />
                     <div className="absolute top-2 right-2">
                       <span className="py-1 px-2.5 rounded-lg text-[10px] font-bold bg-white/95 text-slate-800 backdrop-blur-xs border border-slate-200 shadow-2xs">
@@ -195,7 +199,7 @@ export const BuilderProjectsPage = () => {
 
                   <div className="p-4 space-y-2.5">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 line-clamp-1 hover:text-teal-700 transition">
+                      <h3 className="text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-teal-700 transition">
                         {project.name}
                       </h3>
                       <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
@@ -234,19 +238,19 @@ export const BuilderProjectsPage = () => {
 
                 <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between gap-2">
                   <Link
+                    to={`/projects/${project._id}`}
+                    className="flex-1 text-center py-1.5 px-2.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-[11px] font-bold shadow-2xs transition flex items-center justify-center gap-1"
+                  >
+                    <Eye size={13} />
+                    <span>View Units & Details</span>
+                  </Link>
+
+                  <Link
                     to={`/listings/new?projectId=${project._id}`}
                     className="flex-1 text-center py-1.5 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold shadow-2xs transition flex items-center justify-center gap-1"
                   >
                     <Plus size={13} />
-                    <span>+ Post Unit in this Project</span>
-                  </Link>
-
-                  <Link
-                    to={`/listings`}
-                    className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-white text-[11px] font-semibold transition"
-                    title="View all units"
-                  >
-                    <Layers size={14} />
+                    <span>+ Post Unit</span>
                   </Link>
                 </div>
               </div>

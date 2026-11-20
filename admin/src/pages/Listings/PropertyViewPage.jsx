@@ -444,6 +444,28 @@ export const PropertyViewPage = () => {
           </div>
         )}
 
+        {/* Section: Custom Specifications & Attributes */}
+        {Array.isArray(property.customFields) && property.customFields.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 border-b border-slate-300 pb-1">
+              <span className="text-[11px] font-black tracking-wider text-slate-800 uppercase font-mono">
+                CUSTOM SPECIFICATIONS & ATTRIBUTES
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1 text-xs">
+              {property.customFields.map((cf, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200"
+                >
+                  <span className="text-slate-500 font-medium truncate mr-2">{cf.label}:</span>
+                  <span className="font-bold text-slate-900 truncate">{cf.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Section 6: Digital Assets & Virtual Links */}
         {(property.floorPlanUrl || property.videoUrl || property.virtualTourUrl || property.brochureUrl) && (
           <div className="space-y-2">

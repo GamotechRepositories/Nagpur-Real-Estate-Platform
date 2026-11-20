@@ -8,9 +8,12 @@ const { ROLES } = require('../constants');
 // Public
 router.get('/', projectController.getProjects);
 router.get('/:slug', projectController.getProjectBySlug);
+router.get('/:id/properties', projectController.getProjectProperties);
 
-// Admin
-router.post('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR), projectController.createOrUpdateProject);
+// Admin & Content Editors
+router.post('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR, ROLES.CRM_MANAGER), projectController.createOrUpdateProject);
+router.put('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR, ROLES.CRM_MANAGER), projectController.createOrUpdateProject);
+router.patch('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR, ROLES.CRM_MANAGER), projectController.createOrUpdateProject);
 router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CONTENT_EDITOR, ROLES.CRM_MANAGER), projectController.deleteProject);
 
 module.exports = router;
