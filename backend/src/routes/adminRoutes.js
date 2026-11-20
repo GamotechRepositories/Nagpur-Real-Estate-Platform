@@ -19,7 +19,7 @@ router.get(
 // Get Master List of System Permissions Modules
 router.get(
   '/staff/permissions-list',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.STAFF_MANAGE),
   (req, res) => {
     return sendSuccess(res, 'Permissions list retrieved', {
       modules: PERMISSION_MODULES,
@@ -93,32 +93,39 @@ router.post(
 
 router.patch(
   '/listings/:id/representatives',
-  requirePermission(PERMISSIONS.LISTINGS_EDIT),
+  requirePermission(PERMISSIONS.LISTINGS_EDIT, PERMISSIONS.LISTINGS_ALLOCATE),
   adminController.updateAllocatedRepresentatives
 );
 
 // Get available representatives (agents & builders) for property allocation
 router.get(
   '/representatives',
+  requirePermission(
+    PERMISSIONS.LISTINGS_EDIT,
+    PERMISSIONS.LISTINGS_ALLOCATE,
+    PERMISSIONS.AGENTS_VIEW,
+    PERMISSIONS.BUILDERS_VIEW,
+    PERMISSIONS.LISTINGS_VIEW
+  ),
   adminController.getAvailableRepresentatives
 );
 
-// User Management (Super Admin only)
+// User Management (Granular or Super Admin)
 router.get(
   '/users',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.USERS_VIEW, PERMISSIONS.USERS_MANAGE, PERMISSIONS.STAFF_MANAGE),
   adminController.getUsers
 );
 
 router.patch(
   '/users/:id/role',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.USERS_MANAGE, PERMISSIONS.STAFF_MANAGE),
   adminController.updateUserRoleStatus
 );
 
 router.delete(
   '/users/:id',
-  authorize(ROLES.SUPER_ADMIN),
+  requirePermission(PERMISSIONS.USERS_MANAGE, PERMISSIONS.STAFF_MANAGE),
   adminController.deleteUser
 );
 

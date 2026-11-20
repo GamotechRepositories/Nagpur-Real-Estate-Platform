@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const agentController = require('../controllers/agentController');
 const { authenticate } = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/rbacMiddleware');
-const { ROLES } = require('../constants');
+const { authorize, requirePermission } = require('../middleware/rbacMiddleware');
+const { ROLES, PERMISSIONS } = require('../constants');
 
 // Public
 router.get('/', agentController.getAgents);
@@ -17,11 +17,11 @@ router.patch('/me/leads/:id/status', authenticate, authorize(ROLES.AGENT), agent
 router.patch('/me/profile', authenticate, authorize(ROLES.AGENT), agentController.updateMyAgentProfile);
 
 // Admin Agent Management
-router.post('/admin', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.createAgentByAdmin);
-router.put('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.updateAgentByAdmin);
-router.patch('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.updateAgentByAdmin);
-router.patch('/:id/verify', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.updateAgentStatusByAdmin);
-router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER), agentController.deleteAgentByAdmin);
+router.post('/admin', authenticate, requirePermission(PERMISSIONS.AGENTS_MANAGE, PERMISSIONS.LEADS_MANAGE), agentController.createAgentByAdmin);
+router.put('/:id', authenticate, requirePermission(PERMISSIONS.AGENTS_MANAGE, PERMISSIONS.LEADS_MANAGE), agentController.updateAgentByAdmin);
+router.patch('/:id', authenticate, requirePermission(PERMISSIONS.AGENTS_MANAGE, PERMISSIONS.LEADS_MANAGE), agentController.updateAgentByAdmin);
+router.patch('/:id/verify', authenticate, requirePermission(PERMISSIONS.AGENTS_MANAGE, PERMISSIONS.LEADS_MANAGE), agentController.updateAgentStatusByAdmin);
+router.delete('/:id', authenticate, requirePermission(PERMISSIONS.AGENTS_MANAGE, PERMISSIONS.LEADS_MANAGE), agentController.deleteAgentByAdmin);
 
 module.exports = router;
 

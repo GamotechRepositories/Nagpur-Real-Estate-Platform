@@ -57,11 +57,26 @@ const DefaultRouteRedirect = () => {
   if (hasPermission(user, PERMISSIONS.LISTINGS_VIEW)) {
     return <Navigate to="/listings" replace />;
   }
+  if (hasPermission(user, PERMISSIONS.PROJECTS_VIEW) || hasPermission(user, PERMISSIONS.PROJECTS_MANAGE)) {
+    return <Navigate to="/projects" replace />;
+  }
   if (hasPermission(user, PERMISSIONS.LEADS_VIEW) || hasPermission(user, PERMISSIONS.LEADS_MANAGE)) {
     return <Navigate to="/leads" replace />;
   }
+  if (hasPermission(user, PERMISSIONS.SITE_VISITS_VIEW) || hasPermission(user, PERMISSIONS.SITE_VISITS_MANAGE)) {
+    return <Navigate to="/site-visits" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.AGENTS_VIEW) || hasPermission(user, PERMISSIONS.AGENTS_MANAGE)) {
+    return <Navigate to="/agents" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.BUILDERS_VIEW) || hasPermission(user, PERMISSIONS.BUILDERS_MANAGE)) {
+    return <Navigate to="/builders" replace />;
+  }
   if (hasPermission(user, PERMISSIONS.CONTENT_VIEW) || hasPermission(user, PERMISSIONS.CONTENT_MANAGE)) {
     return <Navigate to="/content" replace />;
+  }
+  if (hasPermission(user, PERMISSIONS.USERS_VIEW) || hasPermission(user, PERMISSIONS.USERS_MANAGE)) {
+    return <Navigate to="/users" replace />;
   }
   if (hasPermission(user, PERMISSIONS.STAFF_MANAGE)) {
     return <Navigate to="/staff" replace />;
@@ -137,11 +152,11 @@ function App() {
               <Route path="/listings/edit/:id" element={<PropertyEditPage />} />
             </Route>
 
-            {/* Localities & Projects */}
+            {/* Projects & Townships */}
             <Route
               element={
                 <ProtectedRoute
-                  requiredPermissions={[PERMISSIONS.PROJECTS_MANAGE, PERMISSIONS.LOCALITIES_MANAGE]}
+                  requiredPermissions={[PERMISSIONS.PROJECTS_VIEW, PERMISSIONS.PROJECTS_MANAGE]}
                 />
               }
             >
@@ -150,6 +165,16 @@ function App() {
               <Route path="/projects/edit/:id" element={<AddProjectPage />} />
               <Route path="/projects/:id" element={<ProjectDetailsPage />} />
               <Route path="/projects/view/:id" element={<ProjectDetailsPage />} />
+            </Route>
+
+            {/* Localities & Rates */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[PERMISSIONS.LOCALITIES_MANAGE]}
+                />
+              }
+            >
               <Route path="/localities" element={<LocalitiesManagementPage />} />
             </Route>
 
@@ -164,8 +189,37 @@ function App() {
               <Route path="/leads" element={<LeadManagementPage />} />
               <Route path="/leads/:id" element={<LeadDossierPage />} />
               <Route path="/leads/view/:id" element={<LeadDossierPage />} />
+            </Route>
+
+            {/* Certified Agents */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[
+                    PERMISSIONS.AGENTS_VIEW,
+                    PERMISSIONS.AGENTS_MANAGE,
+                    PERMISSIONS.LEADS_VIEW,
+                    PERMISSIONS.LEADS_MANAGE,
+                  ]}
+                />
+              }
+            >
               <Route path="/agents" element={<AgentsManagementPage />} />
               <Route path="/agents/:id" element={<AgentDetailsPage />} />
+            </Route>
+
+            {/* Builders & Developers */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[
+                    PERMISSIONS.BUILDERS_VIEW,
+                    PERMISSIONS.BUILDERS_MANAGE,
+                    PERMISSIONS.PROJECTS_MANAGE,
+                  ]}
+                />
+              }
+            >
               <Route path="/builders" element={<BuildersManagementPage />} />
               <Route path="/builders/:id" element={<BuilderDetailsPage />} />
             </Route>
@@ -205,7 +259,7 @@ function App() {
               <Route path="/content" element={<ContentManagementPage />} />
             </Route>
 
-            {/* Staff & User Management */}
+            {/* Staff & Roles Management */}
             <Route
               element={
                 <ProtectedRoute
@@ -216,6 +270,20 @@ function App() {
               <Route path="/staff" element={<StaffManagementPage />} />
               <Route path="/staff/new" element={<StaffFormPage />} />
               <Route path="/staff/:id/edit" element={<StaffFormPage />} />
+            </Route>
+
+            {/* Public Users / Citizens */}
+            <Route
+              element={
+                <ProtectedRoute
+                  requiredPermissions={[
+                    PERMISSIONS.USERS_VIEW,
+                    PERMISSIONS.USERS_MANAGE,
+                    PERMISSIONS.STAFF_MANAGE,
+                  ]}
+                />
+              }
+            >
               <Route path="/users" element={<UsersManagementPage />} />
             </Route>
 

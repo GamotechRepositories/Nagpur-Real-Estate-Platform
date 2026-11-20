@@ -128,7 +128,8 @@ const StaffFormPage = () => {
     if (!preset) return;
     setFormData((prev) => ({
       ...prev,
-      designation: prev.designation || preset.title,
+      role: preset.role || prev.role,
+      designation: preset.title || prev.designation,
       permissions: [...preset.permissions],
     }));
   };
@@ -270,7 +271,23 @@ const StaffFormPage = () => {
               </div>
             </div>
 
-            <div className="md:col-span-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                System Role Category *
+              </label>
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white font-medium"
+              >
+                <option value="MODERATOR">Listing Moderator</option>
+                <option value="CRM_MANAGER">CRM & Sales Manager</option>
+                <option value="CONTENT_EDITOR">Content & Operations Editor</option>
+                <option value="SUPER_ADMIN">Super Administrator (Full System Access)</option>
+              </select>
+            </div>
+
+            <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Custom Role / Job Title (Designation) *
               </label>
@@ -281,7 +298,7 @@ const StaffFormPage = () => {
                   required
                   value={formData.designation}
                   onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                  placeholder="e.g. Senior Listing Verification Specialist, Lead Coordinator, or Content Editor"
+                  placeholder="e.g. Senior Partner Coordinator, Lead Specialist, or Listing Reviewer"
                   className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
               </div>
@@ -314,45 +331,33 @@ const StaffFormPage = () => {
             Click any template below to automatically select recommended permissions for common staff roles:
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button
-              type="button"
-              onClick={() => applyPreset('MODERATOR')}
-              className="flex flex-col items-start p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left group"
-            >
-              <span className="text-xs font-bold text-slate-800 group-hover:text-teal-700">
-                Listing Moderator Template
-              </span>
-              <span className="text-[11px] text-slate-400 mt-0.5">
-                Review queue, approve/reject listings, verify documents
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => applyPreset('CRM_MANAGER')}
-              className="flex flex-col items-start p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left group"
-            >
-              <span className="text-xs font-bold text-slate-800 group-hover:text-teal-700">
-                CRM & Sales Template
-              </span>
-              <span className="text-[11px] text-slate-400 mt-0.5">
-                Leads pipeline, site visits, loan requests, CSV export
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => applyPreset('CONTENT_EDITOR')}
-              className="flex flex-col items-start p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left group"
-            >
-              <span className="text-xs font-bold text-slate-800 group-hover:text-teal-700">
-                Content & CMS Template
-              </span>
-              <span className="text-[11px] text-slate-400 mt-0.5">
-                Articles, area guides, FAQs, and builder projects
-              </span>
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Object.entries(ROLE_PRESETS).map(([key, preset]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => applyPreset(key)}
+                className="flex flex-col items-start p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left group cursor-pointer"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs font-bold text-slate-800 group-hover:text-teal-700">
+                    {preset.title}
+                  </span>
+                  <span className="text-[10px] bg-slate-100 text-slate-600 font-mono font-bold px-1.5 py-0.2 rounded">
+                    {preset.permissions.length} perms
+                  </span>
+                </div>
+                <span className="text-[11px] text-slate-400 mt-1 line-clamp-2">
+                  {key === 'MODERATOR' && 'Review queue, approve/reject listings, verify documents, and partner allocations'}
+                  {key === 'CRM_MANAGER' && 'Leads pipeline, site visits, loan requests, CSV export, and agent directory'}
+                  {key === 'PARTNER_RELATIONS' && 'Broker verification, builder accounts, direct property allocation, and visits'}
+                  {key === 'PROJECTS_SPECIALIST' && 'Township high-rises, builder developments, custom specs, and localities'}
+                  {key === 'CONTENT_EDITOR' && 'Articles, area guides, FAQs, projects, and locality market data'}
+                  {key === 'OPERATIONS_EXECUTIVE' && 'Buyer tours, CRM inquiries, citizen user accounts, and home loan processing'}
+                  {key === 'SUPER_ADMIN' && 'Master access to all system modules, platform settings, staff, and audit trail'}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 

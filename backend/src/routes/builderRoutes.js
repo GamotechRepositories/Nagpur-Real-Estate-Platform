@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const builderController = require('../controllers/builderController');
 const { authenticate } = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/rbacMiddleware');
-const { ROLES } = require('../constants');
+const { authorize, requirePermission } = require('../middleware/rbacMiddleware');
+const { ROLES, PERMISSIONS } = require('../constants');
 
 // Public & Admin builders listing
 router.get('/', builderController.getBuilders);
@@ -21,9 +21,9 @@ router.post('/me/properties', authenticate, authorize(ROLES.BUILDER), builderCon
 router.get('/:id', builderController.getBuilderById);
 
 // Admin Builder Management
-router.post('/admin', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.createBuilderByAdmin);
-router.put('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.updateBuilderByAdmin);
-router.patch('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.updateBuilderByAdmin);
-router.delete('/:id', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.CONTENT_EDITOR), builderController.deleteBuilderByAdmin);
+router.post('/admin', authenticate, requirePermission(PERMISSIONS.BUILDERS_MANAGE, PERMISSIONS.PROJECTS_MANAGE), builderController.createBuilderByAdmin);
+router.put('/:id', authenticate, requirePermission(PERMISSIONS.BUILDERS_MANAGE, PERMISSIONS.PROJECTS_MANAGE), builderController.updateBuilderByAdmin);
+router.patch('/:id', authenticate, requirePermission(PERMISSIONS.BUILDERS_MANAGE, PERMISSIONS.PROJECTS_MANAGE), builderController.updateBuilderByAdmin);
+router.delete('/:id', authenticate, requirePermission(PERMISSIONS.BUILDERS_MANAGE, PERMISSIONS.PROJECTS_MANAGE), builderController.deleteBuilderByAdmin);
 
 module.exports = router;
