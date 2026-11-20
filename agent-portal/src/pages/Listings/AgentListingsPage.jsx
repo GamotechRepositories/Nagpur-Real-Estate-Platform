@@ -195,11 +195,11 @@ export const AgentListingsPage = () => {
       </div>
 
       {/* Inventory Source Segmented Filter Bar */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-xl w-full sm:w-fit border border-slate-200 overflow-x-auto">
+      <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl w-full sm:w-fit border border-slate-200 overflow-x-auto max-w-full scrollbar-none">
         <button
           type="button"
           onClick={() => setSourceFilter('ALL')}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap flex-shrink-0 ${
             sourceFilter === 'ALL'
               ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
               : 'text-slate-600 hover:text-slate-900'
@@ -260,7 +260,7 @@ export const AgentListingsPage = () => {
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full scrollbar-none pb-1">
           {STATUS_TABS.map((tab) => {
             const isActive = activeStatus === tab.key;
             const count = statusCounts[tab.key] ?? 0;
@@ -276,7 +276,7 @@ export const AgentListingsPage = () => {
                   }
                   setSearchParams(nextParams);
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition inline-flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
                   isActive
                     ? 'bg-teal-700 text-white shadow-2xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -296,7 +296,7 @@ export const AgentListingsPage = () => {
         </div>
 
         {/* Search Input */}
-        <div className="relative min-w-[240px]">
+        <div className="relative w-full md:w-64 flex-shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
@@ -420,7 +420,7 @@ export const AgentListingsPage = () => {
                   </div>
 
                   {/* Actions & Metrics */}
-                  <div className="flex items-center gap-2.5 self-end lg:self-center flex-wrap">
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start lg:self-center flex-wrap pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
                     <Link
                       to={`/listings/view/${prop._id}`}
                       className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition"
@@ -489,7 +489,7 @@ export const AgentListingsPage = () => {
                       </div>
 
                       {(prop.clientSellerDetails?.phone || prop.owner?.phone) && (
-                        <div className="flex items-center gap-1.5 self-end sm:self-center">
+                        <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end sm:justify-start pt-1.5 sm:pt-0 border-t sm:border-t-0 border-slate-200/60">
                           <a
                             href={`tel:+91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition"
@@ -694,17 +694,17 @@ export const AgentListingsPage = () => {
           <p className="text-xs text-slate-500">
             This will update its public status to "Sold Out" and register the transaction in your closed deals.
           </p>
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4 border-t border-slate-200">
             <button
               onClick={() => setIsSoldModalOpen(false)}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
+              className="w-full sm:w-auto px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition text-center"
             >
               Cancel
             </button>
             <button
               onClick={() => markSoldMutation.mutate(selectedProperty._id)}
               disabled={markSoldMutation.isPending}
-              className="px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition disabled:opacity-50 text-center"
             >
               {markSoldMutation.isPending ? 'Updating...' : 'Confirm Marked as Sold'}
             </button>

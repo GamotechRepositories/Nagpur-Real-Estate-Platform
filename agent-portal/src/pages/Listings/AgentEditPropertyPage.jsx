@@ -613,10 +613,10 @@ export const AgentEditPropertyPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <Link
             to={`/listings/view/${id}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium transition"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium transition text-center"
           >
             <Eye size={14} />
             <span>View Dossier</span>
@@ -625,7 +625,7 @@ export const AgentEditPropertyPage = () => {
             type="button"
             onClick={handleSubmit}
             disabled={updateMutation.isPending}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50 text-center"
           >
             <Save size={14} />
             <span>{updateMutation.isPending ? 'Saving...' : 'Save All Changes'}</span>
@@ -2014,18 +2014,18 @@ export const AgentEditPropertyPage = () => {
         </div>
 
         {/* STICKY BOTTOM SAVE ACTION BAR */}
-        <div className="sticky bottom-4 z-20 bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200 shadow-lg flex items-center justify-between">
+        <div className="sticky bottom-4 z-20 bg-white/95 backdrop-blur-xs p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-lg flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => navigate('/listings')}
-            className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition text-center"
           >
             Cancel / Back to Listings
           </button>
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md transition disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md transition disabled:opacity-50 text-center"
           >
             <Save size={15} />
             <span>{updateMutation.isPending ? 'Saving Property...' : 'Save All Changes'}</span>

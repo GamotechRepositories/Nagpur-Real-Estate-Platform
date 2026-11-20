@@ -352,7 +352,7 @@ export const BuilderAddProjectPage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center space-x-1.5 border-b border-slate-200 text-xs font-semibold overflow-x-auto pb-1">
+      <div className="flex items-center space-x-1.5 border-b border-slate-200 text-xs font-semibold overflow-x-auto whitespace-nowrap scrollbar-none max-w-full pb-1">
         {[
           { key: 'basic', label: '1. Basic Info & Type', icon: Compass },
           { key: 'scale', label: '2. Scale & Typologies', icon: Building2 },
@@ -1281,26 +1281,26 @@ export const BuilderAddProjectPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setActiveTab('specs')}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs transition"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs transition text-center"
               >
                 ← Back
               </button>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                 <Link
                   to="/projects"
-                  className="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs"
+                  className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs text-center"
                 >
                   Cancel
                 </Link>
                 <button
                   type="submit"
                   disabled={createProjectMutation.isPending}
-                  className="py-2.5 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs hover:shadow-md disabled:opacity-50 transition"
+                  className="flex-1 sm:flex-initial py-2.5 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs hover:shadow-md disabled:opacity-50 transition text-center"
                 >
                   {createProjectMutation.isPending ? 'Publishing Project...' : 'Register Project'}
                 </button>

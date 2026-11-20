@@ -149,7 +149,7 @@ export const AgentLeadDossierPage = () => {
           <span>Back to Leads</span>
         </button>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {/* WhatsApp Direct */}
           {cleanPhone && (
             <a
@@ -158,7 +158,7 @@ export const AgentLeadDossierPage = () => {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition"
+              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition flex-1 sm:flex-initial"
             >
               <MessageCircle size={14} />
               <span>WhatsApp Buyer</span>
@@ -169,7 +169,7 @@ export const AgentLeadDossierPage = () => {
           {cleanPhone && (
             <a
               href={`tel:+91${cleanPhone}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
+              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex-1 sm:flex-initial"
             >
               <Phone size={14} />
               <span>Call (+91 {lead.phoneNumber})</span>
@@ -181,7 +181,7 @@ export const AgentLeadDossierPage = () => {
             value={lead.leadStatus || 'NEW'}
             onChange={(e) => updateStatusMutation.mutate(e.target.value)}
             disabled={updateStatusMutation.isPending}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-800 outline-none cursor-pointer focus:border-teal-500 shadow-2xs"
+            className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-800 outline-none cursor-pointer focus:border-teal-500 shadow-2xs"
           >
             {STATUS_OPTIONS.map((st) => (
               <option key={st.id} value={st.id}>
@@ -193,7 +193,7 @@ export const AgentLeadDossierPage = () => {
       </div>
 
       {/* FORMAL PDF-STYLE DOSSIER SHEET */}
-      <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-6 sm:p-10 space-y-8 font-sans text-slate-800">
+      <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8 font-sans text-slate-800">
         {/* Document Header */}
         <div className="border-b-2 border-slate-800 pb-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
@@ -210,8 +210,8 @@ export const AgentLeadDossierPage = () => {
             </p>
           </div>
 
-          <div className="flex md:flex-col items-end justify-between md:justify-center gap-2">
-            <div className="text-right">
+          <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200">
+            <div className="text-left md:text-right">
               <span className="text-lg font-black text-slate-900 font-mono">
                 {lead.budget ? formatCurrency(lead.budget) : 'Budget on Discussion'}
               </span>
@@ -226,7 +226,7 @@ export const AgentLeadDossierPage = () => {
         </div>
 
         {/* Lead Metadata Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 border border-slate-200 rounded p-2.5 text-[11px] font-mono text-slate-600">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 bg-slate-50 border border-slate-200 rounded p-2.5 text-[11px] font-mono text-slate-600">
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Lead ID:</strong> <span className="truncate block">{lead._id}</span></div>
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Received Date:</strong> <span className="block">{formatDate(lead.createdAt)}</span></div>
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Handler Agent:</strong> <span className="block text-slate-800 font-bold">{lead.assignedAgent?.name || user?.name || 'Assigned Representative'}</span></div>
@@ -426,7 +426,7 @@ export const AgentLeadDossierPage = () => {
           </div>
 
           {/* Add Remark Input */}
-          <form onSubmit={handleAddNote} className="flex gap-2">
+          <form onSubmit={handleAddNote} className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={newNote}
@@ -437,7 +437,7 @@ export const AgentLeadDossierPage = () => {
             <button
               type="submit"
               disabled={addNoteMutation.isPending || !newNote.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition disabled:opacity-50 cursor-pointer w-full sm:w-auto"
             >
               <Send size={13} />
               <span>{addNoteMutation.isPending ? 'Saving...' : 'Add Note'}</span>

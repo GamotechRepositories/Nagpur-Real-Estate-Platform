@@ -156,7 +156,7 @@ export const AgentSiteVisitDossierPage = () => {
           <span>Back to Site Visits</span>
         </button>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {/* WhatsApp Direct */}
           {customerPhone && (
             <a
@@ -165,7 +165,7 @@ export const AgentSiteVisitDossierPage = () => {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition"
+              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition flex-1 sm:flex-initial"
             >
               <MessageCircle size={14} />
               <span>WhatsApp Buyer</span>
@@ -176,7 +176,7 @@ export const AgentSiteVisitDossierPage = () => {
           {customerPhone && (
             <a
               href={`tel:+91${customerPhone.replace(/[^0-9]/g, '')}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
+              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex-1 sm:flex-initial"
             >
               <Phone size={14} />
               <span>Call (+91 {customerPhone})</span>
@@ -188,7 +188,7 @@ export const AgentSiteVisitDossierPage = () => {
             value={visit.status}
             onChange={(e) => handleStatusChange(e.target.value)}
             disabled={updateMutation.isPending}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-bold outline-none cursor-pointer shadow-2xs transition-colors ${
+            className={`w-full sm:w-auto px-3 py-1.5 rounded-lg border text-xs font-bold outline-none cursor-pointer shadow-2xs transition-colors ${
               visit.status === 'CONFIRMED'
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 focus:border-emerald-500'
                 : visit.status === 'COMPLETED'
@@ -207,7 +207,7 @@ export const AgentSiteVisitDossierPage = () => {
       </div>
 
       {/* FORMAL PDF-STYLE DOSSIER SHEET */}
-      <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-6 sm:p-10 space-y-8 font-sans text-slate-800">
+      <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8 font-sans text-slate-800">
         {/* Document Header */}
         <div className="border-b-2 border-slate-800 pb-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
@@ -223,8 +223,8 @@ export const AgentSiteVisitDossierPage = () => {
             </p>
           </div>
 
-          <div className="flex md:flex-col items-end justify-between md:justify-center gap-2">
-            <div className="text-right">
+          <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200">
+            <div className="text-left md:text-right">
               <span className="text-lg font-black text-slate-900 font-mono">
                 {new Date(visit.preferredDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>

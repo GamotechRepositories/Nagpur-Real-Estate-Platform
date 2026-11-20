@@ -86,12 +86,12 @@ export const AgentLeadsPage = () => {
       {/* Filters & Search */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full scrollbar-none pb-1">
           {LEAD_STATUS_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setSelectedStatus(opt.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition flex-shrink-0 cursor-pointer ${
                 selectedStatus === opt.value
                   ? 'bg-teal-700 text-white shadow-2xs'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -103,7 +103,7 @@ export const AgentLeadsPage = () => {
         </div>
 
         {/* Search Input */}
-        <div className="relative min-w-[240px]">
+        <div className="relative w-full sm:w-64 min-w-0 flex-shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
@@ -131,7 +131,7 @@ export const AgentLeadsPage = () => {
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full min-w-[760px] text-left text-xs">
               <thead className="bg-slate-50 text-slate-600 text-[10px] uppercase tracking-wider font-semibold border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-3">Buyer Contact</th>

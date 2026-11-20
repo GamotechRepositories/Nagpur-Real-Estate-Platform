@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Layers,
   Compass,
+  X,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import clsx from 'clsx';
@@ -47,8 +48,8 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white border-r border-slate-200 text-slate-700 w-64 select-none">
       {/* Brand Header */}
-      <div className="p-4 border-b border-slate-200">
-        <div className="flex items-center gap-3">
+      <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow-xs flex-shrink-0">
             {isBuilder ? <Compass size={20} /> : <Building2 size={20} />}
           </div>
@@ -58,11 +59,19 @@ export const AgentSidebar = ({ isMobileOpen, onCloseMobile }) => {
                 Nagpur Real Estate
               </span>
             </div>
-            <p className="text-[11px] text-teal-700 font-semibold uppercase tracking-wider">
+            <p className="text-[11px] text-teal-700 font-semibold uppercase tracking-wider truncate">
               {isBuilder ? 'Developer Partner Portal' : 'Agent Partner Portal'}
             </p>
           </div>
         </div>
+        {/* Mobile Close Button */}
+        <button
+          onClick={onCloseMobile}
+          className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex-shrink-0"
+          aria-label="Close menu"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Main Navigation */}

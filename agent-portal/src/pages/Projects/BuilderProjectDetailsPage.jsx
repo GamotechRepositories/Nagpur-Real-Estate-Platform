@@ -164,18 +164,16 @@ export const BuilderProjectDetailsPage = () => {
       </div>
 
       {/* Hero Elevation Banner */}
-      <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/90 shadow-sm text-white">
-        <div className="h-56 sm:h-72 w-full overflow-hidden relative">
-          <img
-            src={coverImage}
-            alt={project.name}
-            className="w-full h-full object-cover opacity-35 filter brightness-95"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
-        </div>
+      <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/90 shadow-sm text-white min-h-[260px] sm:min-h-[280px] flex flex-col justify-end">
+        <img
+          src={coverImage}
+          alt={project.name}
+          className="absolute inset-0 w-full h-full object-cover opacity-35 filter brightness-95"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
 
         {/* Hero Content Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7 flex flex-col justify-end">
+        <div className="relative z-10 p-4 sm:p-7 flex flex-col justify-end">
           <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className="py-1 px-2.5 rounded-lg text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-400/30 uppercase tracking-wider">
               {project.projectType?.replace('_', ' ') || 'RESIDENTIAL TOWNSHIP'}
@@ -291,7 +289,7 @@ export const BuilderProjectDetailsPage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center space-x-2 border-b border-slate-200 text-xs font-semibold">
+      <div className="flex items-center space-x-2 border-b border-slate-200 text-xs font-semibold overflow-x-auto whitespace-nowrap scrollbar-none max-w-full pb-1">
         <button
           onClick={() => setActiveTab('inventory')}
           className={`py-3 px-4 border-b-2 transition flex items-center space-x-2 ${
@@ -357,7 +355,7 @@ export const BuilderProjectDetailsPage = () => {
           {/* Filter Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
             {/* Status Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <div className="flex items-center gap-1.5 overflow-x-auto max-w-full scrollbar-none pb-1 sm:pb-0">
               {[
                 { key: 'ALL', label: 'All Units' },
                 { key: 'LIVE', label: 'Live' },

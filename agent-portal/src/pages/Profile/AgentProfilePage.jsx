@@ -92,20 +92,20 @@ export const AgentProfilePage = () => {
       )}
 
       {/* Account Verification Card */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-2xs">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-teal-100 text-teal-800 border border-teal-200 flex items-center justify-center text-xl font-bold flex-shrink-0">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 shadow-2xs">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-teal-100 text-teal-800 border border-teal-200 flex items-center justify-center text-xl font-bold flex-shrink-0">
             {(user?.name || 'A').charAt(0).toUpperCase()}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-bold text-slate-900">{user?.name}</h2>
               <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
                 <ShieldCheck size={12} className="text-emerald-600" />
                 VERIFIED BROKER
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5 break-all">
               Registered Phone: <span className="font-mono text-slate-700 font-semibold">{user?.phone}</span>
               {user?.email && ` • ${user.email}`}
             </p>
@@ -115,7 +115,7 @@ export const AgentProfilePage = () => {
           </div>
         </div>
 
-        <div className="sm:text-right sm:border-l sm:border-slate-200 sm:pl-6">
+        <div className="sm:text-right pt-3 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:border-slate-200 sm:pl-6">
           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
             MahaRERA Registration
           </span>
@@ -245,7 +245,7 @@ export const AgentProfilePage = () => {
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-2xs transition disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-2xs transition disabled:opacity-50"
           >
             <Save size={15} />
             <span>{updateMutation.isPending ? 'Saving Profile...' : 'Save Agency Profile'}</span>

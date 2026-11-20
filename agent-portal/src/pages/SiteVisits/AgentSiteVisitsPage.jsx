@@ -111,14 +111,14 @@ export const AgentSiteVisitsPage = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 max-w-full">
           {/* Status Filters Capsule */}
-          <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 text-xs font-medium shadow-2xs">
+          <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 text-xs font-medium shadow-2xs overflow-x-auto max-w-full scrollbar-none">
             {['', 'REQUESTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`py-1 px-2.5 rounded-md transition-colors ${
+                className={`py-1 px-2.5 rounded-md transition-colors whitespace-nowrap flex-shrink-0 cursor-pointer ${
                   statusFilter === st
                     ? 'bg-slate-900 text-white font-semibold'
                     : 'text-slate-600 hover:text-slate-900'
@@ -132,7 +132,7 @@ export const AgentSiteVisitsPage = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full sm:w-72">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -155,7 +155,7 @@ export const AgentSiteVisitsPage = () => {
       ) : sortedVisits && sortedVisits.length > 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
+            <table className="w-full min-w-[760px] text-left text-xs text-slate-700">
               <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Property & Locality</th>

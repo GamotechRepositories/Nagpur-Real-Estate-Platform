@@ -473,12 +473,12 @@ export const AgentAddPropertyPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={mutation.isPending}
-            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50 text-center"
           >
             <Save size={14} />
             <span>{mutation.isPending ? 'Publishing...' : 'Publish Listing'}</span>
@@ -488,7 +488,7 @@ export const AgentAddPropertyPage = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* SECTION 1: BASIC PROPERTY DETAILS */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-6 space-y-4">
           <div className="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-3">
             <Building2 className="text-teal-600" size={18} />
             <h2 className="text-sm font-bold">1. Basic Property Information</h2>
@@ -1809,18 +1809,18 @@ export const AgentAddPropertyPage = () => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200">
           <button
             type="button"
             onClick={() => navigate('/listings')}
-            className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold text-center"
           >
             Cancel / Back
           </button>
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow transition disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow transition disabled:opacity-50 text-center"
           >
             <Save size={15} />
             <span>{mutation.isPending ? 'Publishing Listing...' : 'Publish Listing'}</span>

@@ -307,11 +307,11 @@ export const AgentDashboardPage = () => {
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* 1. Main Agent Header Card (Exact Parity with Admin) */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
           {/* Identity & Verification */}
-          <div className="flex items-start space-x-4">
-            <div className="w-16 h-16 rounded-2xl bg-teal-800 text-white flex items-center justify-center font-bold text-xl shadow-xs overflow-hidden flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-teal-800 text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-xs overflow-hidden flex-shrink-0">
               {user?.avatar ? (
                 <img
                   src={user.avatar}
@@ -323,9 +323,9 @@ export const AgentDashboardPage = () => {
               )}
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                <h2 className="text-lg font-bold text-slate-900">{user?.name || 'Verified Agent'}</h2>
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">{user?.name || 'Verified Agent'}</h2>
                 <span className="inline-flex items-center space-x-1 py-0.5 px-2 rounded-md text-[10px] font-bold bg-teal-50 border border-teal-200 text-teal-800">
                   <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
                   <span>{profile?.verificationStatus === 'VERIFIED' ? 'VERIFIED' : 'ACTIVE'}</span>
@@ -346,7 +346,7 @@ export const AgentDashboardPage = () => {
                 )}
               </p>
 
-              <div className="flex items-center space-x-4 text-xs text-slate-500 pt-1 flex-wrap gap-y-1">
+              <div className="flex items-center space-x-3 sm:space-x-4 text-xs text-slate-500 pt-1 flex-wrap gap-y-1">
                 <span className="inline-flex items-center gap-1">
                   <Phone className="w-3.5 h-3.5 text-slate-400" />
                   <span className="font-mono font-medium text-slate-800">
@@ -356,7 +356,7 @@ export const AgentDashboardPage = () => {
                 {user?.email && (
                   <span className="inline-flex items-center gap-1">
                     <Mail className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{user.email}</span>
+                    <span className="truncate max-w-[180px] sm:max-w-none">{user.email}</span>
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
@@ -368,20 +368,20 @@ export const AgentDashboardPage = () => {
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center space-x-2.5 self-start lg:self-center flex-wrap gap-y-2">
+          <div className="flex items-center gap-2 self-stretch sm:self-start lg:self-center flex-wrap pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
             {isBuilder && (
               <Link
                 to="/projects/new"
-                className="inline-flex items-center space-x-1.5 py-2 px-3 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold shadow-2xs transition"
+                className="inline-flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold shadow-2xs transition flex-1 sm:flex-initial"
               >
                 <Compass className="w-3.5 h-3.5 text-teal-700" />
-                <span>+ Add New Project</span>
+                <span>+ Add Project</span>
               </Link>
             )}
 
             <Link
               to="/profile"
-              className="inline-flex items-center space-x-1.5 py-2 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition"
+              className="inline-flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition flex-1 sm:flex-initial"
             >
               <Edit2 className="w-3.5 h-3.5 text-slate-500" />
               <span>Edit Profile</span>
@@ -389,10 +389,10 @@ export const AgentDashboardPage = () => {
 
             <Link
               to="/listings/new"
-              className="inline-flex items-center space-x-1.5 py-2 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition"
+              className="inline-flex items-center justify-center space-x-1.5 py-2 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition flex-1 sm:flex-initial"
             >
               <Plus className="w-4 h-4" />
-              <span>{isBuilder ? '+ Post Unit Listing' : '+ Post New Property'}</span>
+              <span>{isBuilder ? '+ Post Unit' : '+ Post Property'}</span>
             </Link>
           </div>
         </div>
@@ -604,10 +604,10 @@ export const AgentDashboardPage = () => {
       </div>
 
       {/* 4. Tab Header Navigation */}
-      <div className="flex items-center space-x-2 border-b border-slate-200">
+      <div className="flex items-center space-x-2 border-b border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
         <button
           onClick={() => setActiveTab('inventory')}
-          className={`py-2.5 px-4 text-xs font-bold border-b-2 transition ${activeTab === 'inventory'
+          className={`py-2.5 px-3.5 sm:px-4 text-xs font-bold border-b-2 transition flex-shrink-0 ${activeTab === 'inventory'
               ? 'border-teal-600 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
@@ -616,7 +616,7 @@ export const AgentDashboardPage = () => {
         </button>
         <button
           onClick={() => setActiveTab('leads')}
-          className={`py-2.5 px-4 text-xs font-bold border-b-2 transition ${activeTab === 'leads'
+          className={`py-2.5 px-3.5 sm:px-4 text-xs font-bold border-b-2 transition flex-shrink-0 ${activeTab === 'leads'
               ? 'border-teal-600 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
@@ -625,7 +625,7 @@ export const AgentDashboardPage = () => {
         </button>
         <button
           onClick={() => setActiveTab('details')}
-          className={`py-2.5 px-4 text-xs font-bold border-b-2 transition ${activeTab === 'details'
+          className={`py-2.5 px-3.5 sm:px-4 text-xs font-bold border-b-2 transition flex-shrink-0 ${activeTab === 'details'
               ? 'border-teal-600 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
@@ -636,11 +636,11 @@ export const AgentDashboardPage = () => {
 
       {/* TAB 1: PROPERTY INVENTORY */}
       {activeTab === 'inventory' && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs space-y-4 p-4">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs space-y-4 p-3.5 sm:p-4">
           {/* Sub-Filters: Category Pills on Left, Purpose & Status on Right */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             {/* Category Filter Pills (Property Type) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto max-w-full scrollbar-none pb-1">
               {[
                 { key: 'ALL', label: `All Properties (${rawProperties.length})` },
                 { key: 'APARTMENT', label: `🏢 Flats & Apartments (${stats.apartments})` },

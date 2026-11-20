@@ -110,7 +110,7 @@ export const AgentViewPropertyPage = () => {
   return (
     <div className="w-full space-y-5 pb-20">
       {/* Top Action Bar */}
-      <div className="flex items-center justify-between gap-3 bg-white border border-slate-200 px-4 py-3 rounded-xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 px-4 py-3 rounded-xl shadow-xs">
         <button
           type="button"
           onClick={() => navigate('/listings')}
@@ -120,10 +120,10 @@ export const AgentViewPropertyPage = () => {
           <span>Back to Inventory</span>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <Link
             to={`/listings/edit/${property._id}`}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-xs"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-xs w-full sm:w-auto"
           >
             <Edit2 size={13} />
             <span>Edit Listing</span>
@@ -132,7 +132,7 @@ export const AgentViewPropertyPage = () => {
       </div>
 
       {/* FORMAL PDF-STYLE DOCUMENT SHEET */}
-      <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-6 sm:p-10 space-y-8 font-sans text-slate-800">
+      <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8 font-sans text-slate-800">
         {/* Document Header */}
         <div className="border-b-2 border-slate-800 pb-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
@@ -152,8 +152,8 @@ export const AgentViewPropertyPage = () => {
             )}
           </div>
 
-          <div className="flex md:flex-col items-end justify-between md:justify-center gap-2">
-            <div className="text-right">
+          <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200">
+            <div className="text-left md:text-right">
               <span className="text-2xl font-black text-slate-900 font-mono">
                 {formatIndianPrice(property.price)}
               </span>
@@ -180,7 +180,7 @@ export const AgentViewPropertyPage = () => {
         </div>
 
         {/* Sub-Header Metadata Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 border border-slate-200 rounded p-2.5 text-[11px] font-mono text-slate-600">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 bg-slate-50 border border-slate-200 rounded p-2.5 text-[11px] font-mono text-slate-600">
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Doc Ref ID:</strong> <span className="truncate block">{property._id}</span></div>
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Listing Date:</strong> <span className="block">{new Date(property.createdAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Condition:</strong> <span className="block text-slate-800 font-bold">{property.condition || 'Ready to Move'}</span></div>

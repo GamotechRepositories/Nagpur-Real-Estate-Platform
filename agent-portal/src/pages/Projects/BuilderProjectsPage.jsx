@@ -236,10 +236,10 @@ export const BuilderProjectsPage = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="p-3 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2">
                   <Link
                     to={`/projects/${project._id}`}
-                    className="flex-1 text-center py-1.5 px-2.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-[11px] font-bold shadow-2xs transition flex items-center justify-center gap-1"
+                    className="w-full sm:flex-1 text-center py-1.5 px-2.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-[11px] font-bold shadow-2xs transition flex items-center justify-center gap-1"
                   >
                     <Eye size={13} />
                     <span>View Units & Details</span>
@@ -247,7 +247,7 @@ export const BuilderProjectsPage = () => {
 
                   <Link
                     to={`/listings/new?projectId=${project._id}`}
-                    className="flex-1 text-center py-1.5 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold shadow-2xs transition flex items-center justify-center gap-1"
+                    className="w-full sm:flex-1 text-center py-1.5 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold shadow-2xs transition flex items-center justify-center gap-1"
                   >
                     <Plus size={13} />
                     <span>+ Post Unit</span>
