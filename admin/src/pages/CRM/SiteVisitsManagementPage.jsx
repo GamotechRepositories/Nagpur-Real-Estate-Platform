@@ -10,6 +10,7 @@ import {
   Phone,
   User,
   Eye,
+  MessageCircle,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -171,10 +172,35 @@ export const SiteVisitsManagementPage = () => {
                       )}
                     </td>
 
-                    {/* Status */}
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <Badge status={visit.status} size="xs" />
-                      <div className="text-[10px] text-slate-400 mt-0.5">
+                    {/* Status Dropdown */}
+                    <td className="py-3 px-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <select
+                        value={visit.status}
+                        onChange={(e) => {
+                          const targetStatus = e.target.value;
+                          mutation.mutate({
+                            id: visit._id,
+                            status: targetStatus,
+                            feedback: visit.feedbackNotes,
+                          });
+                        }}
+                        disabled={mutation.isPending}
+                        className={`text-[11px] font-bold px-2 py-1 rounded-md border outline-none cursor-pointer transition-colors shadow-2xs ${
+                          visit.status === 'CONFIRMED'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                            : visit.status === 'COMPLETED'
+                            ? 'bg-blue-50 text-blue-800 border-blue-300 hover:bg-blue-100'
+                            : visit.status === 'CANCELLED'
+                            ? 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
+                            : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                        }`}
+                      >
+                        <option value="REQUESTED">REQUESTED</option>
+                        <option value="CONFIRMED">CONFIRMED</option>
+                        <option value="COMPLETED">COMPLETED</option>
+                        <option value="CANCELLED">CANCELLED</option>
+                      </select>
+                      <div className="text-[10px] text-slate-400 mt-1 pl-0.5">
                         {formatDate(visit.createdAt)}
                       </div>
                     </td>
@@ -193,6 +219,29 @@ export const SiteVisitsManagementPage = () => {
                     {/* Actions */}
                     <td className="py-3 px-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end space-x-1.5" onClick={(e) => e.stopPropagation()}>
+                        {(visit.phoneNumber || visit.user?.phone || visit.buyer?.phone) && (
+                          <a
+                            href={`https://wa.me/91${visit.phoneNumber || visit.user?.phone || visit.buyer?.phone}?text=${encodeURIComponent(
+                              `Hello ${visit.customerName || visit.user?.name || visit.buyer?.name || 'Customer'}, regarding your site visit scheduled for "${visit.property?.title || 'property'}" on Nagpur Real Estate:`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                            title="Chat on WhatsApp"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenUpdate(visit, visit.status)}
+                          className="py-1 px-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-medium"
+                          title="Add / Edit Feedback Notes"
+                        >
+                          Notes
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => navigate(`/site-visits/view/${visit._id}`)}
@@ -202,49 +251,6 @@ export const SiteVisitsManagementPage = () => {
                           <Eye className="w-3.5 h-3.5 text-slate-600" />
                           <span>Inspect</span>
                         </button>
-
-                        {visit.status === 'REQUESTED' && (
-                          <>
-                            <button
-                              onClick={() => handleOpenUpdate(visit, 'CONFIRMED')}
-                              className="py-1 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-2xs transition-colors"
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
-                              className="py-1 px-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        )}
-
-                        {visit.status === 'CONFIRMED' && (
-                          <>
-                            <button
-                              onClick={() => handleOpenUpdate(visit, 'COMPLETED')}
-                              className="py-1 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition-colors"
-                            >
-                              Complete
-                            </button>
-                            <button
-                              onClick={() => handleOpenUpdate(visit, 'CANCELLED')}
-                              className="py-1 px-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        )}
-
-                        {(visit.status === 'COMPLETED' || visit.status === 'CANCELLED') && (
-                          <button
-                            onClick={() => handleOpenUpdate(visit, visit.status)}
-                            className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-medium"
-                          >
-                            Edit Feedback
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
