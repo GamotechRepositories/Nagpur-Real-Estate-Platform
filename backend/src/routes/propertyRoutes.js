@@ -13,9 +13,10 @@ router.get('/:id/similar', propertyController.getSimilarProperties);
 
 // Protected property creation and updates
 router.post('/', authenticate, validateBody(propertyCreateSchema), propertyController.createProperty);
-router.patch('/:id', authenticate, propertyController.updateProperty);
-router.post('/:id/media', authenticate, upload.array('files', 15), propertyController.uploadPropertyMedia);
 router.post('/:id/status', authenticate, propertyController.updatePropertyStatus);
+router.patch('/:id/status', authenticate, propertyController.updatePropertyStatus);
+router.post('/:id/media', authenticate, upload.array('files', 15), propertyController.uploadPropertyMedia);
+router.patch('/:id', authenticate, propertyController.updateProperty);
 router.delete('/:id', authenticate, propertyController.deleteProperty);
 
 module.exports = router;

@@ -62,12 +62,15 @@ export const AgentListingsPage = () => {
   });
 
   const markSoldMutation = useMutation({
-    mutationFn: (propertyId) => apiClient.patch(`/properties/${propertyId}/status`, { status: 'SOLD' }),
+    mutationFn: (propertyId) => apiClient.post(`/properties/${propertyId}/status`, { status: 'SOLD' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['agent-properties-all']);
       queryClient.invalidateQueries(['agent-stats']);
       setIsSoldModalOpen(false);
       setSelectedProperty(null);
+    },
+    onError: (err) => {
+      alert(err?.response?.data?.message || err?.message || 'Failed to mark property as sold');
     },
   });
 

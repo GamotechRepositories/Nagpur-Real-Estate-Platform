@@ -5,6 +5,7 @@ const Locality = require('../models/Locality');
 const Verification = require('../models/Verification');
 const SavedProperty = require('../models/SavedProperty');
 const AgentProfile = require('../models/AgentProfile');
+const Builder = require('../models/Builder');
 const slugify = require('slugify');
 const { sendSuccess, sendError } = require('../utils/response');
 const { PROPERTY_STATUS, ROLES } = require('../constants');
@@ -618,11 +619,20 @@ const updatePropertyStatus = async (req, res, next) => {
       return sendError(res, 'Property not found', 'NOT_FOUND', {}, 404);
     }
 
-    const isOwner = property.owner && property.owner.toString() === req.user._id.toString();
-    const isStaff = [ROLES.SUPER_ADMIN, ROLES.MODERATOR].includes(req.user.role);
+    const agentProfile = await AgentProfile.findOne({ user: req.user._id });
+    const builderProfile = await Builder.findOne({ user: req.user._id });
+
+    const possibleUserIds = [
+      req.user._id ? req.user._id.toString() : null,
+      agentProfile ? agentProfile._id.toString() : null,
+      builderProfile ? builderProfile._id.toString() : null,
+    ].filter(Boolean);
+
+    const isOwner = property.owner && possibleUserIds.includes(property.owner.toString());
+    const isStaff = [ROLES.SUPER_ADMIN, ROLES.MODERATOR, ROLES.CRM_MANAGER].includes(req.user.role);
     const isAssigned =
-      (property.assignedAgent && property.assignedAgent.toString() === req.user._id.toString()) ||
-      (Array.isArray(property.assignedAgents) && property.assignedAgents.some((a) => a.toString() === req.user._id.toString()));
+      (property.assignedAgent && possibleUserIds.includes(property.assignedAgent.toString())) ||
+      (Array.isArray(property.assignedAgents) && property.assignedAgents.some((a) => possibleUserIds.includes(a.toString())));
 
     if (!isOwner && !isStaff && !isAssigned) {
       return sendError(res, 'Unauthorized to change status of this property', 'FORBIDDEN', {}, 403);
