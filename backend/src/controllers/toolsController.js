@@ -120,7 +120,13 @@ const convertArea = (req, res, next) => {
  */
 const submitLoanRequest = async (req, res, next) => {
   try {
-    const body = req.body;
+    const body = { ...req.body };
+    if (body.employmentType === 'SELF_EMPLOYED') {
+      body.employmentType = 'SELF_EMPLOYED_BUSINESS';
+    }
+    if (!body.email) {
+      delete body.email;
+    }
     const loanRequest = await LoanRequest.create(body);
 
     return sendSuccess(

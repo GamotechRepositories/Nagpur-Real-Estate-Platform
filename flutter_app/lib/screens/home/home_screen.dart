@@ -20,7 +20,6 @@ import '../properties/property_list_screen.dart';
 import '../properties/property_details_screen.dart';
 import '../projects/projects_list_screen.dart';
 import '../projects/project_details_screen.dart';
-import '../../models/project_model.dart';
 import '../../core/widgets/app_network_image.dart';
 import '../localities/locality_details_screen.dart';
 import '../localities/localities_list_screen.dart';
@@ -28,7 +27,11 @@ import '../agents/agents_list_screen.dart';
 import '../tools/loan_enquiry_screen.dart';
 import '../account/saved_properties_screen.dart';
 import '../post_property/post_property_screen.dart';
+import '../blog/blog_list_screen.dart';
+import '../content/content_details_screen.dart';
+import '../../models/content_model.dart';
 import 'widgets/hero_search_widget.dart';
+import 'widgets/contact_form_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -214,13 +217,19 @@ class _HomeScreenState extends State<HomeScreen> {
               // 6. Verified Agents Showcase
               _buildAgentsSection(context, propProv),
 
-              // 7. Why Choose ZAMEEN
+              // 7. Articles & Market Insights Section (Dynamic from Admin Content Management)
+              _buildArticlesSection(context, propProv),
+
+              // 8. Frequently Asked Questions (FAQ) Section (Dynamic from Admin Content Management)
+              _buildFaqSection(context, propProv),
+
+              // 9. Contact Us / Get In Touch Form (Above Why Choose ZAMEEN)
+              const ContactFormSection(),
+
+              // 10. Why Choose ZAMEEN (Right above footer)
               _buildWhyChooseSection(context),
 
-              // 8. Frequently Asked Questions (F&Q) Section
-              _buildFaqSection(context),
-
-              // 9. Footer Section
+              // 10. Footer Section
               _buildFooterSection(context),
             ],
           ),
@@ -1338,9 +1347,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
+                      final loanPrincipal = math.max(0.0, _previewPrice - _previewDownPayment);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const LoanEnquiryScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => LoanEnquiryScreen(
+                            initialLoanAmount: loanPrincipal > 0 ? loanPrincipal : null,
+                            initialPropertyPrice: _previewPrice > 0 ? _previewPrice : null,
+                          ),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -1606,8 +1621,334 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildFaqSection(BuildContext context) {
-    final faqs = [
+  // =========================================================================
+  // ARTICLES & REAL ESTATE INSIGHTS SECTION (From Admin Content Management)
+  // =========================================================================
+  Widget _buildArticlesSection(BuildContext context, PropertyProvider propProv) {
+    final List<ContentModel> dynamicArticles = propProv.articles;
+    final hasDynamic = dynamicArticles.isNotEmpty;
+
+    return Container(
+      color: AppColors.lightGrey,
+      padding: const EdgeInsets.symmetric(vertical: 26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: AppColors.lightGreen,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.article_outlined, color: AppColors.primaryGreen, size: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Articles & Insights',
+                          style: GoogleFonts.inter(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primaryText,
+                          ),
+                        ),
+                        Text(
+                          'नागपूर रिअल इस्टेट विश्लेषण आणि मार्गदर्शक',
+                          style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BlogListScreen()),
+                    );
+                  },
+                  child: Text(
+                    'View All →',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryGreen,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Horizontal Carousel of Article Cards
+          SizedBox(
+            height: 255,
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              scrollDirection: Axis.horizontal,
+              itemCount: hasDynamic ? dynamicArticles.length : kStaticArticles.length,
+              itemBuilder: (context, index) {
+                if (hasDynamic) {
+                  final art = dynamicArticles[index];
+                  final isMarathi = art.language == 'mr';
+
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ContentDetailsScreen(
+                            slug: art.slug,
+                            initialTitle: art.title,
+                            initialSummary: art.body.isNotEmpty ? art.body : art.excerpt,
+                            initialImage: art.image,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 250,
+                      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.borderGrey),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: CachedNetworkImage(
+                                  imageUrl: art.image,
+                                  fit: BoxFit.cover,
+                                  placeholder: (_, __) => Container(color: AppColors.lightGrey),
+                                  errorWidget: (_, __, ___) => Container(
+                                    color: AppColors.lightGrey,
+                                    child: const Icon(Icons.image_not_supported, color: AppColors.secondaryText),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.75),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    art.category.replaceAll('_', ' '),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (isMarathi)
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryGreen,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'मराठी',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.access_time, size: 12, color: AppColors.secondaryText),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      art.readTime,
+                                      style: GoogleFonts.inter(fontSize: 10, color: AppColors.secondaryText),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  art.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryText,
+                                    height: 1.25,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  art.excerpt,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: AppColors.secondaryText,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                } else {
+                  final art = kStaticArticles[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ContentDetailsScreen(
+                            slug: art['slug']!,
+                            initialTitle: art['title'],
+                            initialSummary: art['summary'],
+                            initialImage: art['image'],
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 250,
+                      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.borderGrey),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: CachedNetworkImage(
+                              imageUrl: art['image']!,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.lightGreen,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        art['tag']!,
+                                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
+                                      ),
+                                    ),
+                                    Text(
+                                      art['readTime']!,
+                                      style: GoogleFonts.inter(fontSize: 10, color: AppColors.secondaryText),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  art['title']!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryText,
+                                    height: 1.25,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  art['summary']!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: AppColors.secondaryText,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // FREQUENTLY ASKED QUESTIONS (FAQ) SECTION (Dynamic from Content Management)
+  // =========================================================================
+  Widget _buildFaqSection(BuildContext context, PropertyProvider propProv) {
+    final List<ContentModel> dynamicFaqs = propProv.faqs;
+    final hasDynamic = dynamicFaqs.isNotEmpty;
+
+    final defaultFaqs = [
       {
         'q': 'How do I book an in-person site visit on ZAMEEN?',
         'a': 'Simply open any property, tap "Book Site Visit", select your preferred date and time slot, and submit. An assigned Nagpur coordinator will confirm the visit and accompany you on-site.',
@@ -1618,11 +1959,11 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       {
         'q': 'How can I apply for a home loan through the app?',
-        'a': 'Calculate your monthly outflow with our Home Loan EMI Calculator and tap "Apply For Loan". Our partner banking advisors will connect with you with pre-approved offers starting at 8.5% p.a.',
+        'a': 'Calculate your monthly outflow with our Home Loan EMI Calculator and tap "Apply For Loan". Our partner banking advisors will connect with you with pre-approved offers starting at 8.40% p.a.',
       },
       {
         'q': 'How do I list or post my property for sale or rent?',
-        'a': 'Tap the "+ Post Property" button at the bottom, sign in with your mobile number, fill in basic details, pricing, location, and upload property photos. It goes live upon quick verification.',
+        'a': 'Tap the "+ Post Property" button at the bottom, select whether you are an Owner, Broker, or Builder, fill in details, pricing, location, and upload property photos. It goes live upon quick verification.',
       },
       {
         'q': 'Are there any hidden fees or charges for buyers?',
@@ -1652,7 +1993,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Frequently Asked Questions (F&Q)',
+                      'Frequently Asked Questions (FAQ)',
                       style: GoogleFonts.inter(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -1660,7 +2001,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Text(
-                      'Quick answers about property buying, renting & site visits',
+                      'सतत विचारले जाणारे प्रश्न आणि उत्तरे (Nagpur Real Estate)',
                       style: GoogleFonts.inter(fontSize: 11, color: AppColors.secondaryText),
                     ),
                   ],
@@ -1670,43 +2011,110 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 18),
 
-          ...faqs.map((faq) => Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(
-              color: AppColors.lightGrey,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.borderGrey),
-            ),
-            child: Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                iconColor: AppColors.primaryOrange,
-                collapsedIconColor: AppColors.secondaryText,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-                shape: const RoundedRectangleBorder(side: BorderSide.none),
-                collapsedShape: const RoundedRectangleBorder(side: BorderSide.none),
-                title: Text(
-                  faq['q']!,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryText,
+          if (hasDynamic)
+            ...dynamicFaqs.map((faq) {
+              final question = faq.title;
+              final answer = faq.body.isNotEmpty ? faq.body : faq.excerpt;
+              final isMarathi = faq.language == 'mr';
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.borderGrey),
+                ),
+                child: Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    iconColor: AppColors.primaryGreen,
+                    collapsedIconColor: AppColors.secondaryText,
+                    tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                    childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                    shape: const RoundedRectangleBorder(side: BorderSide.none),
+                    collapsedShape: const RoundedRectangleBorder(side: BorderSide.none),
+                    title: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (isMarathi) ...[
+                          Container(
+                            margin: const EdgeInsets.only(right: 6, top: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreen,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: AppColors.primaryGreen.withValues(alpha: 0.4)),
+                            ),
+                            child: Text(
+                              'मराठी',
+                              style: GoogleFonts.inter(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
+                            ),
+                          ),
+                        ],
+                        Expanded(
+                          child: Text(
+                            question,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    children: [
+                      Text(
+                        answer,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5,
+                          color: AppColors.secondaryText,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                children: [
-                  Text(
-                    faq['a']!,
+              );
+            })
+          else
+            ...defaultFaqs.map((faq) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.borderGrey),
+              ),
+              child: Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  iconColor: AppColors.primaryOrange,
+                  collapsedIconColor: AppColors.secondaryText,
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                  childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                  shape: const RoundedRectangleBorder(side: BorderSide.none),
+                  collapsedShape: const RoundedRectangleBorder(side: BorderSide.none),
+                  title: Text(
+                    faq['q']!,
                     style: GoogleFonts.inter(
-                      fontSize: 11.5,
-                      color: AppColors.secondaryText,
-                      height: 1.4,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryText,
                     ),
                   ),
-                ],
+                  children: [
+                    Text(
+                      faq['a']!,
+                      style: GoogleFonts.inter(
+                        fontSize: 11.5,
+                        color: AppColors.secondaryText,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          )),
+            )),
         ],
       ),
     );

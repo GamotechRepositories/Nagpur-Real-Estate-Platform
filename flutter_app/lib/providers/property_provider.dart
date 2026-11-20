@@ -4,6 +4,7 @@ import '../models/property_model.dart';
 import '../models/locality_model.dart';
 import '../models/project_model.dart';
 import '../models/agent_model.dart';
+import '../models/content_model.dart';
 
 class PropertyProvider with ChangeNotifier {
   List<PropertyModel> _properties = [];
@@ -13,6 +14,8 @@ class PropertyProvider with ChangeNotifier {
   List<LocalityModel> _localities = [];
   List<ProjectModel> _projects = [];
   List<AgentModel> _agents = [];
+  List<ContentModel> _articles = [];
+  List<ContentModel> _faqs = [];
 
   bool _isLoading = false;
   int _totalCount = 0;
@@ -34,6 +37,8 @@ class PropertyProvider with ChangeNotifier {
   List<LocalityModel> get localities => _localities;
   List<ProjectModel> get projects => _projects;
   List<AgentModel> get agents => _agents;
+  List<ContentModel> get articles => _articles;
+  List<ContentModel> get faqs => _faqs;
 
   bool get isLoading => _isLoading;
   int get totalCount => _totalCount;
@@ -124,6 +129,24 @@ class PropertyProvider with ChangeNotifier {
       final agRes = await ApiClient().dio.get('/agents');
       final agData = agRes.data?['data'] as List<dynamic>? ?? [];
       _agents = agData.map((a) => AgentModel.fromJson(a)).toList();
+
+      // 6. Articles & Guides from Content Management
+      try {
+        final artRes = await ApiClient().dio.get('/content', queryParameters: {
+          'category': 'BLOG',
+        });
+        final artData = artRes.data?['data'] as List<dynamic>? ?? [];
+        _articles = artData.map((c) => ContentModel.fromJson(c as Map<String, dynamic>)).toList();
+      } catch (_) {}
+
+      // 7. FAQs from Content Management
+      try {
+        final faqRes = await ApiClient().dio.get('/content', queryParameters: {
+          'category': 'FAQ',
+        });
+        final faqData = faqRes.data?['data'] as List<dynamic>? ?? [];
+        _faqs = faqData.map((c) => ContentModel.fromJson(c as Map<String, dynamic>)).toList();
+      } catch (_) {}
     } catch (_) {
       // Handle network errors gracefully
     } finally {

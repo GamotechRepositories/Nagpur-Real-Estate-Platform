@@ -6,6 +6,7 @@ const Verification = require('../models/Verification');
 const AuditLog = require('../models/AuditLog');
 const AppSettings = require('../models/AppSettings');
 const LoanRequest = require('../models/LoanRequest');
+const ContactInquiry = require('../models/ContactInquiry');
 const { sendNotification } = require('../services/notificationService');
 const { logAudit } = require('../services/auditService');
 const { sendSuccess, sendError } = require('../utils/response');
@@ -26,6 +27,7 @@ const getDashboardStats = async (req, res, next) => {
       todayEnquiries,
       pendingVisits,
       pendingLoans,
+      pendingContacts,
       leadStats,
       topLocalities,
     ] = await Promise.all([
@@ -53,6 +55,9 @@ const getDashboardStats = async (req, res, next) => {
 
       // Pending loan requests
       LoanRequest.countDocuments({ status: 'NEW' }),
+
+      // Pending contact form submissions
+      ContactInquiry.countDocuments({ status: 'NEW' }),
 
       // Lead conversion metrics
       Enquiry.aggregate([
@@ -117,6 +122,7 @@ const getDashboardStats = async (req, res, next) => {
         todayEnquiries,
         pendingSiteVisits: pendingVisits,
         pendingLoanRequests: pendingLoans,
+        pendingContactInquiries: pendingContacts,
         totalLeads,
         closedWonLeads,
         conversionRate: `${conversionRate}%`,

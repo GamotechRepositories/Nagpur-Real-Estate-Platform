@@ -93,13 +93,15 @@ const siteVisitCreateSchema = z.object({
 const loanRequestCreateSchema = z.object({
   applicantName: z.string().min(2, 'Full name is required'),
   phoneNumber: z.string().regex(phoneRegex, 'Valid Indian phone number is required'),
-  email: z.string().email().optional().or(z.literal('')),
-  employmentType: z.enum(['SALARIED', 'SELF_EMPLOYED_BUSINESS', 'SELF_EMPLOYED_PROFESSIONAL']),
+  email: z.string().email().optional().nullable().or(z.literal('')).or(z.null()),
+  employmentType: z.enum(['SALARIED', 'SELF_EMPLOYED', 'SELF_EMPLOYED_BUSINESS', 'SELF_EMPLOYED_PROFESSIONAL']),
   monthlyIncome: z.number().positive('Monthly income is required'),
   loanAmountRequired: z.number().positive('Loan amount is required'),
-  propertyEstimatedValue: z.number().optional(),
-  selectedProperty: z.string().optional(),
-});
+  propertyEstimatedValue: z.number().optional().nullable(),
+  selectedProperty: z.string().optional().nullable(),
+  preferredBank: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+}).passthrough();
 
 const validateBody = (schema) => (req, res, next) => {
   try {
