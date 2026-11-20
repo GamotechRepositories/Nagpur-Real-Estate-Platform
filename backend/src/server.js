@@ -13,6 +13,7 @@ const server = http.createServer(app);
 const startServer = async () => {
   // Connect to MongoDB Atlas
   await connectDB();
+  require('./models');
 
   server.listen(PORT, () => {
     console.log(`\n============================================================`);

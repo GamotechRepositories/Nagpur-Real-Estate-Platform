@@ -58,7 +58,7 @@ export const AgentLeadDossierPage = () => {
     queryKey: ['agent-lead-detail', id],
     queryFn: async () => {
       const res = await apiClient.get(`/enquiries/admin/leads/${id}`);
-      return res.data?.data;
+      return res?.data?.data || res?.data || res;
     },
     enabled: !!id,
   });

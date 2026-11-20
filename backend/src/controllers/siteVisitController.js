@@ -1,5 +1,8 @@
 const SiteVisit = require('../models/SiteVisit');
 const Property = require('../models/Property');
+const User = require('../models/User');
+const AgentProfile = require('../models/AgentProfile');
+const Builder = require('../models/Builder');
 const { sendNotification } = require('../services/notificationService');
 const { sendSuccess, sendError } = require('../utils/response');
 const { SITE_VISIT_STATUS, NOTIFICATION_TYPES, ROLES } = require('../constants');

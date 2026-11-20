@@ -44,7 +44,8 @@ export const AgentSiteVisitsPage = () => {
     queryFn: async () => {
       const url = selectedStatus === 'ALL' ? '/site-visits' : `/site-visits?status=${selectedStatus}`;
       const res = await apiClient.get(url);
-      return res.data?.data || [];
+      const list = res?.data !== undefined ? (Array.isArray(res.data) ? res.data : res.data?.data) : (Array.isArray(res) ? res : res?.data);
+      return Array.isArray(list) ? list : [];
     },
   });
 
