@@ -352,7 +352,7 @@ const getAllListings = async (req, res, next) => {
 const togglePropertyBadges = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { isFeatured, isVerified } = req.body;
+    const { isFeatured, isVerified, isDealOfTheDay } = req.body;
 
     const property = await Property.findById(id);
     if (!property) {
@@ -372,6 +372,10 @@ const togglePropertyBadges = async (req, res, next) => {
         property.verifiedAt = new Date();
         property.verifiedBy = req.user._id;
       }
+    }
+
+    if (typeof isDealOfTheDay === 'boolean') {
+      property.isDealOfTheDay = isDealOfTheDay;
     }
 
     await property.save();

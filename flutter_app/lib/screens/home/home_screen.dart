@@ -243,7 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDealOfTheDaySection(BuildContext context, PropertyProvider prov) {
-    final list = prov.featuredProperties.isNotEmpty ? prov.featuredProperties : prov.properties;
+    final list = prov.dealOfTheDayProperties.isNotEmpty
+        ? prov.dealOfTheDayProperties
+        : (prov.featuredProperties.isNotEmpty ? prov.featuredProperties : prov.properties);
     if (list.isEmpty) return const SizedBox.shrink();
     final deals = list.take(6).toList();
 

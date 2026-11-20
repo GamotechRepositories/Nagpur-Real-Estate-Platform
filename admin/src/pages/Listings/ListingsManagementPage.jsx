@@ -22,6 +22,7 @@ import {
   Edit2,
   Trash2,
   Check,
+  Flame,
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import PageHeader from '../../components/common/PageHeader';
@@ -185,8 +186,8 @@ export const ListingsManagementPage = () => {
 
   // Badges Toggle Mutation
   const toggleBadgesMutation = useMutation({
-    mutationFn: async ({ id, isFeatured, isVerified }) => {
-      return apiClient.patch(`/admin/listings/${id}/badges`, { isFeatured, isVerified });
+    mutationFn: async ({ id, isFeatured, isVerified, isDealOfTheDay }) => {
+      return apiClient.patch(`/admin/listings/${id}/badges`, { isFeatured, isVerified, isDealOfTheDay });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-listings']);
@@ -447,6 +448,24 @@ export const ListingsManagementPage = () => {
                           }`}
                         >
                           <Star className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Deal of the Day Badge */}
+                        <button
+                          onClick={() =>
+                            toggleBadgesMutation.mutate({
+                              id: prop._id,
+                              isDealOfTheDay: !prop.isDealOfTheDay,
+                            })
+                          }
+                          title={prop.isDealOfTheDay ? 'Remove Deal of the Day' : 'Mark Deal of the Day'}
+                          className={`p-1 rounded-md border transition-colors ${
+                            prop.isDealOfTheDay
+                              ? 'bg-rose-50 text-rose-600 border-rose-300'
+                              : 'bg-slate-50 text-slate-300 border-slate-200 hover:text-slate-500'
+                          }`}
+                        >
+                          <Flame className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>

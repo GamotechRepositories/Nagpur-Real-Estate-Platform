@@ -346,6 +346,16 @@ const propertySchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    isDealOfTheDay: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isExclusive: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     featuredUntil: {
       type: Date,
     },

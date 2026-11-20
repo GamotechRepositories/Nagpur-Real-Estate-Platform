@@ -30,6 +30,7 @@ const getProperties = async (req, res, next) => {
       possessionStatus,
       isVerified,
       isFeatured,
+      isDealOfTheDay,
       search,
       lat,
       lng,
@@ -53,6 +54,7 @@ const getProperties = async (req, res, next) => {
     if (possessionStatus) filter.possessionStatus = possessionStatus.toUpperCase();
     if (isVerified === 'true') filter.isVerified = true;
     if (isFeatured === 'true') filter.isFeatured = true;
+    if (isDealOfTheDay === 'true') filter.isDealOfTheDay = true;
 
     // Project filter
     if (req.query.project) {

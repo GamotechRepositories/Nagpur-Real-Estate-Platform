@@ -85,6 +85,7 @@ class PropertyModel {
   final String status;
   final bool isVerified;
   final bool isFeatured;
+  final bool isDealOfTheDay;
   final String localityName;
   final String subLocality;
   final String landmark;
@@ -154,6 +155,7 @@ class PropertyModel {
     this.status = 'LIVE',
     this.isVerified = false,
     this.isFeatured = false,
+    this.isDealOfTheDay = false,
     required this.localityName,
     this.subLocality = '',
     this.landmark = '',
@@ -286,6 +288,7 @@ class PropertyModel {
       status: json['status']?.toString() ?? 'LIVE',
       isVerified: json['isVerified'] == true,
       isFeatured: json['isFeatured'] == true,
+      isDealOfTheDay: json['isDealOfTheDay'] == true,
       localityName: json['localityName']?.toString() ?? 'Nagpur',
       subLocality: json['subLocality']?.toString() ?? '',
       landmark: json['landmark']?.toString() ?? '',

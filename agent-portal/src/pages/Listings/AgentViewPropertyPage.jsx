@@ -13,6 +13,7 @@ import {
   Compass,
   FileCheck,
   ExternalLink,
+  Flame,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { Badge } from '../../components/common/Badge';
@@ -157,6 +158,11 @@ export const AgentViewPropertyPage = () => {
               {property.isVerified && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <CheckCircle2 size={11} /> Verified
+                </span>
+              )}
+              {property.isDealOfTheDay && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                  <Flame size={11} className="text-rose-600" /> Deal of the Day
                 </span>
               )}
             </div>

@@ -9,6 +9,7 @@ class PropertyProvider with ChangeNotifier {
   List<PropertyModel> _properties = [];
   List<PropertyModel> _featuredProperties = [];
   List<PropertyModel> _verifiedProperties = [];
+  List<PropertyModel> _dealOfTheDayProperties = [];
   List<LocalityModel> _localities = [];
   List<ProjectModel> _projects = [];
   List<AgentModel> _agents = [];
@@ -29,6 +30,7 @@ class PropertyProvider with ChangeNotifier {
   List<PropertyModel> get properties => _properties;
   List<PropertyModel> get featuredProperties => _featuredProperties;
   List<PropertyModel> get verifiedProperties => _verifiedProperties;
+  List<PropertyModel> get dealOfTheDayProperties => _dealOfTheDayProperties;
   List<LocalityModel> get localities => _localities;
   List<ProjectModel> get projects => _projects;
   List<AgentModel> get agents => _agents;
@@ -87,6 +89,17 @@ class PropertyProvider with ChangeNotifier {
       final featuredData = featuredRes.data?['data'] as List<dynamic>? ?? [];
       _featuredProperties =
           featuredData.map((p) => PropertyModel.fromJson(p)).toList();
+
+      // Deal of the Day Properties
+      try {
+        final dealsRes = await ApiClient().dio.get('/properties', queryParameters: {
+          'isDealOfTheDay': 'true',
+          'limit': 6,
+        });
+        final dealsData = dealsRes.data?['data'] as List<dynamic>? ?? [];
+        _dealOfTheDayProperties =
+            dealsData.map((p) => PropertyModel.fromJson(p)).toList();
+      } catch (_) {}
 
       // 2. Verified Properties
       final verifiedRes = await ApiClient().dio.get('/properties', queryParameters: {

@@ -211,6 +211,7 @@ export const AddPropertyPage = () => {
     status: 'LIVE',
     isVerified: true,
     isFeatured: false,
+    isDealOfTheDay: false,
     isExclusive: false,
     sellerName: '',
     sellerPhone: '',
@@ -1825,6 +1826,19 @@ export const AddPropertyPage = () => {
                     className="w-4 h-4 text-amber-600 rounded border-slate-300"
                   />
                   <span className="font-semibold text-slate-700">Featured Listing</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="isDealOfTheDay"
+                    checked={formData.isDealOfTheDay}
+                    onChange={handleChange}
+                    className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                  />
+                  <span className="font-semibold text-rose-700 flex items-center gap-1">
+                    <span>Deal of the Day</span>
+                    <span className="text-xs">🔥</span>
+                  </span>
                 </label>
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
