@@ -29,8 +29,25 @@ const routeLead = async (enquiry) => {
 
     let assignedAgentUser = null;
 
+    // 1.5 Direct property allocation routing
+    if (enquiry.property) {
+      const Property = require('../models/Property');
+      const prop = await Property.findById(enquiry.property);
+      if (prop) {
+        const directAgentId =
+          prop.assignedAgent ||
+          (Array.isArray(prop.assignedAgents) && prop.assignedAgents.length > 0 ? prop.assignedAgents[0] : null);
+        if (directAgentId) {
+          const directUser = await User.findById(directAgentId);
+          if (directUser && directUser.status === 'ACTIVE') {
+            assignedAgentUser = directUser;
+          }
+        }
+      }
+    }
+
     // 2. Locality-based routing
-    if (routingMode === 'LOCALITY_BASED' && enquiry.locality) {
+    if (!assignedAgentUser && routingMode === 'LOCALITY_BASED' && enquiry.locality) {
       // Find active verified agent serving this locality
       const matchingProfiles = await AgentProfile.find({
         isAvailable: true,

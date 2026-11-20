@@ -23,7 +23,10 @@ const requestSiteVisit = async (req, res, next) => {
       return sendError(res, 'Property not found', 'NOT_FOUND', {}, 404);
     }
 
-    const assignedAgent = property.assignedAgent || property.owner;
+    const assignedAgent =
+      property.assignedAgent ||
+      (Array.isArray(property.assignedAgents) && property.assignedAgents.length > 0 ? property.assignedAgents[0] : null) ||
+      property.owner;
 
     const visit = await SiteVisit.create({
       property: property._id,
@@ -66,12 +69,27 @@ const getSiteVisits = async (req, res, next) => {
     let filter = {};
 
     if (req.user.role === ROLES.AGENT || req.user.role === ROLES.BUILDER) {
+      const AgentProfile = require('../models/AgentProfile');
+      const Builder = require('../models/Builder');
+      const agentProfile = await AgentProfile.findOne({ user: req.user._id });
+      const builderProfile = await Builder.findOne({ user: req.user._id });
+
+      const possibleIds = [
+        req.user._id,
+        agentProfile ? agentProfile._id : null,
+        builderProfile ? builderProfile._id : null,
+      ].filter(Boolean);
+
       const myProperties = await Property.find({
-        $or: [{ owner: req.user._id }, { assignedAgent: req.user._id }],
+        $or: [
+          { owner: { $in: possibleIds } },
+          { assignedAgent: { $in: possibleIds } },
+          { assignedAgents: { $in: possibleIds } },
+        ],
       }).select('_id');
       const propIds = myProperties.map((p) => p._id);
       filter.$or = [
-        { assignedAgent: req.user._id },
+        { assignedAgent: { $in: possibleIds } },
         { property: { $in: propIds } },
       ];
     } else if (req.user.role === ROLES.OWNER) {

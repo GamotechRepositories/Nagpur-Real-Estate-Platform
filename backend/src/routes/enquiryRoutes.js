@@ -37,21 +37,21 @@ router.get(
 router.get(
   '/admin/leads/:id',
   authenticate,
-  authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.AGENT),
+  authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.AGENT, ROLES.BUILDER),
   enquiryController.getLeadById
 );
 
 router.patch(
   '/admin/leads/:id',
   authenticate,
-  authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.AGENT),
+  authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.AGENT, ROLES.BUILDER),
   enquiryController.updateLead
 );
 
 router.post(
   '/admin/leads/:id/activity',
   authenticate,
-  authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.AGENT),
+  authorize(ROLES.SUPER_ADMIN, ROLES.CRM_MANAGER, ROLES.AGENT, ROLES.BUILDER),
   enquiryController.addLeadActivity
 );
 

@@ -224,9 +224,25 @@ const getLeadById = async (req, res, next) => {
       return sendError(res, 'Lead not found', 'NOT_FOUND', {}, 404);
     }
 
-    // Role check for agents
-    if (req.user.role === ROLES.AGENT && (!lead.assignedAgent || lead.assignedAgent._id.toString() !== req.user._id.toString())) {
-      return sendError(res, 'Unauthorized to view this lead', 'FORBIDDEN', {}, 403);
+    // Role check for agents & builders
+    if (req.user.role === ROLES.AGENT || req.user.role === ROLES.BUILDER) {
+      const userIdStr = req.user._id.toString();
+      const isAssigned =
+        lead.assignedAgent &&
+        (lead.assignedAgent._id?.toString() === userIdStr || lead.assignedAgent.toString() === userIdStr);
+      const isPropertyOwner =
+        lead.propertyOwner &&
+        (lead.propertyOwner._id?.toString() === userIdStr || lead.propertyOwner.toString() === userIdStr);
+      const isPropertyAllocated =
+        lead.property &&
+        (lead.property.owner?.toString() === userIdStr ||
+          lead.property.assignedAgent?.toString() === userIdStr ||
+          (Array.isArray(lead.property.assignedAgents) &&
+            lead.property.assignedAgents.some((a) => a?.toString() === userIdStr)));
+
+      if (!isAssigned && !isPropertyOwner && !isPropertyAllocated) {
+        return sendError(res, 'Unauthorized to view this lead', 'FORBIDDEN', {}, 403);
+      }
     }
 
     const activities = await LeadActivity.find({ enquiry: lead._id })

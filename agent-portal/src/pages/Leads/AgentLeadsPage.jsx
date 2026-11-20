@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Users2,
@@ -11,6 +12,7 @@ import {
   Building2,
   ExternalLink,
   ChevronDown,
+  Eye,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -28,6 +30,7 @@ const LEAD_STATUS_OPTIONS = [
 ];
 
 export const AgentLeadsPage = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [selectedStatus, setSelectedStatus] = useState('ALL');
@@ -152,10 +155,14 @@ export const AgentLeadsPage = () => {
                     : '#';
 
                   return (
-                    <tr key={lead._id} className="hover:bg-slate-50 transition">
+                    <tr
+                      key={lead._id}
+                      onClick={() => navigate(`/leads/${lead._id}`)}
+                      className="hover:bg-slate-50 transition cursor-pointer"
+                    >
                       {/* Buyer */}
                       <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900">{buyerName}</div>
+                        <div className="font-bold text-slate-900 hover:text-teal-700 transition">{buyerName}</div>
                         <div className="text-[11px] text-slate-500 font-mono mt-0.5">{leadPhone}</div>
                         {lead.email && <div className="text-[11px] text-slate-400">{lead.email}</div>}
                         <div className="text-[10px] text-slate-400 mt-0.5">
@@ -199,7 +206,7 @@ export const AgentLeadsPage = () => {
                       </td>
 
                       {/* Pipeline Status Selector */}
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <select
                           value={currentStatus}
                           onChange={(e) =>
@@ -219,11 +226,26 @@ export const AgentLeadsPage = () => {
                       {/* Actions */}
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* Inspect Dossier */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/leads/${lead._id}`);
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition"
+                            title="View Full Lead Dossier"
+                          >
+                            <Eye size={13} className="text-teal-700" />
+                            <span>Dossier</span>
+                          </button>
+
                           {/* Direct WhatsApp */}
                           <a
                             href={waUrl}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition"
                             title="Chat on WhatsApp"
                           >
@@ -234,6 +256,7 @@ export const AgentLeadsPage = () => {
                           {/* Direct Phone Call */}
                           <a
                             href={`tel:${lead.phone}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
                             title="Call Buyer"
                           >

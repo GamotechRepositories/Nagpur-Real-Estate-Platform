@@ -10,6 +10,7 @@ import { AgentAddPropertyPage } from './pages/Listings/AgentAddPropertyPage';
 import { AgentViewPropertyPage } from './pages/Listings/AgentViewPropertyPage';
 import { AgentEditPropertyPage } from './pages/Listings/AgentEditPropertyPage';
 import { AgentLeadsPage } from './pages/Leads/AgentLeadsPage';
+import { AgentLeadDossierPage } from './pages/Leads/AgentLeadDossierPage';
 import { AgentSiteVisitsPage } from './pages/SiteVisits/AgentSiteVisitsPage';
 import { AgentProfilePage } from './pages/Profile/AgentProfilePage';
 import { BuilderProjectsPage } from './pages/Projects/BuilderProjectsPage';
@@ -48,6 +49,8 @@ export const App = () => {
             <Route path="/listings/view/:id" element={<AgentViewPropertyPage />} />
             <Route path="/listings/edit/:id" element={<AgentEditPropertyPage />} />
             <Route path="/leads" element={<AgentLeadsPage />} />
+            <Route path="/leads/:id" element={<AgentLeadDossierPage />} />
+            <Route path="/leads/view/:id" element={<AgentLeadDossierPage />} />
             <Route path="/site-visits" element={<AgentSiteVisitsPage />} />
             <Route path="/profile" element={<AgentProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
