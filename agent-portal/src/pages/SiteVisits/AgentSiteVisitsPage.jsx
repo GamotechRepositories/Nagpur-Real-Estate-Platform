@@ -1,48 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CalendarDays,
   Clock,
   MapPin,
-  CheckCircle2,
-  XCircle,
-  Phone,
-  MessageCircle,
-  Search,
-  Building2,
-  AlertCircle,
   Check,
   X,
+  Phone,
+  User,
+  Eye,
+  MessageCircle,
+  Search,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
-import { Badge } from '../../components/common/Badge';
-import { formatDate, formatCurrency } from '../../utils/formatters';
-
-const STATUS_TABS = [
-  { id: 'ALL', label: 'All Inspections' },
-  { id: 'REQUESTED', label: 'Requested (Pending)', badgeColor: 'bg-amber-100 text-amber-800' },
-  { id: 'CONFIRMED', label: 'Approved & Confirmed', badgeColor: 'bg-emerald-100 text-emerald-800' },
-  { id: 'COMPLETED', label: 'Completed', badgeColor: 'bg-blue-100 text-blue-800' },
-  { id: 'CANCELLED', label: 'Rejected / Cancelled', badgeColor: 'bg-rose-100 text-rose-800' },
-];
+import { Modal } from '../../components/common/Modal';
+import { formatDate } from '../../utils/formatters';
 
 export const AgentSiteVisitsPage = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
-
-  // Rejection / Feedback modal state
-  const [activeModalVisit, setActiveModalVisit] = useState(null);
-  const [modalAction, setModalAction] = useState(''); // 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
-  const [reasonNotes, setReasonNotes] = useState('');
+  const [updateModalVisit, setUpdateModalVisit] = useState(null);
+  const [newStatus, setNewStatus] = useState('');
+  const [feedbackNotes, setFeedbackNotes] = useState('');
 
   // Fetch site visits
   const { data: visitsResponse, isLoading } = useQuery({
-    queryKey: ['agent-site-visits', selectedStatus],
+    queryKey: ['agent-site-visits', statusFilter],
     queryFn: async () => {
-      const url = selectedStatus === 'ALL' ? '/site-visits' : `/site-visits?status=${selectedStatus}`;
+      const url = statusFilter ? `/site-visits?status=${statusFilter}` : '/site-visits';
       const res = await apiClient.get(url);
       const list = res?.data !== undefined ? (Array.isArray(res.data) ? res.data : res.data?.data) : (Array.isArray(res) ? res : res?.data);
       return Array.isArray(list) ? list : [];
@@ -51,52 +41,22 @@ export const AgentSiteVisitsPage = () => {
 
   const visits = Array.isArray(visitsResponse) ? visitsResponse : [];
 
-  // Update Status Mutation (Approve / Reject / Complete)
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status, feedbackNotes, cancellationReason }) => {
-      return apiClient.patch(`/site-visits/${id}`, {
-        status,
-        feedbackNotes,
-        cancellationReason,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['agent-site-visits']);
-      queryClient.invalidateQueries(['agent-stats']);
-      setActiveModalVisit(null);
-      setModalAction('');
-      setReasonNotes('');
-    },
-  });
-
-  const handleOpenActionModal = (visit, action) => {
-    setActiveModalVisit(visit);
-    setModalAction(action);
-    setReasonNotes(action === 'CANCELLED' ? (visit.cancellationReason || '') : (visit.feedbackNotes || ''));
-  };
-
-  const handleConfirmAction = (e) => {
-    e.preventDefault();
-    if (!activeModalVisit || !modalAction) return;
-
-    updateStatusMutation.mutate({
-      id: activeModalVisit._id,
-      status: modalAction,
-      feedbackNotes: modalAction !== 'CANCELLED' ? reasonNotes : undefined,
-      cancellationReason: modalAction === 'CANCELLED' ? reasonNotes : undefined,
+  // Filter and sort visits
+  const filteredVisits = useMemo(() => {
+    if (!visits) return [];
+    return visits.filter((v) => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      const custName = (v.customerName || v.user?.name || '').toLowerCase();
+      const custPhone = (v.phoneNumber || v.user?.phone || '');
+      const propTitle = (v.property?.title || '').toLowerCase();
+      const locality = (v.property?.localityName || '').toLowerCase();
+      return custName.includes(q) || custPhone.includes(q) || propTitle.includes(q) || locality.includes(q);
     });
-  };
+  }, [visits, search]);
 
-  const filteredVisits = visits.filter((v) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    const custName = (v.customerName || '').toLowerCase();
-    const custPhone = (v.phoneNumber || '');
-    const propTitle = (v.property?.title || '').toLowerCase();
-    return custName.includes(q) || custPhone.includes(q) || propTitle.includes(q);
-  });
-
-  const sortedVisits = React.useMemo(() => {
+  // Ensure latest site visits are strictly shown at the top
+  const sortedVisits = useMemo(() => {
     return [...filteredVisits].sort((a, b) => {
       const dateA = new Date(a.createdAt || a.preferredDate || 0).getTime();
       const dateB = new Date(b.createdAt || b.preferredDate || 0).getTime();
@@ -104,258 +64,249 @@ export const AgentSiteVisitsPage = () => {
     });
   }, [filteredVisits]);
 
-  const getStatusBadge = (st) => {
-    switch (st) {
-      case 'CONFIRMED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-            <CheckCircle2 size={12} className="text-emerald-700" />
-            Approved & Confirmed
-          </span>
-        );
-      case 'CANCELLED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-            <XCircle size={12} className="text-rose-700" />
-            Rejected / Cancelled
-          </span>
-        );
-      case 'COMPLETED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-            <CheckCircle2 size={12} className="text-blue-700" />
-            Completed
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
-            <Clock size={12} className="text-amber-700" />
-            Requested (Pending)
-          </span>
-        );
-    }
+  // Update Status / Feedback Mutation
+  const mutation = useMutation({
+    mutationFn: async ({ id, status, feedback }) => {
+      return apiClient.patch(`/site-visits/${id}`, { status, feedbackNotes: feedback });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['agent-site-visits']);
+      queryClient.invalidateQueries(['agent-stats']);
+      setUpdateModalVisit(null);
+      setFeedbackNotes('');
+    },
+  });
+
+  const handleOpenUpdate = (visit, targetStatus) => {
+    setUpdateModalVisit(visit);
+    setNewStatus(targetStatus);
+    setFeedbackNotes(visit.feedbackNotes || '');
+  };
+
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+    if (!updateModalVisit || !newStatus) return;
+    mutation.mutate({
+      id: updateModalVisit._id,
+      status: newStatus,
+      feedback: feedbackNotes.trim(),
+    });
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-150">
-      {/* Header */}
+    <div className="space-y-5 animate-in fade-in duration-150">
+      {/* Header with Breadcrumb and Status Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center text-xs text-slate-500 mb-1">
+            <span>Agent Workspace &bull; {user?.name || 'Sharma Real Estate Consultants'}</span>
+            <span className="mx-2">&gt;</span>
+            <span className="text-slate-800 font-medium">Site Visits</span>
+          </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Site Visits & Property Inspections
+            Site Visits
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Manage, approve, and coordinate buyer in-person viewing appointments for your assigned properties.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Manage scheduled property inspections
           </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Status Filters Capsule */}
+          <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 text-xs font-medium shadow-2xs">
+            {['', 'REQUESTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`py-1 px-2.5 rounded-md transition-colors ${
+                  statusFilter === st
+                    ? 'bg-slate-900 text-white font-semibold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {st === '' ? 'All' : st.charAt(0) + st.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Status Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {STATUS_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedStatus(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
-                selectedStatus === tab.id
-                  ? 'bg-teal-700 text-white shadow-2xs'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="relative w-full sm:w-64">
+      {/* Search Bar */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="relative w-full sm:w-72">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search buyer or property..."
-            className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-teal-600 outline-none bg-white"
+            placeholder="Search property, buyer, or locality..."
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-teal-600 outline-none bg-white shadow-2xs"
           />
         </div>
       </div>
 
-      {/* Visits Table */}
+      {/* Site Visits Row-based Table */}
       {isLoading ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-          <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-500 font-medium">Loading site visits...</p>
+        <div className="bg-white rounded-xl border border-slate-200/90 p-6 space-y-3">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
+          ))}
         </div>
-      ) : filteredVisits.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-2xs">
-          <CalendarDays size={38} className="mx-auto text-slate-300 mb-2" />
-          <h3 className="text-sm font-bold text-slate-900">No site visits found</h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            {selectedStatus === 'ALL'
-              ? 'When buyers request a site inspection for your Nagpur listings from the app, appointments will appear here.'
-              : `No site visits in "${selectedStatus}" status.`}
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+      ) : sortedVisits && sortedVisits.length > 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 text-[10px] uppercase tracking-wider font-semibold border-b border-slate-200">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">Scheduled Date & Slot</th>
-                  <th className="px-4 py-3">Buyer Contact</th>
-                  <th className="px-4 py-3">Property Details</th>
-                  <th className="px-4 py-3">Inspection Status</th>
-                  <th className="px-4 py-3 text-right">Approve / Reject Action</th>
+                  <th className="py-3 px-4">Property & Locality</th>
+                  <th className="py-3 px-3">Preferred Date & Slot</th>
+                  <th className="py-3 px-3">Buyer Details</th>
+                  <th className="py-3 px-3">Assigned Agent</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3">Notes / Feedback</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {sortedVisits.map((visit) => {
-                  const custPhone = visit.phoneNumber || '';
+                  const custPhone = visit.phoneNumber || visit.user?.phone || '';
                   const cleanPhone = custPhone.replace(/[^0-9]/g, '');
-                  const buyerName = visit.customerName || 'Valued Visitor';
-                  const propTitle = visit.property?.title || 'Nagpur Property';
-                  const waUrl = cleanPhone
-                    ? `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(
-                        `Hello ${buyerName}, I am ${user?.name || 'your property advisor'}. Regarding your scheduled site visit for "${propTitle}" on ${new Date(
-                          visit.preferredDate
-                        ).toLocaleDateString()} (${visit.preferredTimeSlot})...`
-                      )}`
-                    : '#';
+                  const buyerName = visit.customerName || visit.user?.name || 'Customer';
+                  const propTitle = visit.property?.title || 'Property';
 
                   return (
-                    <tr key={visit._id} className="hover:bg-slate-50 transition">
-                      {/* Date & Slot */}
-                      <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                          <CalendarDays size={14} className="text-teal-700 flex-shrink-0" />
-                          <span>{formatDate(visit.preferredDate)}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-1">
-                          <Clock size={12} className="text-slate-400 flex-shrink-0" />
-                          <span>{visit.preferredTimeSlot}</span>
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-1">
-                          Booked {formatDate(visit.createdAt)}
+                    <tr
+                      key={visit._id}
+                      onClick={() => navigate(`/site-visits/view/${visit._id}`)}
+                      className="hover:bg-slate-50/80 transition group cursor-pointer"
+                    >
+                      {/* Property & Locality */}
+                      <td className="py-3 px-4">
+                        <div className="min-w-0 max-w-xs">
+                          <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition truncate text-xs">
+                            {propTitle}
+                          </h4>
+                          <div className="flex items-center space-x-1 text-[11px] text-slate-500 mt-0.5">
+                            <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                            <span className="truncate">{visit.property?.localityName || 'Nagpur'}</span>
+                          </div>
                         </div>
                       </td>
 
-                      {/* Buyer */}
-                      <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900">{buyerName}</div>
-                        <div className="text-[11px] text-slate-600 font-mono mt-0.5">{custPhone}</div>
-                        {visit.email && (
-                          <div className="text-[11px] text-slate-400">{visit.email}</div>
+                      {/* Preferred Date & Slot */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-100/80 border border-slate-200/60 font-medium text-slate-800">
+                          <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
+                          <span>{formatDate(visit.preferredDate)} &bull; {visit.preferredTimeSlot}</span>
+                        </div>
+                      </td>
+
+                      {/* Buyer Details */}
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-slate-900">
+                          {buyerName}
+                        </div>
+                        {custPhone && (
+                          <div className="text-[11px] text-slate-500 font-mono">
+                            +91 {custPhone}
+                          </div>
                         )}
-                        <div className="flex items-center gap-2 mt-2">
-                          {cleanPhone && (
-                            <>
-                              <a
-                                href={`tel:+91${cleanPhone}`}
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-teal-700 bg-slate-100 px-2 py-0.5 rounded"
-                              >
-                                <Phone size={11} />
-                                <span>Call</span>
-                              </a>
-                              <a
-                                href={waUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 hover:text-emerald-900 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"
-                              >
-                                <MessageCircle size={11} />
-                                <span>WhatsApp</span>
-                              </a>
-                            </>
-                          )}
-                        </div>
                       </td>
 
-                      {/* Property */}
-                      <td className="px-4 py-3 max-w-xs">
-                        {visit.property ? (
-                          <div>
-                            <div className="font-semibold text-slate-800 truncate">
-                              {visit.property.title}
-                            </div>
-                            <div className="text-[11px] text-teal-700 font-mono font-bold mt-0.5">
-                              {formatCurrency(visit.property.price)}
-                            </div>
-                            <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1 truncate">
-                              <MapPin size={11} className="flex-shrink-0" />
-                              <span>{visit.property.localityName || visit.property.address || 'Nagpur'}</span>
-                            </div>
+                      {/* Assigned Agent */}
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        {visit.assignedAgent ? (
+                          <div className="font-medium text-slate-800">
+                            {visit.assignedAgent.name}
                           </div>
                         ) : (
-                          <span className="text-slate-400 text-xs">Property record removed</span>
+                          <span className="text-slate-400 text-[11px] italic">Assigned to You</span>
                         )}
                       </td>
 
-                      {/* Status */}
-                      <td className="px-4 py-3">
-                        <div>{getStatusBadge(visit.status)}</div>
-                        {visit.cancellationReason && (
-                          <div className="text-[11px] text-rose-600 mt-1 italic">
-                            Reason: {visit.cancellationReason}
-                          </div>
-                        )}
-                        {visit.feedbackNotes && (
-                          <div className="text-[11px] text-slate-500 mt-1 italic">
-                            Note: {visit.feedbackNotes}
-                          </div>
+                      {/* Status Dropdown */}
+                      <td className="py-3 px-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={visit.status}
+                          onChange={(e) => {
+                            const targetStatus = e.target.value;
+                            mutation.mutate({
+                              id: visit._id,
+                              status: targetStatus,
+                              feedback: visit.feedbackNotes,
+                            });
+                          }}
+                          disabled={mutation.isPending}
+                          className={`text-[11px] font-bold px-2 py-1 rounded-md border outline-none cursor-pointer transition-colors shadow-2xs ${
+                            visit.status === 'CONFIRMED'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                              : visit.status === 'COMPLETED'
+                              ? 'bg-blue-50 text-blue-800 border-blue-300 hover:bg-blue-100'
+                              : visit.status === 'CANCELLED'
+                              ? 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
+                              : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                          }`}
+                        >
+                          <option value="REQUESTED">REQUESTED</option>
+                          <option value="CONFIRMED">CONFIRMED</option>
+                          <option value="COMPLETED">COMPLETED</option>
+                          <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                        <div className="text-[10px] text-slate-400 mt-1 pl-0.5">
+                          {formatDate(visit.createdAt)}
+                        </div>
+                      </td>
+
+                      {/* Notes / Feedback */}
+                      <td className="py-3 px-3 max-w-[200px]">
+                        {visit.feedbackNotes ? (
+                          <span className="text-[11px] text-slate-600 line-clamp-2 italic" title={visit.feedbackNotes}>
+                            "{visit.feedbackNotes}"
+                          </span>
+                        ) : visit.cancellationReason ? (
+                          <span className="text-[11px] text-rose-600 line-clamp-2 italic" title={visit.cancellationReason}>
+                            Reason: "{visit.cancellationReason}"
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-[11px]">-</span>
                         )}
                       </td>
 
-                      {/* Action Buttons */}
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {visit.status === 'REQUESTED' && (
-                            <>
-                              <button
-                                onClick={() => handleOpenActionModal(visit, 'CONFIRMED')}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition"
-                              >
-                                <Check size={13} />
-                                <span>Approve</span>
-                              </button>
-                              <button
-                                onClick={() => handleOpenActionModal(visit, 'CANCELLED')}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition"
-                              >
-                                <X size={13} />
-                                <span>Reject</span>
-                              </button>
-                            </>
-                          )}
-
-                          {visit.status === 'CONFIRMED' && (
-                            <>
-                              <button
-                                onClick={() => handleOpenActionModal(visit, 'COMPLETED')}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs transition"
-                              >
-                                <CheckCircle2 size={13} />
-                                <span>Complete</span>
-                              </button>
-                              <button
-                                onClick={() => handleOpenActionModal(visit, 'CANCELLED')}
-                                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-medium transition"
-                              >
-                                <X size={13} />
-                                <span>Cancel</span>
-                              </button>
-                            </>
-                          )}
-
-                          {(visit.status === 'COMPLETED' || visit.status === 'CANCELLED') && (
-                            <button
-                              onClick={() => handleOpenActionModal(visit, visit.status)}
-                              className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-medium transition"
+                      {/* Actions */}
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end space-x-1.5" onClick={(e) => e.stopPropagation()}>
+                          {cleanPhone && (
+                            <a
+                              href={`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(
+                                `Hello ${buyerName}, regarding your site visit scheduled for "${propTitle}" on Nagpur Real Estate:`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                              title="Chat on WhatsApp"
                             >
-                              Edit Note
-                            </button>
+                              <MessageCircle className="w-3.5 h-3.5" />
+                            </a>
                           )}
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenUpdate(visit, visit.status)}
+                            className="py-1 px-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-medium"
+                            title="Add / Edit Feedback Notes"
+                          >
+                            Notes
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/site-visits/view/${visit._id}`)}
+                            className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold inline-flex items-center space-x-1"
+                            title="View Full Inspection Dossier"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-slate-600" />
+                            <span>Inspect</span>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -365,101 +316,77 @@ export const AgentSiteVisitsPage = () => {
             </table>
           </div>
         </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center shadow-2xs">
+          <CalendarDays size={42} className="mx-auto text-slate-300 mb-3" />
+          <h3 className="text-sm font-bold text-slate-900">No site visits found</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            {statusFilter
+              ? `No site visits found in ${statusFilter.toLowerCase()} status.`
+              : 'No scheduled property site visits yet.'}
+          </p>
+        </div>
       )}
 
-      {/* Confirmation & Note Modal */}
-      {activeModalVisit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-100">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 border border-slate-200 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                {modalAction === 'CONFIRMED' && (
-                  <>
-                    <CheckCircle2 size={18} className="text-emerald-600" />
-                    <span>Approve & Confirm Site Visit</span>
-                  </>
-                )}
-                {modalAction === 'CANCELLED' && (
-                  <>
-                    <XCircle size={18} className="text-rose-600" />
-                    <span>Reject / Cancel Site Visit</span>
-                  </>
-                )}
-                {modalAction === 'COMPLETED' && (
-                  <>
-                    <CheckCircle2 size={18} className="text-blue-600" />
-                    <span>Mark Inspection Completed</span>
-                  </>
-                )}
-                {modalAction !== 'CONFIRMED' && modalAction !== 'CANCELLED' && modalAction !== 'COMPLETED' && (
-                  <span>Update Visit Feedback</span>
-                )}
-              </h3>
-              <button
-                onClick={() => setActiveModalVisit(null)}
-                className="text-slate-400 hover:text-slate-600"
+      {/* Update Visit Modal */}
+      {updateModalVisit && (
+        <Modal
+          isOpen={Boolean(updateModalVisit)}
+          onClose={() => setUpdateModalVisit(null)}
+          title="Update Visit Status"
+          maxWidth="max-w-md"
+        >
+          <form onSubmit={handleUpdateSubmit} className="space-y-4">
+            <div>
+              <p className="text-xs text-slate-500 mb-3">
+                Property: <strong className="text-slate-800">{updateModalVisit.property?.title || 'Inspection'}</strong>
+              </p>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Status
+              </label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full p-2 rounded-lg border border-slate-200 text-xs font-medium bg-white outline-none focus:border-slate-400"
               >
-                <X size={18} />
+                <option value="REQUESTED">Requested</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Inspection Feedback / Notes
+              </label>
+              <textarea
+                rows={3}
+                value={feedbackNotes}
+                onChange={(e) => setFeedbackNotes(e.target.value)}
+                placeholder="Enter feedback or outcome of visit..."
+                className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-slate-400"
+              />
+            </div>
+
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setUpdateModalVisit(null)}
+                className="py-1.5 px-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={mutation.isPending}
+                className="py-1.5 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50"
+              >
+                {mutation.isPending ? 'Updating...' : 'Save Status'}
               </button>
             </div>
-
-            <div className="text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
-              <div className="font-semibold text-slate-800">{activeModalVisit.customerName}</div>
-              <div className="text-slate-500">{activeModalVisit.property?.title}</div>
-              <div className="text-slate-500 font-mono">
-                {formatDate(activeModalVisit.preferredDate)} • {activeModalVisit.preferredTimeSlot}
-              </div>
-            </div>
-
-            <form onSubmit={handleConfirmAction} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  {modalAction === 'CANCELLED'
-                    ? 'Reason for Rejection / Cancellation (Visible to customer)'
-                    : 'Inspection Notes / Instructions (Optional)'}
-                </label>
-                <textarea
-                  rows={3}
-                  value={reasonNotes}
-                  onChange={(e) => setReasonNotes(e.target.value)}
-                  placeholder={
-                    modalAction === 'CANCELLED'
-                      ? 'e.g. Property owner not available at requested slot, please pick another time...'
-                      : 'e.g. Confirmed with security gate, agent will meet at lobby...'
-                  }
-                  className="w-full p-2.5 rounded-lg border border-slate-200 text-xs font-medium focus:border-teal-600 outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveModalVisit(null)}
-                  className="py-1.5 px-3 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold"
-                >
-                  Close
-                </button>
-                <button
-                  type="submit"
-                  disabled={updateStatusMutation.isPending}
-                  className={`py-1.5 px-4 rounded-lg text-white text-xs font-bold transition shadow-2xs ${
-                    modalAction === 'CANCELLED'
-                      ? 'bg-rose-600 hover:bg-rose-700'
-                      : 'bg-emerald-600 hover:bg-emerald-700'
-                  }`}
-                >
-                  {updateStatusMutation.isPending
-                    ? 'Saving...'
-                    : modalAction === 'CONFIRMED'
-                    ? 'Approve Visit'
-                    : modalAction === 'CANCELLED'
-                    ? 'Reject Visit'
-                    : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+          </form>
+        </Modal>
       )}
     </div>
   );
