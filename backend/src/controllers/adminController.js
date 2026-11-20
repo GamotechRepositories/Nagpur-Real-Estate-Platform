@@ -7,6 +7,7 @@ const AuditLog = require('../models/AuditLog');
 const AppSettings = require('../models/AppSettings');
 const LoanRequest = require('../models/LoanRequest');
 const ContactInquiry = require('../models/ContactInquiry');
+const Project = require('../models/Project');
 const { sendNotification } = require('../services/notificationService');
 const { logAudit } = require('../services/auditService');
 const { sendSuccess, sendError } = require('../utils/response');
@@ -22,14 +23,21 @@ const getDashboardStats = async (req, res, next) => {
 
     const [
       propertyStats,
+      categoryStats,
+      purposeStats,
       totalUsers,
       totalAgents,
+      totalBuilders,
+      totalProjects,
       todayEnquiries,
       pendingVisits,
       pendingLoans,
       pendingContacts,
       leadStats,
       topLocalities,
+      recentEnquiries,
+      recentVisits,
+      portfolioAggregate,
     ] = await Promise.all([
       // Property status count aggregation
       Property.aggregate([
@@ -41,11 +49,39 @@ const getDashboardStats = async (req, res, next) => {
         },
       ]),
 
+      // Property category count (Residential, Commercial, Plot, Agricultural)
+      Property.aggregate([
+        { $match: { status: PROPERTY_STATUS.LIVE } },
+        {
+          $group: {
+            _id: '$category',
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Property purpose (BUY vs RENT)
+      Property.aggregate([
+        { $match: { status: PROPERTY_STATUS.LIVE } },
+        {
+          $group: {
+            _id: '$purpose',
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+
       // Total users
       User.countDocuments({ role: ROLES.USER }),
 
       // Total agents
       User.countDocuments({ role: ROLES.AGENT }),
+
+      // Total builders
+      User.countDocuments({ role: ROLES.BUILDER }),
+
+      // Total projects
+      Project.countDocuments(),
 
       // Today's enquiries
       Enquiry.countDocuments({ createdAt: { $gte: today } }),
@@ -69,7 +105,7 @@ const getDashboardStats = async (req, res, next) => {
         },
       ]),
 
-      // Top localities in Nagpur
+      // Localities in Nagpur (up to 20 with count and avg price)
       Property.aggregate([
         { $match: { status: PROPERTY_STATUS.LIVE } },
         {
@@ -80,7 +116,34 @@ const getDashboardStats = async (req, res, next) => {
           },
         },
         { $sort: { propertyCount: -1 } },
-        { $limit: 6 },
+        { $limit: 20 },
+      ]),
+
+      // Recent 5 leads
+      Enquiry.find()
+        .select('customerName phoneNumber propertyTitle locality budget leadStatus createdAt')
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+
+      // Recent 5 site visits
+      SiteVisit.find()
+        .populate('property', 'title localityName price')
+        .populate('assignedAgent', 'name phone')
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+
+      // Portfolio total market valuation
+      Property.aggregate([
+        { $match: { status: PROPERTY_STATUS.LIVE } },
+        {
+          $group: {
+            _id: null,
+            totalValue: { $sum: '$price' },
+            avgPrice: { $avg: '$price' },
+          },
+        },
       ]),
     ]);
 
@@ -103,10 +166,45 @@ const getDashboardStats = async (req, res, next) => {
       propertyCounts.TOTAL += stat.count;
     });
 
-    // Lead conversion rate
+    // Format category distribution
+    const categoryCounts = {
+      RESIDENTIAL: 0,
+      COMMERCIAL: 0,
+      PLOT: 0,
+      AGRICULTURAL: 0,
+    };
+    categoryStats.forEach((cat) => {
+      if (cat._id && categoryCounts.hasOwnProperty(cat._id)) {
+        categoryCounts[cat._id] = cat.count;
+      }
+    });
+
+    // Format purpose
+    const purposeCounts = {
+      BUY: 0,
+      RENT: 0,
+    };
+    purposeStats.forEach((p) => {
+      if (p._id && purposeCounts.hasOwnProperty(p._id)) {
+        purposeCounts[p._id] = p.count;
+      }
+    });
+
+    // Lead conversion metrics & funnel
+    const leadFunnel = {
+      NEW: 0,
+      CONTACTED: 0,
+      VISIT_SCHEDULED: 0,
+      CLOSED_WON: 0,
+      CLOSED_LOST: 0,
+    };
+
     let totalLeads = 0;
     let closedWonLeads = 0;
     leadStats.forEach((l) => {
+      if (l._id && leadFunnel.hasOwnProperty(l._id)) {
+        leadFunnel[l._id] = l.count;
+      }
       totalLeads += l.count;
       if (l._id === 'CLOSED_WON') closedWonLeads += l.count;
     });
@@ -114,9 +212,21 @@ const getDashboardStats = async (req, res, next) => {
 
     return sendSuccess(res, 'Dashboard statistics aggregated successfully', {
       properties: propertyCounts,
+      categories: categoryCounts,
+      purposes: purposeCounts,
+      portfolio: {
+        totalValue: portfolioAggregate[0]?.totalValue || 0,
+        avgPrice: Math.round(portfolioAggregate[0]?.avgPrice || 0),
+      },
+      partners: {
+        totalAgents,
+        totalBuilders,
+        totalProjects,
+      },
       users: {
         total: totalUsers,
         agents: totalAgents,
+        builders: totalBuilders,
       },
       crm: {
         todayEnquiries,
@@ -126,8 +236,13 @@ const getDashboardStats = async (req, res, next) => {
         totalLeads,
         closedWonLeads,
         conversionRate: `${conversionRate}%`,
+        funnel: leadFunnel,
       },
       topLocalities,
+      recentActivity: {
+        enquiries: recentEnquiries,
+        siteVisits: recentVisits,
+      },
     });
   } catch (error) {
     next(error);
