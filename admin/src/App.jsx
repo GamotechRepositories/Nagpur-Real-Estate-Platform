@@ -2,6 +2,7 @@ import React, { useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminLayout from './components/layout/AdminLayout';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { useAuthStore } from './store/useAuthStore';
 import { PERMISSIONS, hasPermission } from './config/permissions';
 
@@ -95,8 +96,9 @@ function App() {
   }, [isAuthenticated, fetchCurrentUser]);
 
   return (
-    <Suspense fallback={<PageFallback />}>
-      <Routes>
+    <ErrorBoundary>
+      <Suspense fallback={<PageFallback />}>
+        <Routes>
         {/* Public Login Route */}
         <Route path="/login" element={<LoginPage />} />
 
@@ -330,6 +332,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
+  </ErrorBoundary>
   );
 }
 

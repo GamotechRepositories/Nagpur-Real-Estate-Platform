@@ -11,6 +11,8 @@ import {
   MapPin,
   Clock,
   ArrowLeft,
+  ArrowRight,
+  AlertCircle,
   Edit2,
   Lock,
   Layers,
@@ -35,7 +37,7 @@ import PageHeader from '../../components/common/PageHeader';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import { formatIndianPrice, formatDate } from '../../utils/formatters';
-import { getFullImageUrl } from '../../components/common/PhotoUploader';
+import PhotoUploader, { getFullImageUrl } from '../../components/common/PhotoUploader';
 
 export const BuilderDetailsPage = () => {
   const { id } = useParams();
@@ -58,6 +60,7 @@ export const BuilderDetailsPage = () => {
     phone: '',
     email: '',
     password: '',
+    logo: '',
     reraNumber: '',
     establishedYear: '',
     experienceYears: 10,
@@ -189,6 +192,7 @@ export const BuilderDetailsPage = () => {
       phone: builder.contactPhone || builder.user?.phone || '',
       email: builder.contactEmail || builder.user?.email || '',
       password: '',
+      logo: builder.logo || builder.user?.avatar || '',
       reraNumber: builder.reraNumber || '',
       establishedYear: builder.establishedYear || '',
       experienceYears: builder.experienceYears || 10,
@@ -206,7 +210,10 @@ export const BuilderDetailsPage = () => {
   const handleEditSubmit = (e) => {
     e.preventDefault();
     setErrorMessage('');
-    const payload = { ...editFormData };
+    const payload = {
+      ...editFormData,
+      logo: editFormData.logo || '',
+    };
     if (!payload.password || !payload.password.trim()) {
       delete payload.password;
     }
@@ -933,7 +940,7 @@ export const BuilderDetailsPage = () => {
         title={`Edit Profile: ${builder.name}`}
         size="lg"
       >
-        <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleEditSubmit} className="space-y-4 text-xs" autoComplete="off">
           {errorMessage && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -942,6 +949,18 @@ export const BuilderDetailsPage = () => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <PhotoUploader
+                multiple={false}
+                folder="builders"
+                value={editFormData.logo}
+                onChange={(url) => setEditFormData((prev) => ({ ...prev, logo: url }))}
+                label="Developer Logo / Brand Mark"
+                helperText="Upload official company logo or developer emblem (JPG, PNG, WEBP)"
+                aspect="avatar"
+              />
+            </div>
+
             <div className="sm:col-span-2">
               <label className="block text-slate-700 font-semibold mb-1">Company Name *</label>
               <input

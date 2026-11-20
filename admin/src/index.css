@@ -27,6 +27,18 @@
   background: #94a3b8;
 }
 
+/* Hide scrollbars across elements with .no-scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 /* Dark mode / Sidebar scrollbar */
 .dark-scroll::-webkit-scrollbar-thumb {
   background: #334155;

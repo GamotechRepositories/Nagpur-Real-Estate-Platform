@@ -59,6 +59,7 @@ export const AgentsManagementPage = () => {
     phone: '',
     email: '',
     password: '',
+    avatar: '',
     agencyName: '',
     reraNumber: '',
     experienceYears: 5,
@@ -129,6 +130,7 @@ export const AgentsManagementPage = () => {
       phone: agent.user?.phone || agent.contactPhone || '',
       email: agent.user?.email || '',
       password: '',
+      avatar: agent.user?.avatar || agent.avatar || '',
       agencyName: agent.agencyName || '',
       reraNumber: agent.reraNumber || '',
       experienceYears: agent.experienceYears || 5,
@@ -150,6 +152,7 @@ export const AgentsManagementPage = () => {
 
     const payload = {
       ...editFormData,
+      avatar: editFormData.avatar || '',
       experienceYears: Number(editFormData.experienceYears) || 1,
       areasServed: Array.isArray(editFormData.areasServed)
         ? editFormData.areasServed
@@ -434,7 +437,7 @@ export const AgentsManagementPage = () => {
           subtitle="Add an authorized real estate agent for CRM lead distribution"
           maxWidth="max-w-xl"
         >
-          <form onSubmit={handleCreateSubmit} className="space-y-4 text-xs">
+          <form onSubmit={handleCreateSubmit} className="space-y-4 text-xs" autoComplete="off">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
                 <PhotoUploader
@@ -589,7 +592,7 @@ export const AgentsManagementPage = () => {
           subtitle="Update contact details, MahaRERA registration, and portal login password"
           maxWidth="max-w-xl"
         >
-          <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+          <form onSubmit={handleEditSubmit} className="space-y-4 text-xs" autoComplete="off">
             {errorMessage && (
               <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
@@ -597,6 +600,18 @@ export const AgentsManagementPage = () => {
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                <PhotoUploader
+                  multiple={false}
+                  folder="agents"
+                  value={editFormData.avatar}
+                  onChange={(url) => setEditFormData((prev) => ({ ...prev, avatar: url }))}
+                  label="Agent Profile Photo"
+                  helperText="Upload official headshot or passport photo (JPG, PNG, WEBP)"
+                  aspect="avatar"
+                />
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">
                   Agent Full Name *

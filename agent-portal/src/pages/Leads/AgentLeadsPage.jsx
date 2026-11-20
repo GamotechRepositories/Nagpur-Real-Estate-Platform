@@ -226,7 +226,7 @@ export const AgentLeadsPage = () => {
                       {/* Actions */}
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Inspect Dossier */}
+                          {/* View Lead Details */}
                           <button
                             type="button"
                             onClick={(e) => {
@@ -234,10 +234,10 @@ export const AgentLeadsPage = () => {
                               navigate(`/leads/${lead._id}`);
                             }}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition"
-                            title="View Full Lead Dossier"
+                            title="View Lead Details"
                           >
                             <Eye size={13} className="text-teal-700" />
-                            <span>Dossier</span>
+                            <span>View</span>
                           </button>
 
                           {/* Direct WhatsApp */}

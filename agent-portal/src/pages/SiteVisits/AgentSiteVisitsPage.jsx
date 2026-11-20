@@ -302,10 +302,10 @@ export const AgentSiteVisitsPage = () => {
                             type="button"
                             onClick={() => navigate(`/site-visits/view/${visit._id}`)}
                             className="py-1 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold inline-flex items-center space-x-1"
-                            title="View Full Inspection Dossier"
+                            title="View Inspection Details"
                           >
                             <Eye className="w-3.5 h-3.5 text-slate-600" />
-                            <span>Inspect</span>
+                            <span>View</span>
                           </button>
                         </div>
                       </td>

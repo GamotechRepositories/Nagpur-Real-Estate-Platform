@@ -619,7 +619,7 @@ export const AgentEditPropertyPage = () => {
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium transition text-center"
           >
             <Eye size={14} />
-            <span>View Dossier</span>
+            <span>View</span>
           </Link>
           <button
             type="button"

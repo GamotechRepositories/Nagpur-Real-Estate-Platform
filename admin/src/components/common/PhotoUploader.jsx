@@ -204,27 +204,12 @@ export const PhotoUploader = ({
 
       {/* Image Preview List */}
       {imageList.length > 0 && (
-        <div
-          className={
-            multiple
-              ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-1'
-              : 'pt-1'
-          }
-        >
-          {imageList.map((url, idx) => (
-            <div
-              key={idx}
-              className={`group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-100 shadow-2xs ${
-                aspect === 'avatar'
-                  ? 'w-24 h-24 rounded-full mx-auto'
-                  : aspect === 'square'
-                  ? 'aspect-square'
-                  : 'aspect-video'
-              }`}
-            >
+        aspect === 'avatar' && !multiple ? (
+          <div className="flex flex-col items-center justify-center space-y-2.5 pt-1">
+            <div className="group relative w-24 h-24 rounded-full border-2 border-teal-500 overflow-hidden bg-slate-100 shadow-xs">
               <img
-                src={getFullImageUrl(url)}
-                alt={`Uploaded photo ${idx + 1}`}
+                src={getFullImageUrl(imageList[0])}
+                alt="Agent Profile Photo"
                 className="w-full h-full object-cover"
                 loading="lazy"
                 onError={(e) => {
@@ -232,57 +217,119 @@ export const PhotoUploader = ({
                   e.target.src = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600';
                 }}
               />
+              {/* Overlay on hover */}
+              <div
+                onClick={() => !isUploading && fileInputRef.current?.click()}
+                className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer"
+                title="Click to change photo"
+              >
+                <UploadCloud className="w-5 h-5 mb-0.5" />
+                <span className="text-[10px] font-bold">Change</span>
+              </div>
+            </div>
 
-              {/* Cover Photo Badge on First Image */}
-              {multiple && idx === 0 && (
-                <span className="absolute top-1.5 left-1.5 bg-teal-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-xs">
-                  Cover Photo
-                </span>
-              )}
+            {/* Quick Action Buttons for Avatar */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => !isUploading && fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs font-semibold transition cursor-pointer"
+              >
+                <UploadCloud className="w-3.5 h-3.5 text-teal-600" />
+                <span>{isUploading ? 'Uploading...' : 'Change Photo'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemove(0)}
+                disabled={isUploading}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold transition cursor-pointer"
+                title="Remove photo"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            className={
+              multiple
+                ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-1'
+                : 'pt-1'
+            }
+          >
+            {imageList.map((url, idx) => (
+              <div
+                key={idx}
+                className={`group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-100 shadow-2xs ${
+                  aspect === 'square'
+                    ? 'aspect-square'
+                    : 'aspect-video'
+                }`}
+              >
+                <img
+                  src={getFullImageUrl(url)}
+                  alt={`Uploaded photo ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600';
+                  }}
+                />
 
-              {/* Action Buttons Overlay */}
-              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                {multiple && idx !== 0 && (
+                {/* Cover Photo Badge on First Image */}
+                {multiple && idx === 0 && (
+                  <span className="absolute top-1.5 left-1.5 bg-teal-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-xs">
+                    Cover Photo
+                  </span>
+                )}
+
+                {/* Action Buttons Overlay */}
+                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                  {multiple && idx !== 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSetCover(idx);
+                      }}
+                      className="p-1.5 bg-white text-slate-700 hover:text-teal-600 rounded-lg shadow-xs transition-colors cursor-pointer"
+                      title="Set as Cover Photo"
+                    >
+                      <Star className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSetCover(idx);
+                      handleRemove(idx);
                     }}
-                    className="p-1.5 bg-white text-slate-700 hover:text-teal-600 rounded-lg shadow-xs transition-colors"
-                    title="Set as Cover Photo"
+                    className="p-1.5 bg-white text-red-600 hover:bg-red-50 rounded-lg shadow-xs transition-colors cursor-pointer"
+                    title="Remove Photo"
                   >
-                    <Star className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(idx);
-                  }}
-                  className="p-1.5 bg-white text-red-600 hover:bg-red-50 rounded-lg shadow-xs transition-colors"
-                  title="Remove Photo"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {/* Add More Button in Multi Mode */}
-          {multiple && imageList.length < maxFiles && (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="aspect-video rounded-xl border-2 border-dashed border-slate-200 hover:border-teal-500 hover:bg-slate-50 flex flex-col items-center justify-center text-slate-400 hover:text-teal-600 transition-colors"
-            >
-              <Plus className="w-5 h-5 mb-1" />
-              <span className="text-[11px] font-semibold">Add More</span>
-            </button>
-          )}
-        </div>
+            {/* Add More Button in Multi Mode */}
+            {multiple && imageList.length < maxFiles && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="aspect-video rounded-xl border-2 border-dashed border-slate-200 hover:border-teal-500 hover:bg-slate-50 flex flex-col items-center justify-center text-slate-400 hover:text-teal-600 transition-colors cursor-pointer"
+              >
+                <Plus className="w-5 h-5 mb-1" />
+                <span className="text-[11px] font-semibold">Add More</span>
+              </button>
+            )}
+          </div>
+        )
       )}
     </div>
   );

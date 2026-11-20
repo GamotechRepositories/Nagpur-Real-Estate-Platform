@@ -23,7 +23,12 @@ const ProtectedRoute = ({
 
   // If user profile is still loading
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center space-y-3">
+        <div className="w-8 h-8 border-3 border-slate-700 border-t-teal-500 rounded-full animate-spin" />
+        <span className="text-xs text-slate-400 font-medium">Verifying admin session...</span>
+      </div>
+    );
   }
 
   // SUPER_ADMIN has master bypass for all routes
