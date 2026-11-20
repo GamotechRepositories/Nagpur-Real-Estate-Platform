@@ -19,8 +19,12 @@ const loanRequestSchema = new mongoose.Schema(
     },
     employmentType: {
       type: String,
-      enum: ['SALARIED', 'SELF_EMPLOYED_BUSINESS', 'SELF_EMPLOYED_PROFESSIONAL'],
+      enum: ['SALARIED', 'SELF_EMPLOYED', 'SELF_EMPLOYED_BUSINESS', 'SELF_EMPLOYED_PROFESSIONAL'],
       default: 'SALARIED',
+    },
+    preferredBank: {
+      type: String,
+      default: 'Any / Best Rate',
     },
     monthlyIncome: {
       type: Number,

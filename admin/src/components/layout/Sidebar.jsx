@@ -20,6 +20,7 @@ import {
   ChevronRight,
   X,
   UserCog,
+  MessageSquareText,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import apiClient from '../../api/client';
@@ -55,6 +56,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const pendingCount = stats?.properties?.PENDING_REVIEW || 0;
   const pendingVisitsCount = stats?.crm?.pendingSiteVisits || 0;
   const pendingLoansCount = stats?.crm?.pendingLoanRequests || 0;
+  const pendingContactsCount = stats?.crm?.pendingContactInquiries || 0;
 
   const navGroups = [
     {
@@ -111,6 +113,14 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           href: '/leads',
           icon: Kanban,
           badge: null,
+          permissions: [PERMISSIONS.LEADS_VIEW, PERMISSIONS.LEADS_MANAGE],
+        },
+        {
+          name: 'Contact Inquiries',
+          href: '/contact-inquiries',
+          icon: MessageSquareText,
+          badge: pendingContactsCount > 0 ? pendingContactsCount : null,
+          badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
           permissions: [PERMISSIONS.LEADS_VIEW, PERMISSIONS.LEADS_MANAGE],
         },
         {

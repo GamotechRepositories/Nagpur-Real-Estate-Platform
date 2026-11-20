@@ -74,4 +74,5 @@ class ApiConstants {
   static const String enquiries = '/enquiries';
   static const String siteVisits = '/site-visits';
   static const String loanRequest = '/tools/loan-request';
+  static const String contact = '/contact';
 }

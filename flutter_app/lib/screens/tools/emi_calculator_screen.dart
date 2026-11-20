@@ -192,7 +192,12 @@ class _EmiCalculatorScreenState extends State<EmiCalculatorScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoanEnquiryScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => LoanEnquiryScreen(
+                      initialLoanAmount: loanAmount > 0 ? loanAmount : null,
+                      initialPropertyPrice: _price > 0 ? _price : null,
+                    ),
+                  ),
                 );
               },
               icon: const Icon(Icons.account_balance, size: 18),

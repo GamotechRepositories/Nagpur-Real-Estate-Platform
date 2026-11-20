@@ -22,6 +22,7 @@ const LeadDossierPage = lazy(() => import('./pages/CRM/LeadDossierPage'));
 const SiteVisitsManagementPage = lazy(() => import('./pages/CRM/SiteVisitsManagementPage'));
 const SiteVisitDossierPage = lazy(() => import('./pages/CRM/SiteVisitDossierPage'));
 const LoanRequestsPage = lazy(() => import('./pages/CRM/LoanRequestsPage'));
+const ContactInquiriesPage = lazy(() => import('./pages/CRM/ContactInquiriesPage'));
 const ContentManagementPage = lazy(() => import('./pages/Content/ContentManagementPage'));
 const StaffManagementPage = lazy(() => import('./pages/Administration/StaffManagementPage'));
 const StaffFormPage = lazy(() => import('./pages/Administration/StaffFormPage'));
@@ -187,6 +188,7 @@ function App() {
               }
             >
               <Route path="/leads" element={<LeadManagementPage />} />
+              <Route path="/contact-inquiries" element={<ContactInquiriesPage />} />
               <Route path="/leads/:id" element={<LeadDossierPage />} />
               <Route path="/leads/view/:id" element={<LeadDossierPage />} />
             </Route>

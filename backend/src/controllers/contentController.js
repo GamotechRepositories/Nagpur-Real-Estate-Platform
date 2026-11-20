@@ -7,11 +7,11 @@ const { sendSuccess, sendError } = require('../utils/response');
  */
 const getContentPages = async (req, res, next) => {
   try {
-    const { category, language = 'en', tag } = req.query;
+    const { category, language, tag } = req.query;
     const filter = { isPublished: true };
 
-    if (category) filter.category = category.toUpperCase();
-    if (language) filter.language = language;
+    if (category && category !== 'ALL') filter.category = category.toUpperCase();
+    if (language && language !== 'ALL') filter.language = language;
     if (tag) filter.tags = tag;
 
     const pages = await ContentPage.find(filter)
