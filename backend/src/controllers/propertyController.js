@@ -618,10 +618,13 @@ const updatePropertyStatus = async (req, res, next) => {
       return sendError(res, 'Property not found', 'NOT_FOUND', {}, 404);
     }
 
-    const isOwner = property.owner.toString() === req.user._id.toString();
+    const isOwner = property.owner && property.owner.toString() === req.user._id.toString();
     const isStaff = [ROLES.SUPER_ADMIN, ROLES.MODERATOR].includes(req.user.role);
+    const isAssigned =
+      (property.assignedAgent && property.assignedAgent.toString() === req.user._id.toString()) ||
+      (Array.isArray(property.assignedAgents) && property.assignedAgents.some((a) => a.toString() === req.user._id.toString()));
 
-    if (!isOwner && !isStaff) {
+    if (!isOwner && !isStaff && !isAssigned) {
       return sendError(res, 'Unauthorized to change status of this property', 'FORBIDDEN', {}, 403);
     }
 

@@ -58,49 +58,64 @@ export const ModerationQueuePage = () => {
 
   const tickets = response || [];
 
-  // Fetch Available Certified Agents for Allocation
-  const { data: agents = [] } = useQuery({
-    queryKey: ['admin-agents-available'],
+  // Fetch Available Certified Representatives (Agents & Builders)
+  const { data: repData } = useQuery({
+    queryKey: ['admin-representatives-available'],
     queryFn: async () => {
-      const res = await apiClient.get('/agents');
-      return res.data?.data || [];
+      try {
+        const res = await apiClient.get('/admin/representatives');
+        if (res.data?.data?.all) return res.data.data;
+      } catch (e) {
+        // fallback
+      }
+      const [agentsRes, buildersRes] = await Promise.all([
+        apiClient.get('/agents').catch(() => ({ data: { data: [] } })),
+        apiClient.get('/builders').catch(() => ({ data: { data: [] } })),
+      ]);
+      const agents = (agentsRes.data?.data || []).map((ag) => ({
+        _id: (ag.user?._id || ag.user || ag._id)?.toString(),
+        userId: (ag.user?._id || ag.user || ag._id)?.toString(),
+        profileId: ag._id?.toString(),
+        type: 'AGENT',
+        name: ag.user?.name || ag.name || ag.agencyName || 'Certified Agent',
+        organization: ag.agencyName || '',
+        phone: ag.user?.phone || ag.phone || '',
+        label: `[Agent] ${ag.user?.name || ag.name || 'Agent'}${ag.agencyName ? ` (${ag.agencyName})` : ''} • ${ag.user?.phone || ag.phone || ''}`,
+      }));
+      const builders = (buildersRes.data?.data || []).map((b) => ({
+        _id: (b.user?._id || b.user || b._id)?.toString(),
+        userId: (b.user?._id || b.user || b._id)?.toString(),
+        builderId: b._id?.toString(),
+        type: 'BUILDER',
+        name: b.contactPerson || b.name || 'Builder',
+        organization: b.name || '',
+        phone: b.contactPhone || b.phone || '',
+        label: `[Builder] ${b.name}${b.contactPerson && b.contactPerson !== b.name ? ` (${b.contactPerson})` : ''} • ${b.contactPhone || b.phone || ''}`,
+      }));
+      return { agents, builders, all: [...agents, ...builders] };
     },
   });
 
-  // Fetch Available Staff Members
-  const { data: staffMembers = [] } = useQuery({
-    queryKey: ['admin-staff-available'],
-    queryFn: async () => {
-      const res = await apiClient.get('/admin/staff?limit=100');
-      return res.data?.data || [];
-    },
-  });
+  const representatives = repData?.all || [];
+  const agents = repData?.agents || [];
+  const builders = repData?.builders || [];
 
   const getRepDetails = (repId) => {
     const id = repId?.toString();
-    const agentMatch = agents.find((a) => (a.user?._id || a.user)?.toString() === id);
-    if (agentMatch) {
+    const repMatch = representatives.find((r) => r._id === id || r.userId === id || r.profileId === id || r.builderId === id);
+    if (repMatch) {
       return {
         id,
-        name: agentMatch.user?.name || agentMatch.agencyName || 'Certified Agent',
-        phone: agentMatch.user?.phone || agentMatch.contactPhone || '',
-        label: agentMatch.agencyName ? `Agent • ${agentMatch.agencyName}` : 'Certified Broker',
-      };
-    }
-    const staffMatch = staffMembers.find((s) => s._id?.toString() === id);
-    if (staffMatch) {
-      return {
-        id,
-        name: staffMatch.name || 'Staff Member',
-        phone: staffMatch.phone || '',
-        label: staffMatch.designation || staffMatch.role || 'Staff',
+        name: repMatch.name,
+        phone: repMatch.phone,
+        label: repMatch.type === 'BUILDER' ? `Builder • ${repMatch.organization || 'Registered Developer'}` : `Agent • ${repMatch.organization || 'Certified Broker'}`,
       };
     }
     return {
       id,
-      name: 'Representative',
+      name: `Representative ${id ? id.slice(-6) : ''}`,
       phone: '',
-      label: 'Staff Member',
+      label: 'Partner',
     };
   };
 
@@ -603,33 +618,29 @@ export const ModerationQueuePage = () => {
                   }}
                   className="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50 focus:bg-white focus:border-teal-600 outline-none"
                 >
-                  <option value="">-- Add another representative (Agent or Staff) --</option>
-                  <optgroup label="🏢 Certified Real Estate Agents">
-                    {agents
-                      .filter((agent) => {
-                        const uId = (agent.user?._id || agent.user)?.toString();
-                        return !selectedAgentIds.includes(uId);
-                      })
-                      .map((agent) => {
-                        const userId = (agent.user?._id || agent.user)?.toString();
-                        const userName = agent.user?.name || agent.agencyName || 'Agent';
-                        const userPhone = agent.user?.phone || agent.contactPhone || '';
-                        return (
-                          <option key={agent._id} value={userId}>
-                            {userName} {agent.agencyName ? `(${agent.agencyName})` : ''} — {userPhone}
+                  <option value="">-- Add another representative (Agent or Builder) --</option>
+                  {agents.length > 0 && (
+                    <optgroup label="🏢 Certified Real Estate Agents">
+                      {agents
+                        .filter((agent) => !selectedAgentIds.includes(agent._id))
+                        .map((agent) => (
+                          <option key={agent._id} value={agent._id}>
+                            {agent.label}
                           </option>
-                        );
-                      })}
-                  </optgroup>
-                  <optgroup label="🛡️ Administrative Staff Members">
-                    {staffMembers
-                      .filter((staff) => !selectedAgentIds.includes(staff._id?.toString()))
-                      .map((staff) => (
-                        <option key={staff._id} value={staff._id}>
-                          {staff.name} ({staff.designation || staff.role}) — {staff.phone || staff.email}
-                        </option>
-                      ))}
-                  </optgroup>
+                        ))}
+                    </optgroup>
+                  )}
+                  {builders.length > 0 && (
+                    <optgroup label="🏗️ Registered Builders & Developers">
+                      {builders
+                        .filter((builder) => !selectedAgentIds.includes(builder._id))
+                        .map((builder) => (
+                          <option key={builder._id} value={builder._id}>
+                            {builder.label}
+                          </option>
+                        ))}
+                    </optgroup>
+                  )}
                 </select>
               </div>
             </div>

@@ -97,6 +97,12 @@ router.patch(
   adminController.updateAllocatedRepresentatives
 );
 
+// Get available representatives (agents & builders) for property allocation
+router.get(
+  '/representatives',
+  adminController.getAvailableRepresentatives
+);
+
 // User Management (Super Admin only)
 router.get(
   '/users',

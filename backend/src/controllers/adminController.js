@@ -823,6 +823,80 @@ const updateAllocatedRepresentatives = async (req, res, next) => {
 };
 
 /**
+ * Get Available Certified Representatives (Verified Agents & Builders) for Property Allocation
+ */
+const getAvailableRepresentatives = async (req, res, next) => {
+  try {
+    const AgentProfile = require('../models/AgentProfile');
+    const Builder = require('../models/Builder');
+
+    // 1. Fetch Verified Agents
+    const agentProfiles = await AgentProfile.find({
+      verificationStatus: 'VERIFIED',
+      isAvailable: true,
+    })
+      .populate('user', 'name phone email avatar status')
+      .sort({ rating: -1, closedDealsCount: -1 });
+
+    const agents = agentProfiles
+      .filter((p) => p.user && p.user.status === 'ACTIVE')
+      .map((p) => {
+        const userId = p.user._id.toString();
+        const name = p.user.name || p.agencyName || 'Certified Agent';
+        const organization = p.agencyName || '';
+        const phone = p.user.phone || '';
+        return {
+          _id: userId,
+          userId,
+          profileId: p._id.toString(),
+          type: 'AGENT',
+          name,
+          organization,
+          phone,
+          email: p.user.email || '',
+          avatar: p.user.avatar || '',
+          label: `[Agent] ${name}${organization ? ` (${organization})` : ''} • ${phone}`,
+        };
+      });
+
+    // 2. Fetch Builders
+    const builderProfiles = await Builder.find()
+      .populate('user', 'name phone email avatar status')
+      .sort({ name: 1 });
+
+    const builders = builderProfiles
+      .filter((b) => !b.user || b.user.status === 'ACTIVE')
+      .map((b) => {
+        const userId = b.user?._id?.toString() || b._id.toString();
+        const orgName = b.name || '';
+        const contact = b.contactPerson || b.user?.name || '';
+        const phone = b.contactPhone || b.user?.phone || '';
+        const displayName = contact || orgName || 'Builder';
+        return {
+          _id: userId,
+          userId,
+          builderId: b._id.toString(),
+          type: 'BUILDER',
+          name: displayName,
+          organization: orgName,
+          phone,
+          email: b.contactEmail || b.user?.email || '',
+          avatar: b.logo || b.user?.avatar || '',
+          label: `[Builder] ${orgName}${contact && contact !== orgName ? ` (${contact})` : ''} • ${phone}`,
+        };
+      });
+
+    return sendSuccess(res, 'Representatives fetched successfully', {
+      agents,
+      builders,
+      all: [...agents, ...builders],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Permanently delete a user (Super Admin only)
  */
 const deleteUser = async (req, res, next) => {
@@ -860,6 +934,7 @@ module.exports = {
   togglePropertyBadges,
   renewListing,
   updateAllocatedRepresentatives,
+  getAvailableRepresentatives,
   getUsers,
   updateUserRoleStatus,
   deleteUser,

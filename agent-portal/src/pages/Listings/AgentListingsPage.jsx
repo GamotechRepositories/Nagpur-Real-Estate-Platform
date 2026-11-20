@@ -17,6 +17,8 @@ import {
   MessageSquare,
   UserCheck,
   Lock,
+  ShieldCheck,
+  Briefcase,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { Badge } from '../../components/common/Badge';
@@ -75,27 +77,74 @@ export const AgentListingsPage = () => {
     return [];
   }, [data]);
 
-  // Real-time status counts across all listings
+  const currentUserId = user?._id?.toString();
+
+  // Inventory source helper functions:
+  // 1. Self Added: Property created/owned by this partner
+  const isSelfAdded = (prop) => {
+    const ownerId = (prop.owner?._id || prop.owner)?.toString();
+    return Boolean(ownerId && currentUserId && ownerId === currentUserId);
+  };
+
+  // 2. Allocated by Admin: Property submitted by direct citizen/user, assigned to this partner
+  const isAllocatedByAdmin = (prop) => {
+    const ownerId = (prop.owner?._id || prop.owner)?.toString();
+    return !ownerId || ownerId !== currentUserId;
+  };
+
+  // Source Filter state: 'ALL' | 'SELF' | 'ALLOCATED'
+  const [sourceFilter, setSourceFilter] = useState('ALL');
+
+  // Real-time counts across inventory sources
+  const sourceCounts = useMemo(() => {
+    let selfCount = 0;
+    let allocatedCount = 0;
+    for (const prop of rawProperties) {
+      if (isSelfAdded(prop)) {
+        selfCount++;
+      } else {
+        allocatedCount++;
+      }
+    }
+    return {
+      ALL: rawProperties.length,
+      SELF: selfCount,
+      ALLOCATED: allocatedCount,
+    };
+  }, [rawProperties, currentUserId]);
+
+  // Intermediate list filtered by inventory source
+  const sourceFilteredProperties = useMemo(() => {
+    if (sourceFilter === 'SELF') {
+      return rawProperties.filter(isSelfAdded);
+    }
+    if (sourceFilter === 'ALLOCATED') {
+      return rawProperties.filter(isAllocatedByAdmin);
+    }
+    return rawProperties;
+  }, [rawProperties, sourceFilter, currentUserId]);
+
+  // Real-time status counts across listings matching the active source
   const statusCounts = useMemo(() => {
     const counts = {
-      ALL: rawProperties.length,
+      ALL: sourceFilteredProperties.length,
       LIVE: 0,
       PENDING_REVIEW: 0,
       REJECTED: 0,
       SOLD: 0,
       EXPIRED: 0,
     };
-    for (const prop of rawProperties) {
+    for (const prop of sourceFilteredProperties) {
       if (counts[prop.status] !== undefined) {
         counts[prop.status]++;
       }
     }
     return counts;
-  }, [rawProperties]);
+  }, [sourceFilteredProperties]);
 
-  // Filter properties instantly client-side for zero-latency, 100% correct status rendering
+  // Filter properties by status and search keyword
   const properties = useMemo(() => {
-    return rawProperties.filter((prop) => {
+    return sourceFilteredProperties.filter((prop) => {
       // 1. Status Filter
       if (activeStatus !== 'ALL') {
         if (prop.status !== activeStatus) return false;
@@ -117,7 +166,7 @@ export const AgentListingsPage = () => {
       }
       return true;
     });
-  }, [rawProperties, activeStatus, searchTerm]);
+  }, [sourceFilteredProperties, activeStatus, searchTerm]);
 
   const totalCount = properties.length;
 
@@ -130,7 +179,7 @@ export const AgentListingsPage = () => {
             My Property Inventory
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Track approval status, moderation notes, and buyer visibility across your Nagpur properties.
+            Track approval status, moderation notes, self-added listings, and direct homeowner properties allocated to you by Admin.
           </p>
         </div>
         <Link
@@ -140,6 +189,69 @@ export const AgentListingsPage = () => {
           <Plus size={16} />
           <span>Post New Property</span>
         </Link>
+      </div>
+
+      {/* Inventory Source Segmented Filter Bar */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-xl w-full sm:w-fit border border-slate-200 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setSourceFilter('ALL')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+            sourceFilter === 'ALL'
+              ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Building2 size={14} className={sourceFilter === 'ALL' ? 'text-teal-600' : 'text-slate-400'} />
+          <span>All Listings</span>
+          <span
+            className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              sourceFilter === 'ALL' ? 'bg-teal-100 text-teal-800' : 'bg-slate-200 text-slate-600'
+            }`}
+          >
+            {sourceCounts.ALL}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSourceFilter('SELF')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+            sourceFilter === 'SELF'
+              ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <UserCheck size={14} className={sourceFilter === 'SELF' ? 'text-blue-600' : 'text-slate-400'} />
+          <span>Self-Added / My Own</span>
+          <span
+            className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              sourceFilter === 'SELF' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'
+            }`}
+          >
+            {sourceCounts.SELF}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSourceFilter('ALLOCATED')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+            sourceFilter === 'ALLOCATED'
+              ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <ShieldCheck size={14} className={sourceFilter === 'ALLOCATED' ? 'text-emerald-600' : 'text-slate-400'} />
+          <span>Allocated by Admin (User Postings)</span>
+          <span
+            className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              sourceFilter === 'ALLOCATED' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+            }`}
+          >
+            {sourceCounts.ALLOCATED}
+          </span>
+        </button>
       </div>
 
       {/* Filter and Search Bar */}
@@ -201,8 +313,12 @@ export const AgentListingsPage = () => {
           <Building2 size={36} className="mx-auto text-slate-300 mb-2" />
           <h3 className="text-sm font-bold text-slate-900">No properties found</h3>
           <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            {activeStatus === 'ALL'
-              ? 'You have not added any properties yet. Click "Post New Property" to add your first listing.'
+            {sourceFilter === 'ALLOCATED'
+              ? 'No properties have been allocated to you by Admin yet. When direct users submit listings, Admin assigns certified partners to handle them.'
+              : sourceFilter === 'SELF'
+              ? 'You have not self-added any properties yet. Click "Post New Property" to add your first listing.'
+              : activeStatus === 'ALL'
+              ? 'You have no properties matching your current filter.'
               : `You have no properties matching status "${activeStatus}".`}
           </p>
           <div className="mt-4">
@@ -252,6 +368,17 @@ export const AgentListingsPage = () => {
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge status={prop.status} size="sm" />
+                        {isAllocatedByAdmin(prop) ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300 shadow-2xs">
+                            <ShieldCheck size={11} className="text-emerald-600" />
+                            <span>Allocated by Admin</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            <Briefcase size={11} className="text-slate-500" />
+                            <span>Self Added</span>
+                          </span>
+                        )}
                         {prop.project && (
                           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
                             <Layers size={11} className="text-teal-600" />
@@ -326,51 +453,59 @@ export const AgentListingsPage = () => {
 
                 {/* Homeowner / Client Details Box (Confidential) */}
                 {(prop.clientSellerDetails?.name || prop.owner) && (
-                  <div className="bg-slate-50 border border-slate-200/90 rounded-lg p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center flex-shrink-0">
-                        <UserCheck size={14} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-slate-900">
-                            {prop.clientSellerDetails?.name || prop.owner?.name || 'Homeowner'}
-                          </span>
-                          <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded font-semibold">
-                            {prop.clientSellerDetails?.name ? 'Private Client' : (prop.owner?.role === 'USER' ? 'Direct User Listing' : 'Partner')}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
-                          <span>Phone: {prop.clientSellerDetails?.phone || prop.owner?.phone || 'N/A'}</span>
-                          {prop.clientSellerDetails?.notes && (
-                            <span className="text-slate-600 italic truncate max-w-xs">
-                              • Note: {prop.clientSellerDetails.notes}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {(prop.clientSellerDetails?.phone || prop.owner?.phone) && (
-                      <div className="flex items-center gap-1.5 self-end sm:self-center">
-                        <a
-                          href={`tel:+91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition"
-                        >
-                          <Phone size={12} className="text-teal-600" />
-                          <span>Call Owner</span>
-                        </a>
-                        <a
-                          href={`https://wa.me/91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-semibold transition"
-                        >
-                          <MessageSquare size={12} className="text-emerald-600" />
-                          <span>WhatsApp</span>
-                        </a>
+                  <div className="bg-slate-50 border border-slate-200/90 rounded-lg p-2.5 space-y-2 text-xs">
+                    {isAllocatedByAdmin(prop) && (
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                        <ShieldCheck size={13} className="text-emerald-600 flex-shrink-0" />
+                        <span>Direct Citizen / Homeowner Listing • Allocated to you by Admin to handle buyer calls & site visits</span>
                       </div>
                     )}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center flex-shrink-0">
+                          <UserCheck size={14} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-slate-900">
+                              {prop.clientSellerDetails?.name || prop.owner?.name || 'Homeowner'}
+                            </span>
+                            <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded font-semibold">
+                              {isAllocatedByAdmin(prop) ? 'Allocated Mandate' : (prop.clientSellerDetails?.name ? 'Private Client' : 'Self Added')}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                            <span>Phone: {prop.clientSellerDetails?.phone || prop.owner?.phone || 'N/A'}</span>
+                            {prop.clientSellerDetails?.notes && (
+                              <span className="text-slate-600 italic truncate max-w-xs">
+                                • Note: {prop.clientSellerDetails.notes}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {(prop.clientSellerDetails?.phone || prop.owner?.phone) && (
+                        <div className="flex items-center gap-1.5 self-end sm:self-center">
+                          <a
+                            href={`tel:+91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition"
+                          >
+                            <Phone size={12} className="text-teal-600" />
+                            <span>Call Owner</span>
+                          </a>
+                          <a
+                            href={`https://wa.me/91${prop.clientSellerDetails?.phone || prop.owner?.phone}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 text-xs font-semibold transition"
+                          >
+                            <MessageSquare size={12} className="text-emerald-600" />
+                            <span>WhatsApp</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 

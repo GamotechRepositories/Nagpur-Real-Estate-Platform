@@ -570,6 +570,8 @@ const getMyProperties = async (req, res, next) => {
         .populate('project', 'name slug reraNumber')
         .populate('locality', 'name slug')
         .populate('owner', 'name phone email role')
+        .populate('assignedAgent', 'name phone email avatar')
+        .populate('assignedAgents', 'name phone email avatar')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(pageSize)

@@ -137,14 +137,47 @@ export const AddPropertyPage = () => {
     },
   });
 
-  // Fetch agents for allocation
-  const { data: agents = [] } = useQuery({
-    queryKey: ['admin-agents-dropdown'],
+  // Fetch certified representatives (verified agents & builders) for allocation
+  const { data: repData } = useQuery({
+    queryKey: ['admin-representatives-dropdown'],
     queryFn: async () => {
-      const res = await apiClient.get('/agents');
-      return res.data?.data || [];
+      try {
+        const res = await apiClient.get('/admin/representatives');
+        if (res.data?.data?.all) return res.data.data;
+      } catch (e) {
+        // fallback below
+      }
+      const [agentsRes, buildersRes] = await Promise.all([
+        apiClient.get('/agents').catch(() => ({ data: { data: [] } })),
+        apiClient.get('/builders').catch(() => ({ data: { data: [] } })),
+      ]);
+      const agents = (agentsRes.data?.data || []).map((ag) => ({
+        _id: (ag.user?._id || ag.user || ag._id)?.toString(),
+        userId: (ag.user?._id || ag.user || ag._id)?.toString(),
+        profileId: ag._id?.toString(),
+        type: 'AGENT',
+        name: ag.user?.name || ag.name || ag.agencyName || 'Certified Agent',
+        organization: ag.agencyName || '',
+        phone: ag.user?.phone || ag.phone || '',
+        label: `[Agent] ${ag.user?.name || ag.name || 'Agent'}${ag.agencyName ? ` (${ag.agencyName})` : ''} • ${ag.user?.phone || ag.phone || ''}`,
+      }));
+      const builders = (buildersRes.data?.data || []).map((b) => ({
+        _id: (b.user?._id || b.user || b._id)?.toString(),
+        userId: (b.user?._id || b.user || b._id)?.toString(),
+        builderId: b._id?.toString(),
+        type: 'BUILDER',
+        name: b.contactPerson || b.name || 'Builder',
+        organization: b.name || '',
+        phone: b.contactPhone || b.phone || '',
+        label: `[Builder] ${b.name}${b.contactPerson && b.contactPerson !== b.name ? ` (${b.contactPerson})` : ''} • ${b.contactPhone || b.phone || ''}`,
+      }));
+      return { agents, builders, all: [...agents, ...builders] };
     },
   });
+
+  const representatives = repData?.all || [];
+  const agentReps = repData?.agents || [];
+  const builderReps = repData?.builders || [];
 
   const [formData, setFormData] = useState({
     title: '',
@@ -1705,7 +1738,7 @@ export const AddPropertyPage = () => {
               </h2>
             </div>
             <span className="text-xs text-slate-500">
-              Inquiries and buyer leads route directly to these partners.
+              Inquiries and buyer leads route directly to these partners (Agents / Builders).
             </span>
           </div>
 
@@ -1713,20 +1746,37 @@ export const AddPropertyPage = () => {
             <select
               value={selectedAgentToAdd}
               onChange={(e) => setSelectedAgentToAdd(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 focus:border-teal-500 focus:outline-none text-xs bg-white"
+              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 focus:border-teal-500 focus:outline-none text-xs bg-white font-medium"
             >
-              <option value="">-- Select Certified Agent / Broker to Allocate --</option>
-              {agents.map((agent) => (
-                <option key={agent._id} value={agent._id}>
-                  {agent.name} {agent.agencyName ? `(${agent.agencyName})` : ''} • {agent.phone}
-                </option>
-              ))}
+              <option value="">-- Select Certified Agent / Builder to Allocate --</option>
+              {agentReps.length > 0 && (
+                <optgroup label="🏢 Certified Real Estate Agents">
+                  {agentReps
+                    .filter((ag) => !formData.assignedAgents.includes(ag._id))
+                    .map((agent) => (
+                      <option key={agent._id} value={agent._id}>
+                        {agent.label}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
+              {builderReps.length > 0 && (
+                <optgroup label="🏗️ Registered Builders & Developers">
+                  {builderReps
+                    .filter((b) => !formData.assignedAgents.includes(b._id))
+                    .map((builder) => (
+                      <option key={builder._id} value={builder._id}>
+                        {builder.label}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
             </select>
             <button
               type="button"
               onClick={handleAddRepresentative}
               disabled={!selectedAgentToAdd}
-              className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+              className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
             >
               <Plus size={14} /> Allocate Partner
             </button>
@@ -1735,32 +1785,45 @@ export const AddPropertyPage = () => {
           {formData.assignedAgents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
               {formData.assignedAgents.map((agentId, idx) => {
-                const agentObj = agents.find((a) => a._id === agentId);
+                const repObj = representatives.find(
+                  (r) => r._id === agentId || r.userId === agentId || r.profileId === agentId || r.builderId === agentId
+                );
                 const isPrimary = idx === 0;
+                const isBuilder = repObj?.type === 'BUILDER';
                 return (
                   <div
                     key={agentId}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs"
+                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs hover:border-slate-300 transition"
                   >
                     <div className="min-w-0 pr-2">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-bold text-slate-900 truncate">
-                          {agentObj ? agentObj.name : `Agent ${agentId.slice(-6)}`}
+                          {repObj ? repObj.name : `Partner ${agentId.slice(-6)}`}
+                        </span>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                            isBuilder
+                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                              : 'bg-teal-100 text-teal-800 border border-teal-200'
+                          }`}
+                        >
+                          {isBuilder ? 'Builder' : 'Agent'}
                         </span>
                         {isPrimary && (
-                          <span className="text-[9px] font-bold text-teal-800 bg-teal-100 px-1 rounded">
+                          <span className="text-[9px] font-bold text-blue-800 bg-blue-100 px-1 rounded">
                             Primary
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500 font-mono truncate">
-                        {agentObj?.agencyName || agentObj?.phone || agentId}
+                      <p className="text-[11px] text-slate-500 font-mono truncate mt-0.5">
+                        {repObj?.organization ? `${repObj.organization} • ` : ''}
+                        {repObj?.phone || agentId}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveRepresentative(agentId)}
-                      className="p-1 rounded text-rose-500 hover:bg-rose-50 transition"
+                      className="p-1 rounded text-rose-500 hover:bg-rose-50 transition cursor-pointer"
                       title="Deallocate"
                     >
                       <X size={14} />

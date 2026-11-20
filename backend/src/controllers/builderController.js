@@ -686,6 +686,8 @@ const getMyProperties = async (req, res, next) => {
     const ownershipFilter = {
       $or: [
         { owner: userId },
+        { assignedAgent: userId },
+        { assignedAgents: userId },
         ...(projectIds.length > 0 ? [{ project: { $in: projectIds } }] : []),
       ],
     };
@@ -713,6 +715,8 @@ const getMyProperties = async (req, res, next) => {
     const properties = await Property.find(propertyFilter)
       .populate('project', 'name slug localityName reraNumber projectStatus')
       .populate('owner', 'name phone email role')
+      .populate('assignedAgent', 'name phone email avatar')
+      .populate('assignedAgents', 'name phone email avatar')
       .sort({ createdAt: -1 })
       .lean();
 

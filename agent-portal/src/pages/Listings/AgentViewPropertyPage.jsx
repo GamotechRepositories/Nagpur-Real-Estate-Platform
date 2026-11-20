@@ -14,9 +14,11 @@ import {
   FileCheck,
   ExternalLink,
   Flame,
+  ShieldCheck,
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { Badge } from '../../components/common/Badge';
+import { useAuthStore } from '../../store/useAuthStore';
 
 export const getFullImageUrl = (url) => {
   if (!url) return '';
@@ -42,6 +44,7 @@ const formatIndianPrice = (price) => {
 export const AgentViewPropertyPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const {
     data: property,
@@ -56,6 +59,13 @@ export const AgentViewPropertyPage = () => {
     },
     enabled: !!id,
   });
+
+  const isAllocatedByAdmin = Boolean(
+    property &&
+    property.owner &&
+    user?._id &&
+    (property.owner._id || property.owner).toString() !== user._id.toString()
+  );
 
   if (isLoading) {
     return (
@@ -176,6 +186,26 @@ export const AgentViewPropertyPage = () => {
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">Condition:</strong> <span className="block text-slate-800 font-bold">{property.condition || 'Ready to Move'}</span></div>
           <div><strong className="text-slate-900 font-semibold uppercase text-[10px]">RERA Reg:</strong> <span className="block font-bold text-teal-800">{property.reraNumber || 'Not Applicable'}</span></div>
         </div>
+
+        {/* Admin Allocated Mandate Banner */}
+        {isAllocatedByAdmin && (
+          <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-800">
+                <ShieldCheck size={18} />
+              </div>
+              <div>
+                <strong className="font-bold text-emerald-900 text-sm">Allocated Direct Homeowner Mandate</strong>
+                <p className="text-[11px] text-emerald-800">
+                  This property was submitted by a citizen/homeowner. Admin has assigned you as the Certified Representative to handle inquiries, coordinate inspections, and close buyer offers.
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded bg-emerald-200/80 font-mono text-[10px] font-bold uppercase text-emerald-950 border border-emerald-300 flex-shrink-0 self-start sm:self-center">
+              Admin Mandate
+            </span>
+          </div>
+        )}
 
         {/* Section 1: Visual Overview & Fast Facts */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
