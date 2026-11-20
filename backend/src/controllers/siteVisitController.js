@@ -130,7 +130,7 @@ const getSiteVisitById = async (req, res, next) => {
 const updateSiteVisit = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status, cancellationReason, feedbackNotes, preferredDate, preferredTimeSlot } = req.body;
+    const { status, cancellationReason, feedbackNotes, preferredDate, preferredTimeSlot, assignedAgent } = req.body;
 
     const visit = await SiteVisit.findById(id).populate('property');
     if (!visit) {
@@ -142,6 +142,7 @@ const updateSiteVisit = async (req, res, next) => {
     if (feedbackNotes !== undefined) visit.feedbackNotes = feedbackNotes;
     if (preferredDate) visit.preferredDate = new Date(preferredDate);
     if (preferredTimeSlot) visit.preferredTimeSlot = preferredTimeSlot;
+    if (assignedAgent) visit.assignedAgent = assignedAgent;
 
     await visit.save();
 

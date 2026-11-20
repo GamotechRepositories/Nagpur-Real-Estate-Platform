@@ -69,7 +69,16 @@ export const SiteVisitDossierPage = () => {
     },
   });
 
-  // 2. Update Status / Feedback Mutation
+  // 2. Fetch Available Agents for reassignment
+  const { data: agents } = useQuery({
+    queryKey: ['available-agents'],
+    queryFn: async () => {
+      const res = await apiClient.get('/agents');
+      return res.data?.data || [];
+    },
+  });
+
+  // 3. Update Status / Feedback Mutation
   const updateMutation = useMutation({
     mutationFn: async ({ status, feedback, reason }) => {
       return apiClient.patch(`/site-visits/${id}`, {
@@ -82,6 +91,17 @@ export const SiteVisitDossierPage = () => {
       queryClient.invalidateQueries(['admin-site-visit-detail', id]);
       queryClient.invalidateQueries(['admin-site-visits']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
+    },
+  });
+
+  // 4. Reassign Agent Mutation
+  const reassignMutation = useMutation({
+    mutationFn: async (agentId) => {
+      return apiClient.patch(`/site-visits/${id}`, { assignedAgent: agentId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-site-visit-detail', id]);
+      queryClient.invalidateQueries(['admin-site-visits']);
     },
   });
 
@@ -180,66 +200,41 @@ export const SiteVisitDossierPage = () => {
             <span>Call (+91 {customerPhone})</span>
           </a>
 
-          {/* Status Action Buttons */}
-          {visit.status === 'REQUESTED' && (
-            <>
-              <button
-                type="button"
-                onClick={() => handleStatusChange('CONFIRMED')}
-                disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
-              >
-                <Check size={14} />
-                <span>Confirm Slot</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleStatusChange('CANCELLED')}
-                disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-700 text-xs font-semibold transition disabled:opacity-50"
-              >
-                <X size={14} />
-                <span>Cancel</span>
-              </button>
-            </>
-          )}
+          {/* Status Dropdown */}
+          <select
+            value={visit.status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            disabled={updateMutation.isPending}
+            className={`px-3 py-1.5 rounded-lg border text-xs font-bold outline-none cursor-pointer shadow-2xs transition-colors ${
+              visit.status === 'CONFIRMED'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300 focus:border-emerald-500'
+                : visit.status === 'COMPLETED'
+                ? 'bg-blue-50 text-blue-800 border-blue-300 focus:border-blue-500'
+                : visit.status === 'CANCELLED'
+                ? 'bg-rose-50 text-rose-800 border-rose-300 focus:border-rose-500'
+                : 'bg-amber-50 text-amber-800 border-amber-300 focus:border-amber-500'
+            }`}
+          >
+            <option value="REQUESTED">Status: Requested</option>
+            <option value="CONFIRMED">Status: Confirmed</option>
+            <option value="COMPLETED">Status: Completed</option>
+            <option value="CANCELLED">Status: Cancelled</option>
+          </select>
 
-          {visit.status === 'CONFIRMED' && (
-            <>
-              <button
-                type="button"
-                onClick={() => handleStatusChange('COMPLETED')}
-                disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
-              >
-                <CheckCircle2 size={14} />
-                <span>Mark as Completed</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleStatusChange('CANCELLED')}
-                disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-700 text-xs font-semibold transition disabled:opacity-50"
-              >
-                <X size={14} />
-                <span>Cancel</span>
-              </button>
-            </>
-          )}
-
-          {visit.status === 'COMPLETED' && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
-              <CheckCircle2 size={14} />
-              <span>Inspection Completed</span>
-            </span>
-          )}
-
-          {visit.status === 'CANCELLED' && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-xs font-bold">
-              <X size={14} />
-              <span>Visit Cancelled</span>
-            </span>
-          )}
+          {/* Reassign Escort Agent Dropdown */}
+          <select
+            value={visit.assignedAgent?._id || ''}
+            onChange={(e) => reassignMutation.mutate(e.target.value)}
+            disabled={reassignMutation.isPending}
+            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-800 outline-none cursor-pointer focus:border-teal-500"
+          >
+            <option value="">Escort: Unassigned</option>
+            {agents?.map((ag) => (
+              <option key={ag._id} value={ag.user?._id || ag._id}>
+                Escort: {ag.user?.name || ag.agencyName}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
