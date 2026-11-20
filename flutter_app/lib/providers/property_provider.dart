@@ -121,9 +121,11 @@ class PropertyProvider with ChangeNotifier {
       _localities = locData.map((l) => LocalityModel.fromJson(l)).toList();
 
       // 4. Projects
-      final projRes = await ApiClient().dio.get('/projects');
-      final projData = projRes.data?['data'] as List<dynamic>? ?? [];
-      _projects = projData.map((pj) => ProjectModel.fromJson(pj)).toList();
+      try {
+        final projRes = await ApiClient().dio.get('/projects');
+        final projData = projRes.data?['data'] as List<dynamic>? ?? [];
+        _projects = projData.map((pj) => ProjectModel.fromJson(pj as Map<String, dynamic>)).toList();
+      } catch (_) {}
 
       // 5. Agents
       final agRes = await ApiClient().dio.get('/agents');

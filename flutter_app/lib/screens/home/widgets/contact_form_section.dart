@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/widgets/whatsapp_icon.dart';
 import '../../../providers/auth_provider.dart';
 
 class ContactFormSection extends StatefulWidget {
@@ -29,13 +30,43 @@ class _ContactFormSectionState extends State<ContactFormSection> {
   bool _isSubmitted = false;
 
   final List<Map<String, String>> _interestOptions = [
-    {'id': 'BUYING', 'label': 'Buy Property', 'icon': '🏠'},
-    {'id': 'SELLING', 'label': 'Sell Property', 'icon': '🏷️'},
-    {'id': 'RENTING', 'label': 'Rent / Lease', 'icon': '🔑'},
-    {'id': 'PLOT_LAND', 'label': 'Plot & Land', 'icon': '📐'},
-    {'id': 'COMMERCIAL', 'label': 'Commercial', 'icon': '🏢'},
-    {'id': 'GENERAL_ADVICE', 'label': 'Advisory', 'icon': '💬'},
+    {
+      'id': 'BUYING',
+      'label': 'Buy Property',
+    },
+    {
+      'id': 'SELLING',
+      'label': 'Sell Property',
+    },
+    {
+      'id': 'RENTING',
+      'label': 'Rent / Lease Property',
+    },
+    {
+      'id': 'PLOT_LAND',
+      'label': 'Plot & Land',
+    },
+    {
+      'id': 'COMMERCIAL',
+      'label': 'Commercial Property',
+    },
+    {
+      'id': 'GENERAL_ADVICE',
+      'label': 'Home Loan & Legal Consultation',
+    },
+    {
+      'id': 'OTHER',
+      'label': 'Other Inquiry',
+    },
   ];
+
+  String _getInterestLabel(String id) {
+    final opt = _interestOptions.firstWhere(
+      (element) => element['id'] == id,
+      orElse: () => {'label': 'Real Estate Inquiry'},
+    );
+    return opt['label'] ?? 'Real Estate Inquiry';
+  }
 
   @override
   void initState() {
@@ -64,6 +95,47 @@ class _ContactFormSectionState extends State<ContactFormSection> {
     _localityController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openWhatsApp() async {
+    const phone = '9876543210';
+    final topic = _getInterestLabel(_selectedInterest);
+    final text = 'Hello ZAMEEN, I am interested in "$topic" in Nagpur. Please provide more information.';
+    final encoded = Uri.encodeComponent(text);
+
+    final appUri = Uri.parse('whatsapp://send?phone=91$phone&text=$encoded');
+    final webUri = Uri.parse('https://wa.me/91$phone?text=$encoded');
+
+    try {
+      if (await canLaunchUrl(appUri)) {
+        await launchUrl(appUri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    } catch (_) {}
+
+    try {
+      if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    } catch (_) {}
+
+    try {
+      await launchUrl(webUri, mode: LaunchMode.platformDefault);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open WhatsApp.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _makePhoneCall() async {
+    final uri = Uri.parse('tel:+919876543210');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
   }
 
   Future<void> _submitForm() async {
@@ -207,11 +279,11 @@ class _ContactFormSectionState extends State<ContactFormSection> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'आमच्याशी संपर्क साधा • Nagpur Real Estate Helpdesk',
+                        'Nagpur Real Estate Helpdesk',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white.withOpacity(0.88),
+                          color: Colors.white.withOpacity(0.9),
                         ),
                       ),
                     ],
@@ -230,74 +302,69 @@ class _ContactFormSectionState extends State<ContactFormSection> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Proper Select Label (Simple English, no emoji)
                         Text(
-                          'I am interested in:',
+                          'I am interested in *',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryText,
                           ),
                         ),
                         const SizedBox(height: 8),
 
-                        // Purpose / Category chips
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _interestOptions.map((opt) {
-                            final isSelected = _selectedInterest == opt['id'];
-                            return InkWell(
-                              onTap: () {
-                                setState(() => _selectedInterest = opt['id']!);
-                              },
-                              borderRadius: BorderRadius.circular(20),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : const Color(0xFFF8FAFC),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? AppColors.primary
-                                        : Colors.grey.shade300,
-                                    width: isSelected ? 1.4 : 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(opt['icon']!, style: const TextStyle(fontSize: 12)),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      opt['label']!,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 11,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : AppColors.primaryText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                        // Proper Select Dropdown Menu
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                            color: const Color(0xFFF8FAFC),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedInterest,
+                              isExpanded: true,
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: AppColors.primary,
+                                size: 24,
                               ),
-                            );
-                          }).toList(),
+                              borderRadius: BorderRadius.circular(14),
+                              dropdownColor: Colors.white,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryText,
+                              ),
+                              items: _interestOptions.map((opt) {
+                                return DropdownMenuItem<String>(
+                                  value: opt['id'],
+                                  child: Text(
+                                    opt['label']!,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.primaryText,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() => _selectedInterest = val);
+                                }
+                              },
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 16),
 
                         // Full Name
                         _buildInputField(
                           controller: _nameController,
-                          label: 'Full Name / पूर्ण नाव *',
+                          label: 'Full Name *',
                           hint: 'Enter your name',
                           icon: Icons.person_outline_rounded,
                           validator: (v) {
@@ -312,7 +379,7 @@ class _ContactFormSectionState extends State<ContactFormSection> {
                         // Phone Number
                         _buildInputField(
                           controller: _phoneController,
-                          label: 'Mobile Number / मोबाईल नंबर *',
+                          label: 'Mobile Number *',
                           hint: '10-digit mobile number',
                           icon: Icons.phone_android_rounded,
                           keyboardType: TextInputType.phone,
@@ -358,7 +425,7 @@ class _ContactFormSectionState extends State<ContactFormSection> {
                         // Message / Requirement
                         _buildInputField(
                           controller: _messageController,
-                          label: 'Requirement / संदेश *',
+                          label: 'Requirement / Message *',
                           hint: 'E.g., Looking for a 2BHK flat near Wardha Road under ₹45 Lakhs...',
                           icon: Icons.edit_note_rounded,
                           maxLines: 3,
@@ -399,7 +466,7 @@ class _ContactFormSectionState extends State<ContactFormSection> {
                                       const Icon(Icons.send_rounded, size: 18, color: Colors.white),
                                       const SizedBox(width: 8),
                                       Text(
-                                        'Submit Inquiry • चौकशी पाठवा',
+                                        'Submit Inquiry',
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
@@ -413,55 +480,59 @@ class _ContactFormSectionState extends State<ContactFormSection> {
 
                         const SizedBox(height: 16),
 
-                        // Quick Help Line / WhatsApp
+                        // Proper WhatsApp & Direct Helpline Call Buttons
                         Row(
                           children: [
+                            // Official Green WhatsApp Button
                             Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  final uri = Uri.parse('https://wa.me/919876543210?text=Hello%20ZAMEEN%2C%20I%20have%20an%20inquiry%20regarding%20Nagpur%20properties.');
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                  }
-                                },
-                                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Color(0xFF0F766E)),
+                              child: ElevatedButton.icon(
+                                onPressed: _openWhatsApp,
+                                icon: const WhatsAppIcon.white(size: 18),
                                 label: Text(
                                   'WhatsApp',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF0F766E),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.teal.shade200),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.whatsappGreen,
+                                  foregroundColor: Colors.white,
+                                  elevation: 1,
+                                  shadowColor: Colors.black.withOpacity(0.2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 10),
+
+                            // Phone Call Button
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  final uri = Uri.parse('tel:+919876543210');
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri);
-                                  }
-                                },
-                                icon: const Icon(Icons.phone_in_talk_rounded, size: 16, color: AppColors.primaryText),
+                                onPressed: _makePhoneCall,
+                                icon: const Icon(
+                                  Icons.phone_in_talk_rounded,
+                                  size: 17,
+                                  color: AppColors.primaryText,
+                                ),
                                 label: Text(
                                   'Call Advisory',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
                                     color: AppColors.primaryText,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey.shade300),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
                               ),
                             ),
@@ -565,7 +636,7 @@ class _ContactFormSectionState extends State<ContactFormSection> {
           ),
           const SizedBox(height: 6),
           Text(
-            'आमच्या ZAMEEN तज्ञांची टीम लवकरच तुमच्याशी संपर्क साधेल.\nOur Nagpur real estate team will call you shortly to assist with your requirement.',
+            'Our Nagpur real estate team will call you shortly to assist with your requirement.',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 12,
               height: 1.4,

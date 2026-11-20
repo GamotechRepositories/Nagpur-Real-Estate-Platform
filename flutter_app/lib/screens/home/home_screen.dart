@@ -43,6 +43,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _appBarOpacity = ValueNotifier<double>(0.0);
+  final ValueNotifier<bool> _isNavbarVisible = ValueNotifier<bool>(true);
+  double _lastOffset = 0.0;
 
   // EMI preview state
   double _previewPrice = 8000000; // 80 Lakhs
@@ -68,9 +70,29 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!_scrollController.hasClients) return;
     final offset = _scrollController.offset;
     final newOpacity = (offset / 80.0).clamp(0.0, 1.0);
-    if (_appBarOpacity.value != newOpacity) {
+    if ((_appBarOpacity.value - newOpacity).abs() > 0.01) {
       _appBarOpacity.value = newOpacity;
     }
+
+    if (offset <= 25) {
+      if (!_isNavbarVisible.value) {
+        _isNavbarVisible.value = true;
+      }
+    } else {
+      final delta = offset - _lastOffset;
+      if (delta > 2) {
+        // Scrolling down (finger swipes up) -> hide total navbar
+        if (_isNavbarVisible.value) {
+          _isNavbarVisible.value = false;
+        }
+      } else if (delta < -2) {
+        // Scrolling up (finger swipes down) -> view total navbar
+        if (!_isNavbarVisible.value) {
+          _isNavbarVisible.value = true;
+        }
+      }
+    }
+    _lastOffset = offset;
   }
 
   @override
@@ -78,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _appBarOpacity.dispose();
+    _isNavbarVisible.dispose();
     super.dispose();
   }
 
@@ -100,88 +123,108 @@ class _HomeScreenState extends State<HomeScreen> {
       extendBodyBehindAppBar: true,
       drawer: const AppDrawer(),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(88),
-        child: ValueListenableBuilder<double>(
-          valueListenable: _appBarOpacity,
-          builder: (context, opacity, _) {
-            final iconColor = Color.lerp(Colors.white, AppColors.primaryText, opacity)!;
-            final badgeBgColor = Color.lerp(Colors.white, AppColors.primaryOrange, opacity)!;
-            final badgeTextColor = Color.lerp(AppColors.primaryGreen, Colors.white, opacity)!;
-
-            return AppBar(
-              backgroundColor: Colors.white.withOpacity(opacity),
-              elevation: opacity > 0.05 ? (opacity * 2.5) : 0,
-              surfaceTintColor: Colors.transparent,
-              shadowColor: Color.fromRGBO(0, 0, 0, opacity * 0.12),
-              toolbarHeight: 88,
-              titleSpacing: 0,
-              systemOverlayStyle: opacity > 0.5
-                  ? const SystemUiOverlayStyle(
-                      statusBarColor: Colors.transparent,
-                      statusBarIconBrightness: Brightness.dark,
-                      statusBarBrightness: Brightness.light,
-                    )
-                  : const SystemUiOverlayStyle(
-                      statusBarColor: Colors.transparent,
-                      statusBarIconBrightness: Brightness.light,
-                      statusBarBrightness: Brightness.dark,
-                    ),
-              title: const BrandLogo(height: 80),
-              iconTheme: IconThemeData(
-                color: iconColor,
-                size: 26,
+        preferredSize: const Size.fromHeight(80),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _isNavbarVisible,
+          builder: (context, isNavbarVisible, child) {
+            return AnimatedSlide(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              offset: isNavbarVisible ? Offset.zero : const Offset(0, -1.3),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeInOut,
+                opacity: isNavbarVisible ? 1.0 : 0.0,
+                child: IgnorePointer(
+                  ignoring: !isNavbarVisible,
+                  child: child!,
+                ),
               ),
-              actions: [
-                // Wishlist Shortcut
-                IconButton(
-                  icon: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Icon(
-                        Icons.favorite_border,
-                        color: iconColor,
-                        size: 26,
+            );
+          },
+          child: ValueListenableBuilder<double>(
+            valueListenable: _appBarOpacity,
+            builder: (context, opacity, _) {
+              final iconColor = Color.lerp(Colors.white, AppColors.primaryText, opacity)!;
+              final badgeBgColor = Color.lerp(Colors.white, AppColors.primaryOrange, opacity)!;
+              final badgeTextColor = Color.lerp(AppColors.primaryGreen, Colors.white, opacity)!;
+
+              return AppBar(
+                backgroundColor: Colors.white.withOpacity(opacity),
+                elevation: opacity > 0.05 ? (opacity * 2.5) : 0,
+                surfaceTintColor: Colors.transparent,
+                shadowColor: Color.fromRGBO(0, 0, 0, opacity * 0.12),
+                toolbarHeight: 80,
+                titleSpacing: 0,
+                centerTitle: true,
+                systemOverlayStyle: opacity > 0.5
+                    ? const SystemUiOverlayStyle(
+                        statusBarColor: Colors.transparent,
+                        statusBarIconBrightness: Brightness.dark,
+                        statusBarBrightness: Brightness.light,
+                      )
+                    : const SystemUiOverlayStyle(
+                        statusBarColor: Colors.transparent,
+                        statusBarIconBrightness: Brightness.light,
+                        statusBarBrightness: Brightness.dark,
                       ),
-                      if (auth.savedPropertyIds.isNotEmpty)
-                        Positioned(
-                          top: -2,
-                          right: -2,
-                          child: Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: badgeBgColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '${auth.savedPropertyIds.length}',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: badgeTextColor,
+                title: const BrandLogo(height: 76),
+                iconTheme: IconThemeData(
+                  color: iconColor,
+                  size: 26,
+                ),
+                actions: [
+                  // Wishlist Shortcut
+                  IconButton(
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          color: iconColor,
+                          size: 26,
+                        ),
+                        if (auth.savedPropertyIds.isNotEmpty)
+                          Positioned(
+                            top: -2,
+                            right: -2,
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: badgeBgColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '${auth.savedPropertyIds.length}',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: badgeTextColor,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
+                    onPressed: () {
+                      if (!auth.isAuthenticated) {
+                        showDialog(
+                          context: context,
+                          builder: (_) => const AuthDialog(),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SavedPropertiesScreen()),
+                        );
+                      }
+                    },
                   ),
-                  onPressed: () {
-                    if (!auth.isAuthenticated) {
-                      showDialog(
-                        context: context,
-                        builder: (_) => const AuthDialog(),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SavedPropertiesScreen()),
-                      );
-                    }
-                  },
-                ),
-                const SizedBox(width: 4),
-              ],
-            );
-          },
+                  const SizedBox(width: 4),
+                ],
+              );
+            },
+          ),
         ),
       ),
       body: RefreshIndicator(
@@ -249,9 +292,13 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         },
-        backgroundColor: AppColors.primaryGreen,
+        backgroundColor: AppColors.primaryOrange,
         foregroundColor: Colors.white,
-        elevation: 3,
+        elevation: 6,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+          side: const BorderSide(color: Colors.white, width: 2),
+        ),
         icon: const Icon(Icons.add, size: 20),
         label: Text(
           'Post Property',
@@ -668,7 +715,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProjectsSection(BuildContext context, PropertyProvider prov) {
     final list = prov.projects;
-    if (list.isEmpty) return const SizedBox.shrink();
+    if (list.isEmpty && !prov.isLoading) return const SizedBox.shrink();
 
     return Container(
       color: Colors.white,
@@ -701,12 +748,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'Featured Projects',
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.primaryText,
+                          Flexible(
+                            child: Text(
+                              'Featured Projects',
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primaryText,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -735,7 +786,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'See All (${list.length})',
+                        list.isNotEmpty ? 'See All (${list.length})' : 'See All',
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -755,14 +806,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 275,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              itemCount: list.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 14),
-              itemBuilder: (context, index) {
+          if (prov.isLoading && list.isEmpty)
+            SizedBox(
+              height: 285,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                itemCount: 2,
+                separatorBuilder: (_, __) => const SizedBox(width: 14),
+                itemBuilder: (_, __) => Container(
+                  width: 275,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.borderGrey),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: AppColors.primaryGreen, strokeWidth: 2),
+                  ),
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              height: 285,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                itemCount: list.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 14),
+                itemBuilder: (context, index) {
                 final proj = list[index];
                 return GestureDetector(
                   onTap: () {
@@ -805,6 +878,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               top: 8,
                               left: 8,
                               child: Container(
+                                constraints: const BoxConstraints(maxWidth: 125),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 7,
                                   vertical: 3.5,
@@ -821,6 +895,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.white,
                                     letterSpacing: 0.3,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
@@ -830,6 +906,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 top: 8,
                                 right: 8,
                                 child: Container(
+                                  constraints: const BoxConstraints(maxWidth: 130),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 6,
                                     vertical: 3,
@@ -847,12 +924,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: AppColors.secondaryGreen,
                                       ),
                                       const SizedBox(width: 3),
-                                      Text(
-                                        proj.reraNumber,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primaryText,
+                                      Flexible(
+                                        child: Text(
+                                          proj.reraNumber,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.primaryText,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
@@ -861,67 +942,75 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                           ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    proj.priceStarting,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.primaryGreen,
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        proj.priceStarting,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.primaryGreen,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    proj.configurationsText,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.secondaryText,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                proj.name,
-                                style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryText,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_on_outlined,
-                                    size: 13,
-                                    color: AppColors.secondaryText,
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Expanded(
-                                    child: Text(
-                                      'By ${proj.builderName} • ${proj.localityName}, Nagpur',
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      proj.configurationsText,
                                       style: GoogleFonts.inter(
-                                        fontSize: 11,
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w600,
                                         color: AppColors.secondaryText,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  proj.name,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryText,
                                   ),
-                                ],
-                              ),
-                            ],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_outlined,
+                                      size: 13,
+                                      color: AppColors.secondaryText,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Expanded(
+                                      child: Text(
+                                        'By ${proj.builderName} • ${proj.localityName}, Nagpur',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          color: AppColors.secondaryText,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -2122,7 +2211,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFooterSection(BuildContext context) {
     return Container(
-      color: AppColors.primaryOrange, // Primary Brand Color Orange (#FF792B)
+      color: const Color(0xFFD95305), // Slightly deeper contrast orange so floating button stands out distinctly
       padding: EdgeInsets.fromLTRB(16, 28, 16, 70 + MediaQuery.of(context).padding.bottom),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

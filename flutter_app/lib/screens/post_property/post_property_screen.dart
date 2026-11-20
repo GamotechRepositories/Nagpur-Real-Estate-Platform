@@ -1419,7 +1419,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
                     const SizedBox(height: 6),
                     Container(
                       height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         color: AppColors.lightGrey,
                         borderRadius: BorderRadius.circular(8),
@@ -1428,15 +1428,22 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            _priceNegotiable ? 'Negotiable' : 'Fixed Price',
-                            style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600),
+                          Expanded(
+                            child: Text(
+                              _priceNegotiable ? 'Negotiable' : 'Fixed Price',
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          Switch(
-                            value: _priceNegotiable,
-                            activeThumbColor: AppColors.primaryGreen,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            onChanged: (v) => setState(() => _priceNegotiable = v),
+                          Transform.scale(
+                            scale: 0.82,
+                            child: Switch(
+                              value: _priceNegotiable,
+                              activeThumbColor: AppColors.primaryGreen,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              onChanged: (v) => setState(() => _priceNegotiable = v),
+                            ),
                           ),
                         ],
                       ),
@@ -1577,7 +1584,7 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
                     const SizedBox(height: 6),
                     Container(
                       height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         color: AppColors.lightGrey,
                         borderRadius: BorderRadius.circular(8),
@@ -1586,15 +1593,22 @@ class _PostPropertyScreenState extends State<PostPropertyScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            _loanAvailable ? 'Loan Available' : 'No Loan',
-                            style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600),
+                          Expanded(
+                            child: Text(
+                              _loanAvailable ? 'Loan Available' : 'No Loan',
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          Switch(
-                            value: _loanAvailable,
-                            activeThumbColor: AppColors.primaryGreen,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            onChanged: (v) => setState(() => _loanAvailable = v),
+                          Transform.scale(
+                            scale: 0.82,
+                            child: Switch(
+                              value: _loanAvailable,
+                              activeThumbColor: AppColors.primaryGreen,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              onChanged: (v) => setState(() => _loanAvailable = v),
+                            ),
                           ),
                         ],
                       ),

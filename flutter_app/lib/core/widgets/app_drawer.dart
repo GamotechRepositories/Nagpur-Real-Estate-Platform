@@ -248,6 +248,23 @@ class AppDrawer extends StatelessWidget {
                     context,
                     icon: Icons.apartment_rounded,
                     title: 'Projects',
+                    subtitle: 'New & Ongoing Township Developments',
+                    badge: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGreen,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
+                      ),
+                      child: Text(
+                        '${propProv.projects.isNotEmpty ? propProv.projects.length : 4} Live',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    ),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -259,18 +276,6 @@ class AppDrawer extends StatelessWidget {
                   const Divider(color: AppColors.borderGrey),
 
                   _buildSectionHeader('DISCOVER & EXPLORE'),
-                  _buildNavTile(
-                    context,
-                    icon: Icons.domain,
-                    title: 'New & Ongoing Projects',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ProjectsListScreen()),
-                      );
-                    },
-                  ),
                   _buildNavTile(
                     context,
                     icon: Icons.support_agent,
@@ -559,18 +564,40 @@ class AppDrawer extends StatelessWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
+    String? subtitle,
+    Widget? badge,
     required VoidCallback onTap,
   }) {
     return ListTile(
       leading: Icon(icon, color: AppColors.primaryGreen, size: 20),
-      title: Text(
-        title,
-        style: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: AppColors.primaryText,
-        ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryText,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (badge != null) ...[
+            const SizedBox(width: 6),
+            badge,
+          ],
+        ],
       ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: AppColors.secondaryText,
+              ),
+            )
+          : null,
       trailing: const Icon(Icons.chevron_right, size: 18, color: AppColors.secondaryText),
       onTap: onTap,
       dense: true,
