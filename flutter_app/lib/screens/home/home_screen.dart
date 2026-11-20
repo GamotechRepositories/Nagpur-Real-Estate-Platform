@@ -18,6 +18,10 @@ import '../../providers/property_provider.dart';
 import '../../models/property_model.dart';
 import '../properties/property_list_screen.dart';
 import '../properties/property_details_screen.dart';
+import '../projects/projects_list_screen.dart';
+import '../projects/project_details_screen.dart';
+import '../../models/project_model.dart';
+import '../../core/widgets/app_network_image.dart';
 import '../localities/locality_details_screen.dart';
 import '../localities/localities_list_screen.dart';
 import '../agents/agents_list_screen.dart';
@@ -50,7 +54,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PropertyProvider>(context, listen: false).fetchHomeData();
+      final prov = Provider.of<PropertyProvider>(context, listen: false);
+      if (prov.properties.isEmpty && !prov.isLoading) {
+        prov.fetchHomeData();
+      }
     });
   }
 
@@ -192,7 +199,10 @@ class _HomeScreenState extends State<HomeScreen> {
               // 2. Featured Properties Section
               _buildFeaturedSection(context, propProv),
 
-              // 3. Popular Localities Showcase
+              // 3. New & Ongoing Projects Section
+              _buildProjectsSection(context, propProv),
+
+              // 4. Popular Localities Showcase
               _buildLocalitiesSection(context, propProv),
 
               // 4. MahaRERA Verified Properties Section
@@ -637,6 +647,276 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: PropertyCard(
                     property: list[index],
                     layout: PropertyCardLayout.grid,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProjectsSection(BuildContext context, PropertyProvider prov) {
+    final list = prov.projects;
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGreen,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(
+                              Icons.apartment_rounded,
+                              size: 16,
+                              color: AppColors.primaryGreen,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Featured Projects',
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primaryText,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'New & Ongoing Developments in Nagpur',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: AppColors.secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProjectsListScreen(),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'See All (${list.length})',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(
+                        Icons.chevron_right,
+                        size: 16,
+                        color: AppColors.primaryGreen,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 275,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: list.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              itemBuilder: (context, index) {
+                final proj = list[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProjectDetailsScreen(project: proj),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 275,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.borderGrey, width: 1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Stack(
+                          children: [
+                            AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: AppNetworkImage(
+                                imageUrl: proj.image,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            // Status Badge
+                            Positioned(
+                              top: 8,
+                              left: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 3.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryGreen,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  proj.projectStatus,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // MahaRERA Badge
+                            if (proj.reraNumber.isNotEmpty)
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.92),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.verified,
+                                        size: 11,
+                                        color: AppColors.secondaryGreen,
+                                      ),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        proj.reraNumber,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.primaryText,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    proj.priceStarting,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primaryGreen,
+                                    ),
+                                  ),
+                                  Text(
+                                    proj.configurationsText,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.secondaryText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                proj.name,
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryText,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.location_on_outlined,
+                                    size: 13,
+                                    color: AppColors.secondaryText,
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Expanded(
+                                    child: Text(
+                                      'By ${proj.builderName} • ${proj.localityName}, Nagpur',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

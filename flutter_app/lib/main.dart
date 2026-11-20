@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/property_provider.dart';
+import 'screens/splash/splash_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/properties/property_list_screen.dart';
 import 'screens/projects/projects_list_screen.dart';
@@ -60,7 +61,7 @@ class NagpurRealtyApp extends StatelessWidget {
         title: 'Zameen',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const HomeScreen(),
+        home: const SplashScreen(),
         routes: {
           '/home': (_) => const HomeScreen(),
           '/properties': (_) => const PropertyListScreen(),

@@ -244,9 +244,21 @@ class AppDrawer extends StatelessWidget {
                       );
                     },
                   ),
+                  _buildNavTile(
+                    context,
+                    icon: Icons.apartment_rounded,
+                    title: 'Projects',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ProjectsListScreen()),
+                      );
+                    },
+                  ),
                   const Divider(color: AppColors.borderGrey),
 
-                  _buildSectionHeader('DISCOVER NAGPUR'),
+                  _buildSectionHeader('DISCOVER & EXPLORE'),
                   _buildNavTile(
                     context,
                     icon: Icons.domain,
