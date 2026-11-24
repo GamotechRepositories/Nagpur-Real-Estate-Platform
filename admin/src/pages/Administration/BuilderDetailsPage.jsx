@@ -394,59 +394,131 @@ export const BuilderDetailsPage = () => {
           </div>
         </div>
 
-        {/* Builder Inventory Breakdown Ribbon */}
-        <div className="pt-3 border-t border-slate-100">
-          <div className="flex items-center justify-between text-xs mb-2">
-            <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-teal-600" />
-              <span>Developer Portfolio & Inventory Breakdown</span>
-            </span>
-            <span className="text-slate-500 font-mono text-[11px]">
-              Portfolio Value: <strong className="text-slate-900">{formatIndianPrice(metrics.totalPortfolioValue || 0)}</strong>
-            </span>
+        {/* Builder Portfolio & Inventory Overview */}
+        <div className="pt-4 border-t border-slate-100/90 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                  Developer Portfolio & Unit Inventory
+                </h3>
+                <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300" />
+                <span className="text-xs text-slate-500 font-medium">
+                  {projects.length} Townships • {listings.length} Units
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Overview of registered townships, posted inventory, and buyer inquiries
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto bg-slate-50 border border-slate-200/90 py-1.5 px-3 rounded-xl shadow-2xs">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                Portfolio Value
+              </span>
+              <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm">
+                {formatIndianPrice(metrics.totalPortfolioValue || 0)}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
-            <div className="p-2.5 rounded-xl bg-teal-50/60 border border-teal-100">
-              <span className="text-[10px] text-teal-800 font-bold uppercase tracking-wider block">Township Projects</span>
-              <span className="text-lg font-black text-teal-900">{projects.length}</span>
-              <span className="text-[10px] text-teal-600/80 block mt-0.5">Approved layouts</span>
+            {/* Township Projects */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Projects</span>
+                <div className="w-6 h-6 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
+                  <Compass className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{projects.length}</span>
+                <span className="text-[10px] text-slate-400">Townships</span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Total Units</span>
-              <span className="text-lg font-black text-slate-800">{listings.length}</span>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Inventory posted</span>
+            {/* Total Units */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Total Units</span>
+                <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+                  <Building2 className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{listings.length}</span>
+                <span className="text-[10px] text-slate-400">Posted</span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
-              <span className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider block">Live on Website</span>
-              <span className="text-lg font-black text-emerald-900">{metrics.liveCount || 0}</span>
-              <span className="text-[10px] text-emerald-600/80 block mt-0.5">Visible to buyers</span>
+            {/* Live on Website */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Live on Web</span>
+                <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{metrics.liveCount || 0}</span>
+                <span className="text-[10px] text-emerald-600 font-medium">Active</span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-100">
-              <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider block">Under Moderation</span>
-              <span className="text-lg font-black text-amber-900">{metrics.pendingReviewCount || 0}</span>
-              <span className="text-[10px] text-amber-600/80 block mt-0.5">In review queue</span>
+            {/* Under Moderation */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Moderation</span>
+                <div className="w-6 h-6 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{metrics.pendingReviewCount || 0}</span>
+                <span className="text-[10px] text-amber-600 font-medium">In Queue</span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-purple-50/60 border border-purple-100">
-              <span className="text-[10px] text-purple-800 font-bold uppercase tracking-wider block">Flats & Apts</span>
-              <span className="text-lg font-black text-purple-900">{metrics.apartmentsCount || 0}</span>
-              <span className="text-[10px] text-purple-600/80 block mt-0.5">High-rise units</span>
+            {/* Flats & Apts */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Flats & Apts</span>
+                <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+                  <Home className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{metrics.apartmentsCount || 0}</span>
+                <span className="text-[10px] text-slate-400">High-Rise</span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100">
-              <span className="text-[10px] text-blue-800 font-bold uppercase tracking-wider block">Commercial</span>
-              <span className="text-lg font-black text-blue-900">{metrics.commercialCount || 0}</span>
-              <span className="text-[10px] text-blue-600/80 block mt-0.5">Retail & Offices</span>
+            {/* Commercial */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Commercial</span>
+                <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+                  <Store className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{metrics.commercialCount || 0}</span>
+                <span className="text-[10px] text-slate-400">Retail/Office</span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-100">
-              <span className="text-[10px] text-indigo-800 font-bold uppercase tracking-wider block">Buyer Leads</span>
-              <span className="text-lg font-black text-indigo-900">{leads.length}</span>
-              <span className="text-[10px] text-indigo-600/80 block mt-0.5">Inquiries received</span>
+            {/* Buyer Leads */}
+            <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-700 mb-1">
+                <span className="text-xs font-semibold truncate">Buyer Leads</span>
+                <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                  <Users2 className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between mt-auto">
+                <span className="text-xl font-bold font-mono text-slate-900">{leads.length}</span>
+                <span className="text-[10px] text-blue-600 font-medium">Inquiries</span>
+              </div>
             </div>
           </div>
         </div>

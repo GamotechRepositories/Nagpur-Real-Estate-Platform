@@ -484,191 +484,398 @@ export const AgentDetailsPage = () => {
           </div>
         </div>
 
-        {/* Inventory Category Breakdown (Plots, Buy, Rent, Commercial) */}
-        <div className="mt-5 pt-5 border-t border-slate-100">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-teal-600" />
-              <span>Agent Inventory Breakdown (Plot / Buy / Rent)</span>
-            </span>
-            <span className="text-xs text-slate-400 font-mono">
-              Total Portfolio: {formatIndianPrice(summary.totalValuation)}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {/* Apartments / Flats */}
-            <div
-              onClick={() => {
-                setActiveTab('listings');
-                setPropertyTypeFilter('APARTMENT');
-                setPurposeFilter('ALL');
-              }}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                propertyTypeFilter === 'APARTMENT'
-                  ? 'bg-purple-500/10 border-purple-500 text-purple-900 shadow-xs'
-                  : 'bg-purple-50/50 border-purple-200/80 hover:bg-purple-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-purple-700 mb-1">
-                <Building2 className="w-4 h-4" />
-                <span className="text-[10px] uppercase font-bold tracking-wider">Apartments</span>
+        {/* Portfolio & Inventory Distribution */}
+        <div className="mt-5 pt-5 border-t border-slate-100/90 space-y-3.5">
+          {/* Header & Total Valuation KPI */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                  Portfolio & Inventory Distribution
+                </h3>
+                <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300" />
+                <span className="text-xs text-slate-500 font-medium">
+                  {listings.length} Total Assigned Properties
+                </span>
               </div>
-              <div className="text-xl font-extrabold text-purple-950 font-mono">
-                {summary.apartments}
-              </div>
-              <span className="text-[10px] text-purple-700/80 font-medium block mt-0.5">
-                Flats & Penthouse
-              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Distribution across property asset classes and listing transaction mandates
+              </p>
             </div>
 
-            {/* Commercial */}
-            <div
-              onClick={() => {
-                setActiveTab('listings');
-                setPropertyTypeFilter('COMMERCIAL');
-                setPurposeFilter('ALL');
-              }}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                propertyTypeFilter === 'COMMERCIAL'
-                  ? 'bg-teal-500/10 border-teal-500 text-teal-900 shadow-xs'
-                  : 'bg-teal-50/50 border-teal-200/80 hover:bg-teal-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-teal-700 mb-1">
-                <Store className="w-4 h-4" />
-                <span className="text-[10px] uppercase font-bold tracking-wider">Commercial</span>
-              </div>
-              <div className="text-xl font-extrabold text-teal-950 font-mono">
-                {summary.commercial}
-              </div>
-              <span className="text-[10px] text-teal-700/80 font-medium block mt-0.5">
-                Offices & Retail
+            <div className="flex items-center gap-2 self-start sm:self-auto bg-slate-50 border border-slate-200/90 py-1.5 px-3 rounded-xl shadow-2xs">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                Portfolio Valuation
               </span>
-            </div>
-
-            {/* Plots Added */}
-            <div
-              onClick={() => {
-                setActiveTab('listings');
-                setPropertyTypeFilter('PLOT');
-                setPurposeFilter('ALL');
-              }}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                propertyTypeFilter === 'PLOT'
-                  ? 'bg-amber-500/10 border-amber-500 text-amber-900 shadow-xs'
-                  : 'bg-amber-50/50 border-amber-200/80 hover:bg-amber-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-amber-700 mb-1">
-                <Compass className="w-4 h-4" />
-                <span className="text-[10px] uppercase font-bold tracking-wider">Plots / Land</span>
-              </div>
-              <div className="text-xl font-extrabold text-amber-950 font-mono">
-                {summary.plots}
-              </div>
-              <span className="text-[10px] text-amber-700/80 font-medium block mt-0.5">
-                Layout / Ag plots
-              </span>
-            </div>
-
-            {/* Villas / Houses */}
-            <div
-              onClick={() => {
-                setActiveTab('listings');
-                setPropertyTypeFilter('VILLA');
-                setPurposeFilter('ALL');
-              }}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                propertyTypeFilter === 'VILLA'
-                  ? 'bg-indigo-500/10 border-indigo-500 text-indigo-900 shadow-xs'
-                  : 'bg-indigo-50/50 border-indigo-200/80 hover:bg-indigo-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-indigo-700 mb-1">
-                <Home className="w-4 h-4" />
-                <span className="text-[10px] uppercase font-bold tracking-wider">Villas / House</span>
-              </div>
-              <div className="text-xl font-extrabold text-indigo-950 font-mono">
-                {summary.villas}
-              </div>
-              <span className="text-[10px] text-indigo-700/80 font-medium block mt-0.5">
-                Bungalow & Row house
-              </span>
-            </div>
-
-            {/* For Sale Properties */}
-            <div
-              onClick={() => {
-                setActiveTab('listings');
-                setPurposeFilter('SALE');
-                setPropertyTypeFilter('ALL');
-              }}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                purposeFilter === 'SALE'
-                  ? 'bg-emerald-500/10 border-emerald-500 text-emerald-900 shadow-xs'
-                  : 'bg-emerald-50/50 border-emerald-200/80 hover:bg-emerald-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-emerald-700 mb-1">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-[10px] uppercase font-bold tracking-wider">For Sale</span>
-              </div>
-              <div className="text-xl font-extrabold text-emerald-950 font-mono">
-                {summary.buySale}
-              </div>
-              <span className="text-[10px] text-emerald-700/80 font-medium block mt-0.5">
-                Outright purchase
-              </span>
-            </div>
-
-            {/* For Rent */}
-            <div
-              onClick={() => {
-                setActiveTab('listings');
-                setPurposeFilter('RENT');
-                setPropertyTypeFilter('ALL');
-              }}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                purposeFilter === 'RENT'
-                  ? 'bg-blue-500/10 border-blue-500 text-blue-900 shadow-xs'
-                  : 'bg-blue-50/50 border-blue-200/80 hover:bg-blue-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-blue-700 mb-1">
-                <Key className="w-4 h-4" />
-                <span className="text-[10px] uppercase font-bold tracking-wider">For Rent</span>
-              </div>
-              <div className="text-xl font-extrabold text-blue-950 font-mono">
-                {summary.rent}
-              </div>
-              <span className="text-[10px] text-blue-700/80 font-medium block mt-0.5">
-                Monthly lease units
+              <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm">
+                {formatIndianPrice(summary.totalValuation)}
               </span>
             </div>
           </div>
-        </div>
 
-        {/* Moderation Status Chips */}
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 flex-wrap text-xs">
-          <span className="text-[11px] font-bold text-slate-500">Live Status:</span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{summary.live} Live on Website</span>
-          </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold text-xs">
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
-            <span>{summary.pending} Under Moderation</span>
-          </span>
-          {summary.rejected > 0 && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 font-semibold text-xs">
-              <XCircle className="w-3.5 h-3.5 text-rose-600" />
-              <span>{summary.rejected} Needs Revision</span>
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 font-semibold text-xs">
-            <span>🎉 {summary.sold} Closed / Sold Deals</span>
-          </span>
+          {/* Segmented Cards: Asset Classes (4) & Listing Mandate (2) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+            {/* Property Asset Classes (8 cols) */}
+            <div className="lg:col-span-8 flex flex-col justify-between space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 px-0.5">
+                <span className="uppercase tracking-wider text-[10px] font-bold text-slate-400">
+                  Property Asset Class
+                </span>
+                {propertyTypeFilter !== 'ALL' && (
+                  <button
+                    type="button"
+                    onClick={() => setPropertyTypeFilter('ALL')}
+                    className="text-teal-700 hover:text-teal-800 text-[11px] font-semibold transition"
+                  >
+                    Reset Type
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {/* Apartments */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setPropertyTypeFilter((prev) => (prev === 'APARTMENT' ? 'ALL' : 'APARTMENT'));
+                    setPurposeFilter('ALL');
+                  }}
+                  className={`group relative text-left p-3 rounded-xl border transition-all duration-150 flex flex-col justify-between ${
+                    propertyTypeFilter === 'APARTMENT' && activeTab === 'listings'
+                      ? 'bg-teal-50/70 border-teal-600 ring-1 ring-teal-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-50/90 border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 truncate">
+                      Apartments
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        propertyTypeFilter === 'APARTMENT' && activeTab === 'listings'
+                          ? 'bg-teal-600 text-white'
+                          : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'
+                      }`}
+                    >
+                      <Building2 className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between mt-auto">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                      {summary.apartments}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Flats</span>
+                  </div>
+                </button>
+
+                {/* Commercial */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setPropertyTypeFilter((prev) => (prev === 'COMMERCIAL' ? 'ALL' : 'COMMERCIAL'));
+                    setPurposeFilter('ALL');
+                  }}
+                  className={`group relative text-left p-3 rounded-xl border transition-all duration-150 flex flex-col justify-between ${
+                    propertyTypeFilter === 'COMMERCIAL' && activeTab === 'listings'
+                      ? 'bg-teal-50/70 border-teal-600 ring-1 ring-teal-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-50/90 border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 truncate">
+                      Commercial
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        propertyTypeFilter === 'COMMERCIAL' && activeTab === 'listings'
+                          ? 'bg-teal-600 text-white'
+                          : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'
+                      }`}
+                    >
+                      <Store className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between mt-auto">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                      {summary.commercial}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Retail / Office</span>
+                  </div>
+                </button>
+
+                {/* Plots / Land */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setPropertyTypeFilter((prev) => (prev === 'PLOT' ? 'ALL' : 'PLOT'));
+                    setPurposeFilter('ALL');
+                  }}
+                  className={`group relative text-left p-3 rounded-xl border transition-all duration-150 flex flex-col justify-between ${
+                    propertyTypeFilter === 'PLOT' && activeTab === 'listings'
+                      ? 'bg-teal-50/70 border-teal-600 ring-1 ring-teal-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-50/90 border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 truncate">
+                      Plots / Land
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        propertyTypeFilter === 'PLOT' && activeTab === 'listings'
+                          ? 'bg-teal-600 text-white'
+                          : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'
+                      }`}
+                    >
+                      <Compass className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between mt-auto">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                      {summary.plots}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Layouts</span>
+                  </div>
+                </button>
+
+                {/* Villas / Houses */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setPropertyTypeFilter((prev) => (prev === 'VILLA' ? 'ALL' : 'VILLA'));
+                    setPurposeFilter('ALL');
+                  }}
+                  className={`group relative text-left p-3 rounded-xl border transition-all duration-150 flex flex-col justify-between ${
+                    propertyTypeFilter === 'VILLA' && activeTab === 'listings'
+                      ? 'bg-teal-50/70 border-teal-600 ring-1 ring-teal-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-50/90 border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 truncate">
+                      Villas / Houses
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        propertyTypeFilter === 'VILLA' && activeTab === 'listings'
+                          ? 'bg-teal-600 text-white'
+                          : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'
+                      }`}
+                    >
+                      <Home className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between mt-auto">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                      {summary.villas}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Independent</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Listing Transaction Mandate (4 cols) */}
+            <div className="lg:col-span-4 flex flex-col justify-between space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 px-0.5">
+                <span className="uppercase tracking-wider text-[10px] font-bold text-slate-400">
+                  Listing Mandate
+                </span>
+                {purposeFilter !== 'ALL' && (
+                  <button
+                    type="button"
+                    onClick={() => setPurposeFilter('ALL')}
+                    className="text-teal-700 hover:text-teal-800 text-[11px] font-semibold transition"
+                  >
+                    Reset Purpose
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* For Sale */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setPurposeFilter((prev) => (prev === 'SALE' ? 'ALL' : 'SALE'));
+                    setPropertyTypeFilter('ALL');
+                  }}
+                  className={`group relative text-left p-3 rounded-xl border transition-all duration-150 flex flex-col justify-between ${
+                    purposeFilter === 'SALE' && activeTab === 'listings'
+                      ? 'bg-emerald-50/70 border-emerald-600 ring-1 ring-emerald-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-50/90 border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 truncate">
+                      For Sale
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        purposeFilter === 'SALE' && activeTab === 'listings'
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100'
+                      }`}
+                    >
+                      <TrendingUp className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between mt-auto">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                      {summary.buySale}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Purchase</span>
+                  </div>
+                </button>
+
+                {/* For Rent */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setPurposeFilter((prev) => (prev === 'RENT' ? 'ALL' : 'RENT'));
+                    setPropertyTypeFilter('ALL');
+                  }}
+                  className={`group relative text-left p-3 rounded-xl border transition-all duration-150 flex flex-col justify-between ${
+                    purposeFilter === 'RENT' && activeTab === 'listings'
+                      ? 'bg-blue-50/70 border-blue-600 ring-1 ring-blue-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-50/90 border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900 truncate">
+                      For Rent
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        purposeFilter === 'RENT' && activeTab === 'listings'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-blue-50 text-blue-700 group-hover:bg-blue-100'
+                      }`}
+                    >
+                      <Key className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between mt-auto">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                      {summary.rent}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">Lease</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Moderation Status Strip */}
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100/90 flex-wrap text-xs">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+                Live Status:
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('listings');
+                  setStatusFilter((prev) => (prev === 'LIVE' ? 'ALL' : 'LIVE'));
+                }}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                  statusFilter === 'LIVE' && activeTab === 'listings'
+                    ? 'bg-emerald-600 text-white shadow-2xs'
+                    : 'bg-emerald-50/70 hover:bg-emerald-100/80 text-emerald-800 border border-emerald-200/80'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    statusFilter === 'LIVE' && activeTab === 'listings' ? 'bg-white' : 'bg-emerald-500'
+                  }`}
+                />
+                <span>{summary.live} Live on Website</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('listings');
+                  setStatusFilter((prev) => (prev === 'PENDING_REVIEW' ? 'ALL' : 'PENDING_REVIEW'));
+                }}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                  statusFilter === 'PENDING_REVIEW' && activeTab === 'listings'
+                    ? 'bg-amber-600 text-white shadow-2xs'
+                    : 'bg-amber-50/70 hover:bg-amber-100/80 text-amber-800 border border-amber-200/80'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    statusFilter === 'PENDING_REVIEW' && activeTab === 'listings' ? 'bg-white' : 'bg-amber-500'
+                  }`}
+                />
+                <span>{summary.pending} Under Moderation</span>
+              </button>
+
+              {summary.rejected > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('listings');
+                    setStatusFilter((prev) => (prev === 'REJECTED' ? 'ALL' : 'REJECTED'));
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                    statusFilter === 'REJECTED' && activeTab === 'listings'
+                      ? 'bg-rose-600 text-white shadow-2xs'
+                      : 'bg-rose-50/70 hover:bg-rose-100/80 text-rose-800 border border-rose-200/80'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      statusFilter === 'REJECTED' && activeTab === 'listings' ? 'bg-white' : 'bg-rose-500'
+                    }`}
+                  />
+                  <span>{summary.rejected} Needs Revision</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('listings');
+                  setStatusFilter((prev) => (prev === 'SOLD' ? 'ALL' : 'SOLD'));
+                }}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                  statusFilter === 'SOLD' && activeTab === 'listings'
+                    ? 'bg-slate-700 text-white shadow-2xs'
+                    : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    statusFilter === 'SOLD' && activeTab === 'listings' ? 'bg-white' : 'bg-slate-500'
+                  }`}
+                />
+                <span>{summary.sold} Closed / Sold Deals</span>
+              </button>
+            </div>
+
+            {(propertyTypeFilter !== 'ALL' || purposeFilter !== 'ALL' || statusFilter !== 'ALL') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPropertyTypeFilter('ALL');
+                  setPurposeFilter('ALL');
+                  setStatusFilter('ALL');
+                }}
+                className="text-xs font-semibold text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 transition"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
